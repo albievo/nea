@@ -1,10 +1,10 @@
-enum Value {
+export enum Value {
   ZERO,
   ONE,
   X
 }
 
-namespace Value {
+export namespace Value {
   export function negate(v: Value): Value {
     switch(v) {
       case Value.ZERO:  return Value.ONE;

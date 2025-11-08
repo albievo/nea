@@ -1,4 +1,5 @@
 import { Netlist } from "./Netlist";
+import { Value } from "./Value";
 
 export abstract class ChipBehaviour {
   abstract kind: string;
