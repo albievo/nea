@@ -17,5 +17,25 @@ describe('primitives behave as intended', () => {
     expect(
       andBehaviour.evaluate([Value.ONE, Value.X])[0]
     ).toEqual(Value.X);
+  });
+
+  test('or primitives behaves as intended', () => {
+    const orBehaviour = new PrimitiveBehaviour('and');
+
+    expect(
+      orBehaviour.evaluate([Value.ONE, Value.ONE])[0]
+    ).toEqual(Value.ONE);
+    expect(
+      orBehaviour.evaluate([Value.ZERO, Value.ONE])[0]
+    ).toEqual(Value.ONE);
+    expect(
+      orBehaviour.evaluate([Value.ONE, Value.ZERO])[0]
+    ).toEqual(Value.ONE);
+    expect(
+      orBehaviour.evaluate([Value.ZERO, Value.ZERO])[0]
+    ).toEqual(Value.ZERO);
+    expect(
+      orBehaviour.evaluate([Value.ONE, Value.X])[0]
+    ).toEqual(Value.X);
   })
 })
