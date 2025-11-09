@@ -35,50 +35,50 @@ describe("setting up netlist", () => {
         NodeType.OUTPUT
       )
     ], [
-      {
-        id: randomUUID(),
-        from: {
+      new Connection(
+        randomUUID(),
+        {
           nodeId: nodeIds[0],
           outputIdx: 0
         },
-        to: {
+        {
           nodeId: nodeIds[2],
           inputIdx: 0
         }
-      },
-      {
-        id: randomUUID(),
-        from: {
+      ),
+      new Connection(
+        randomUUID(),
+        {
           nodeId: nodeIds[1],
           outputIdx: 0
         },
-        to: {
+        {
           nodeId: nodeIds[2],
           inputIdx: 1
         }
-      },
-      {
-        id: randomUUID(),
-        from: {
+      ),
+      new Connection(
+        randomUUID(),
+        {
           nodeId: nodeIds[2],
           outputIdx: 0
         },
-        to: {
+        {
           nodeId: nodeIds[3],
           inputIdx: 0
         }
-      },
-      {
-        id: randomUUID(),
-        from: {
+      ),
+      new Connection(
+        randomUUID(),
+        {
           nodeId: nodeIds[3],
           outputIdx: 0
         },
-        to: {
+        {
           nodeId: nodeIds[4],
           inputIdx: 0
         }
-      }
+      )
     ]);
 
     expect(netlist.getInputNum()).toEqual(2);
@@ -89,17 +89,18 @@ describe("setting up netlist", () => {
     const netlist = new Netlist([], []);
 
     expect(() => {
-      netlist.addConnection({
-        id: randomUUID(),
-        from: {
+      netlist.addConnection(new Connection(
+
+        randomUUID(),
+        {
           nodeId: randomUUID(),
           outputIdx: 0
         },
-        to: {
+        {
           nodeId: randomUUID(),
           inputIdx: 0
         }
-      })
+      ))
     }).toThrow();
   })
 
