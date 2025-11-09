@@ -2,7 +2,6 @@ import { Connection } from "./Connection";
 import { ChipBehaviour } from "./ChipBehaviour";
 import { OutputPin } from "./Pins";
 
-
 export class Netlist {
   private nodes: NetlistNode[];
   private connections: Connection[];
@@ -131,7 +130,7 @@ export class Netlist {
   }
 }
 
-class NetlistNode {
+export class NetlistNode {
   private id: string;
   private type: NodeType;
 
@@ -176,8 +175,13 @@ class NetlistNode {
   }
 }
 
-enum NodeType {
+export enum NodeType {
   INPUT,
   OUTPUT,
   CHIP
+}
+
+export interface nodeSummary {
+  nodeType: NodeType,
+  chipBehaviour?: ChipBehaviour
 }
