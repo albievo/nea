@@ -173,20 +173,11 @@ export class Netlist {
       throw new Error(`input is of length ${input.length} when it should be of ${this.inputNum}`);
     } 
 
-    // create output value array
-    const outputVals = Array(this.outputNum).fill(Value.X);
-
     // reset all stored values
     if (reset) {
       this.nodes.forEach((node) => {
         node.resetInputOutputVals();
       });
-    }
-    // if not reseting, preserve output values incase not changed
-    else {
-      this.outputNodeIds.forEach((outputNodeId, idx) => {
-        outputVals[idx] = this.nodesById.get(outputNodeId)?.getInputVal(0);
-      })
     }
 
     // create signal queue
@@ -213,7 +204,7 @@ export class Netlist {
       // if the signal queue is empty, meaning the algorithm has been completed succesfully
       if (!currentSignal) {
         return {
-          outputValues: outputVals,
+          outputValues: this.getOutputValues(),
           returnReason: 'stable'
         }
       };
@@ -229,18 +220,6 @@ export class Netlist {
 
       // this will update the outputs automatically
       currentSignalToNode.setInputVal(currentSignal.to.inputIdx, currentSignal.value);
-
-      if (currentSignalToNode.getType() === NodeType.OUTPUT) {
-        const outputIdx = this.outputNodeIds.findIndex(
-          output => output === currentSignal.to.nodeId
-        );
-
-        if (outputIdx === -1) {
-          throw new Error("signal is trying to get to an output that doesn't exist");
-        }
-
-        outputVals[outputIdx] = currentSignal.value;
-      }
       
       const newOutputs = currentSignalToNode.getOutputs();
 
@@ -266,9 +245,17 @@ export class Netlist {
     }
 
     return {
-      outputValues: outputVals,
+      outputValues: this.getOutputValues(),
       returnReason: 'max_iterations'
     }
+  }
+
+  private getOutputValues(): Value[] {
+    return Array.from(
+      { length: this.outputNum }, 
+      (_, idx) =>
+        this.nodesById.get(this.outputNodeIds[idx])?.getInputVal(0) ?? Value.X
+      )
   }
 }
 
@@ -336,7 +323,7 @@ export class NetlistNode {
     }
   }
 
-  public getInputVal(inputIdx: number) {
+  public getInputVal(inputIdx: number): Value {
     return this.inputVals[inputIdx];
   }
 
