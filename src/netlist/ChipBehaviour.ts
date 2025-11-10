@@ -100,7 +100,7 @@ const primitiveInformation = new Map<string, {
   .set("and", {
     evaluteFunction: (input: Value[]) => {
     if (input.length !== 2) {
-      throw new Error("not gate must have exactly 2 inputs");
+      throw new Error("and gate must have exactly 2 inputs");
     };
 
     const [a, b] = input;
@@ -111,4 +111,20 @@ const primitiveInformation = new Map<string, {
   },
   inputs: 2,
   outputs: 1
+  })
+
+  .set("nand", {
+    evaluteFunction: (input: Value[]): Value[] => {
+      if (input.length !== 2) {
+        throw new Error("nand gate must have exactly 2 inputs");
+      };
+
+      const [a, b] = input;
+      
+      if (a === Value.X || b === Value.X) return [Value.X];
+
+      return [Value.fromBool(!(a === Value.ONE && b === Value.ONE))]
+    },
+    inputs: 2,
+    outputs: 1
   })
