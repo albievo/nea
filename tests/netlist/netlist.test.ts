@@ -1,7 +1,8 @@
 import { Netlist, NetlistNode, NodeType } from "../../src/netlist/Netlist";
-import { ChipBehaviour, PrimitiveBehaviour } from "../../src/netlist/ChipBehaviour";
+import { PrimitiveBehaviour } from "../../src/netlist/ChipBehaviour";
 import { Connection } from "../../src/netlist/Connection";
-import { nodeSummary } from "../../src/netlist/Netlist";
+import { Value } from "../../src/netlist/Value";
+import { GeneralUtils } from "../../src/utils/GeneralUtils";
 
 import { randomUUID } from "crypto";
 
@@ -123,5 +124,109 @@ describe("setting up netlist", () => {
         new NetlistNode(nodeId, NodeType.CHIP, new PrimitiveBehaviour('and'))
       )
     }).toThrow();
+  })
+})
+
+describe("evaluating a netlist", () => {
+  test("evaluating a static netlist works as intended", () => {
+    const nodeIds = [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+
+    const netlist = new Netlist([
+      new NetlistNode(
+        nodeIds[0],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[1],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[2],
+        NodeType.CHIP,
+        new PrimitiveBehaviour('and')
+      ),
+      new NetlistNode(
+        nodeIds[3],
+        NodeType.CHIP,
+        new PrimitiveBehaviour('not')
+      ),
+      new NetlistNode(
+        nodeIds[4],
+        NodeType.OUTPUT
+      )
+    ], [
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[0],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 0
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[1],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 1
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[2],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[3],
+          inputIdx: 0
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[3],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[4],
+          inputIdx: 0
+        }
+      )
+    ]);
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate([Value.ZERO, Value.ZERO]).outputValues,
+        [Value.ONE]
+      )
+    ).toBeTruthy();
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate([Value.ONE, Value.ZERO]).outputValues,
+        [Value.ONE]
+      )
+    ).toBeTruthy();
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate([Value.ZERO, Value.ONE]).outputValues,
+        [Value.ONE]
+      )
+    ).toBeTruthy();
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate([Value.ONE, Value.ONE]).outputValues,
+        [Value.ZERO]
+      )
+    ).toBeTruthy();
   })
 })

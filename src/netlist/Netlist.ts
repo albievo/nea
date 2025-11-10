@@ -14,14 +14,15 @@ export class Netlist {
   private MAX_ITERATIONS = 1000;
 
   //non-canonical tables to speed up lookups
-  private outputIndex = new Map<OutputPin, Connection[]>;
-  private inputIndex = new Map<InputPin, Connection>;
+  // node id -> pinIdx
+  private outputIndex = new Map<string, Map<number, Connection[]>>;
+  private inputIndex = new Map<string, Map<number, Connection>>;
 
   private inputNodeIds: string[] = [];
   private outputNodeIds: string[] = [];
 
   private nodesById = new Map<string, NetlistNode>();
-  private connectionsById = new Map<string, Connection>;
+  private connectionsById = new Map<string, Connection>();
 
   constructor(nodes: NetlistNode[], connections: Connection[]) {
     this.nodes = nodes;
@@ -85,14 +86,18 @@ export class Netlist {
     const toPinExists = to.inputIdx < toNode.getInputNum();
     if (!toPinExists) return `node with id ${to.nodeId} only has ${fromNode.getInputNum()} inputs, but the connection is reffering to input of index ${to.inputIdx}`;
 
-    const toPinTakenBy = this.inputIndex.get(to);
+    const toPinTakenBy = this.inputIndex
+      .get(to.nodeId)
+      ?.get(to.inputIdx);
     if (toPinTakenBy) return `to pin is already taken by connection with id ${toPinTakenBy.getId()}`;
 
     return null;
   }
 
   private addConnectionToOutputIndex(connection: Connection): void {
-    const existing = this.outputIndex.get(connection.getFrom());
+    const existing = this.outputIndex
+      .get(connection.getFrom().nodeId)
+      ?.get(connection.getFrom().outputIdx);
 
     // if there is already a connection from an output, add it to the list of connections
     if (existing) {
@@ -101,10 +106,15 @@ export class Netlist {
     }
 
     // otherwise, create a new entry for that output
-    this.outputIndex.set(connection.getFrom(), [connection]);
+    const nodeMap = new Map<number, Connection[]>()
+    nodeMap.set(connection.getFrom().outputIdx, [connection])
+
+    this.outputIndex.set(connection.getFrom().nodeId, nodeMap);
   }
   private addConnectionToInputIndex(connection: Connection): void {
-    const existing = this.inputIndex.get(connection.getTo());
+    const existing = this.inputIndex
+      .get(connection.getTo().nodeId)
+      ?.get(connection.getTo().inputIdx);
 
     // if there is already a connection to the input, throw an error
     if (existing) {
@@ -112,7 +122,10 @@ export class Netlist {
     }
 
     // otherwise, create a new entry for that output
-    this.inputIndex.set(connection.getTo(), connection);
+    const nodeMap = new Map<number, Connection>()
+    nodeMap.set(connection.getTo().inputIdx, connection)
+
+    this.inputIndex.set(connection.getFrom().nodeId, nodeMap);
   }
 
   public addNode(node: NetlistNode): void {
@@ -173,13 +186,10 @@ export class Netlist {
     // add all signals from input elements to the queue
     this.inputNodeIds.forEach((nodeId, idx) => {
 
-      const connections = this.outputIndex.get({
-        nodeId: nodeId,
-        outputIdx: 0
-      });
+      const connections = this.outputIndex.get(nodeId)?.get(0);
 
       connections?.forEach(connection => {
-        connection.createSignal(input[idx]);
+        signalQueue.enqueue(connection.createSignal(input[idx]));
       });
     });
 
@@ -232,10 +242,9 @@ export class Netlist {
         }
 
         // get all the connections from this output
-        const connections = this.outputIndex.get({
-          nodeId: currentSignal.to.nodeId,
-          outputIdx: idx
-        });
+        const connections = this.outputIndex
+          .get(currentSignal.to.nodeId)
+          ?.get(idx);
 
         if (!connections) {
           return;
