@@ -168,17 +168,26 @@ export class Netlist {
     return this.outputNum;
   }
 
-  public evaluate(input: Value[]): NetlistOutput {
+  public evaluate(input: Value[], reset: boolean = false): NetlistOutput {
     if (input.length !== this.inputNum) {
       throw new Error(`input is of length ${input.length} when it should be of ${this.inputNum}`);
     } 
 
     // create output value array
     const outputVals = Array(this.outputNum).fill(Value.X);
+
     // reset all stored values
-    this.nodes.forEach((node) => {
-      node.resetInputOutputVals();
-    });
+    if (reset) {
+      this.nodes.forEach((node) => {
+        node.resetInputOutputVals();
+      });
+    }
+    // if not reseting, preserve output values incase not changed
+    else {
+      this.outputNodeIds.forEach((outputNodeId, idx) => {
+        outputVals[idx] = this.nodesById.get(outputNodeId)?.getInputVal(0);
+      })
+    }
 
     // create signal queue
     const signalQueue = new Queue<Signal>();
@@ -326,6 +335,11 @@ export class NetlistNode {
       this.outputVals = this.chipBehaviour!.evaluate(this.inputVals);
     }
   }
+
+  public getInputVal(inputIdx: number) {
+    return this.inputVals[inputIdx];
+  }
+
 
   public getOutputVal(outputIdx: number): Value {
     return this.outputVals[outputIdx];
