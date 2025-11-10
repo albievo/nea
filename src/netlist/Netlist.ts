@@ -41,7 +41,7 @@ export class Netlist {
     this.connections.forEach((connection) => {
       const error = this.validateNewConnection(connection);
       if (error) {
-        throw new Error(error);
+        throw new Error(`failed to create connection ${connection.getId()}: \n ${error}`);
       }
       this.addConnectionToNonCanonicalTables(connection);
     });
@@ -50,7 +50,7 @@ export class Netlist {
   public addConnection(connection: Connection): void {
     const error = this.validateNewConnection(connection);
     if (error) {
-      throw new Error(error);
+      throw new Error(`failed to create connection ${connection.getId()}: \n ${error}`);
     }
 
     this.connections.push(connection);
@@ -125,7 +125,7 @@ export class Netlist {
     const nodeMap = new Map<number, Connection>()
     nodeMap.set(connection.getTo().inputIdx, connection)
 
-    this.inputIndex.set(connection.getFrom().nodeId, nodeMap);
+    this.inputIndex.set(connection.getTo().nodeId, nodeMap);
   }
 
   public addNode(node: NetlistNode): void {
