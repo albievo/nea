@@ -1,7 +1,7 @@
 export enum Value {
-  ZERO,
-  ONE,
-  X
+  ZERO = 0,
+  ONE = 1,
+  X = -1
 }
 
 export namespace Value {
