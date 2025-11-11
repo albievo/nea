@@ -230,7 +230,7 @@ describe("evaluating a netlist", () => {
     ).toBeTruthy();
   });
 
-  test("evaluating a static netlist works as intended", () => {
+  test("evaluating a dynamic netlist works as intended", () => {
     const nodeIds = [
       randomUUID(), // 0: D (input)
       randomUUID(), // 1: WE (input)
@@ -328,5 +328,20 @@ describe("evaluating a netlist", () => {
       )
     ]);
 
+
+    const setTo0 = oneBitRamNetlist.evaluate([Value.ZERO, Value.ONE]);
+
+    expect(setTo0.returnReason).toEqual("stable");
+    expect(setTo0.outputValues[0]).toEqual(Value.ZERO);
+
+    const switchOffWrite = oneBitRamNetlist.evaluate([Value.ZERO, Value.ZERO]);
+
+    expect(switchOffWrite.returnReason).toEqual("stable");
+    expect(switchOffWrite.outputValues[0]).toEqual(Value.ZERO);
+
+    const holding0 = oneBitRamNetlist.evaluate([Value.ONE, Value.ZERO]);
+
+    expect(holding0.returnReason).toEqual("stable");
+    expect(holding0.outputValues[0]).toEqual(Value.ZERO);
   })
 })
