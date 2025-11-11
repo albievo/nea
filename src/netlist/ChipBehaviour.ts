@@ -98,6 +98,7 @@ const primitiveInformation = new Map<string, {
   })
 
   .set("and", {
+    // if any 0 => 0; if all 1 => 1; else X
     evaluteFunction: (input: Value[]) => {
     if (input.length !== 2) {
       throw new Error("and gate must have exactly 2 inputs");
@@ -105,15 +106,17 @@ const primitiveInformation = new Map<string, {
 
     const [a, b] = input;
     
-    if (a === Value.X || b === Value.X) return [Value.X];
+    if (a === Value.ZERO || b === Value.ZERO) return [Value.ZERO];
+    if (a === Value.ONE && b === Value.ONE) return [Value.ONE];
 
-    return [Value.fromBool(a === Value.ONE && b === Value.ONE)]
+    return [Value.X];
   },
   inputs: 2,
   outputs: 1
   })
 
   .set("nand", {
+    // NAND: if any 0 => 1; if all 1 => 0; else X
     evaluteFunction: (input: Value[]): Value[] => {
       if (input.length !== 2) {
         throw new Error("nand gate must have exactly 2 inputs");
@@ -121,9 +124,10 @@ const primitiveInformation = new Map<string, {
 
       const [a, b] = input;
       
-      if (a === Value.X || b === Value.X) return [Value.X];
+      if (a === Value.ZERO || b === Value.ZERO) return [Value.ONE];
+      if (a === Value.ONE && b === Value.ONE) return [Value.ZERO];
 
-      return [Value.fromBool(!(a === Value.ONE && b === Value.ONE))]
+      return [Value.X];
     },
     inputs: 2,
     outputs: 1
