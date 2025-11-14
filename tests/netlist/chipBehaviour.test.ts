@@ -114,8 +114,101 @@ describe('truthtable behaves as intended', () => {
       )
     ]);
 
-    const nand_truthtable = [parseInt('1110', 2)];
+    const nand_truthtable = [parseInt('11100000000000000000000000000000', 2)];
     
     expect(nand_truthtable[0]).toEqual(TruthtableBehaviour.buildTruthtable(nand_netlist)[0]);
+  })
+
+  test('truthtable is correctly generated', () => {
+    const nodeIds = [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+
+    const nand_netlist = new Netlist([
+      new NetlistNode(
+        nodeIds[0],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[1],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[2],
+        NodeType.CHIP,
+        new PrimitiveBehaviour('and')
+      ),
+      new NetlistNode(
+        nodeIds[3],
+        NodeType.CHIP,
+        new PrimitiveBehaviour('not')
+      ),
+      new NetlistNode(
+        nodeIds[4],
+        NodeType.OUTPUT
+      )
+    ], [
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[0],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 0
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[1],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 1
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[2],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[3],
+          inputIdx: 0
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[3],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[4],
+          inputIdx: 0
+        }
+      )
+    ]);
+
+    const nand_truthtable = [parseInt('11100000000000000000000000000000', 2)];
+    const nand_behaviour = new TruthtableBehaviour(nand_truthtable, 2, 1);
+
+    expect(
+        nand_behaviour.evaluate([Value.ZERO, Value.ZERO])[0],
+      ).toEqual(Value.ONE);
+
+    expect(
+        nand_behaviour.evaluate([Value.ONE, Value.ZERO])[0],
+      ).toEqual(Value.ONE);
+
+    expect(
+        nand_behaviour.evaluate([Value.ZERO, Value.ONE])[0],
+      ).toEqual(Value.ONE);
+
+    expect(
+      nand_behaviour.evaluate([Value.ONE, Value.ONE])[0],
+    ).toEqual(Value.ONE);
   })
 })

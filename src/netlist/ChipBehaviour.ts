@@ -8,6 +8,10 @@ export abstract class ChipBehaviour {
   abstract outputs: number;
 
   abstract evaluate(inputs: Value[]): Value[];
+
+  protected generateXOutput() {
+    return Array.from({ length: this.outputs }, () => Value.X)
+  }
 }
 
 export class PrimitiveBehaviour extends ChipBehaviour {
@@ -53,8 +57,49 @@ export class TruthtableBehaviour extends ChipBehaviour {
   }
 
   evaluate(inputs: Value[]): Value[] {
+    let outputStartPos = 0;
+    const output = this.generateXOutput();
+    
+    inputs.forEach((input, inputIdx) => {
+      // if any Xs, return all Xs. Could maybe be improved w/ shortcircuiting?
+      if (input === Value.X) return this.generateXOutput();
+
+      const inputBit = input === Value.ONE ? 1 : 0
+      if (inputBit) {
+        outputStartPos |= 1 << inputIdx
+      }
+    })
+
+    const outputEndPos = outputStartPos + this.outputs - 1;
+
+    const outputStartWord = Math.floor(outputStartPos / 32);
+    const outputEndWord = Math.floor(outputEndPos / 32);
+
+    const outputStartBitIndex = outputStartPos & 31;
+    const outputEndBitIndex = outputEndPos & 31;
+
+    let outputIdx = 0;
+
+    for (let wordIdx = outputStartWord; wordIdx <= outputEndWord; wordIdx++) {
+
+      const word = this.truthtable[wordIdx];
+
+      let startBitIndex = 0;
+      let endBitIndex = 0;
+      if (wordIdx === outputStartWord) startBitIndex = outputStartBitIndex;
+      if (wordIdx === outputEndWord) endBitIndex = outputEndBitIndex;
+
+      for (let bitIndex = startBitIndex; bitIndex <= endBitIndex; bitIndex++) {
+        // index is from left, offset is from right
+        const bitOffset = bitIndex - 31;
+        const bit = (word >>> bitOffset) & 1;
+        const value = Value.fromBool(bit === 1);
+        output[outputIdx] = value;
+        outputIdx += 1;
+      }
+    }
+
     throw new Error("not yet implemented");
-    return [Value.X]
   }
 
   /**
@@ -100,7 +145,7 @@ export class TruthtableBehaviour extends ChipBehaviour {
         // get the position of the relevant bit
         const bitIndex = inputDecimal * outputNum + outputIdx;
         const wordIndex = bitIndex >>> 5; // divides by 32
-        const bitOffset = bitIndex & 31; // mod 32
+        const bitOffset = 31 - (bitIndex & 31); // mod 32
 
         if (bit) {
           // adds a 1 to the relevant position (>>> 0 just left-fills with 0s)
