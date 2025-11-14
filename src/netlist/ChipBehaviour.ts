@@ -60,16 +60,16 @@ export class TruthtableBehaviour extends ChipBehaviour {
     let outputStartPos = 0;
     const output = this.generateXOutput();
     
-    inputs.forEach((input, inputIdx) => {
-      // if any Xs, return all Xs. Could maybe be improved w/ shortcircuiting?
+    for (let inputIdx = 0; inputIdx < inputs.length; inputIdx++) {
+      const input = inputs[inputIdx];
       if (input === Value.X) return this.generateXOutput();
 
-      const inputBit = input === Value.ONE ? 1 : 0
-      if (inputBit) {
-        outputStartPos |= 1 << inputIdx
-      }
-    })
+      const bit = input === Value.ONE ? 1 : 0
 
+      outputStartPos = (outputStartPos << 1) | bit;
+    }
+    
+    outputStartPos *= this.outputs;
     const outputEndPos = outputStartPos + this.outputs - 1;
 
     const outputStartWord = Math.floor(outputStartPos / 32);

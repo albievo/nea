@@ -119,7 +119,7 @@ describe('truthtable behaves as intended', () => {
     expect(nand_truthtable[0]).toEqual(TruthtableBehaviour.buildTruthtable(nand_netlist)[0]);
   })
 
-  test('truthtable is correctly evaluated with 1 output0', () => {
+  test('truthtable is correctly evaluated with 1 output', () => {
     const nand_truthtable = [parseInt('11100000000000000000000000000000', 2)];
     const nand_behaviour = new TruthtableBehaviour(nand_truthtable, 2, 1);
 
@@ -249,5 +249,33 @@ describe('truthtable behaves as intended', () => {
     const and_or_truthtable = [parseInt('00010111000000000000000000000000', 2)];
 
     expect(TruthtableBehaviour.buildTruthtable(and_or_netlist)[0]).toEqual(and_or_truthtable[0])
+  })
+
+  test('truthtable is correctly evaluated with 2 outputs', () => {
+    const and_or_truthtable = new TruthtableBehaviour([parseInt('00010111000000000000000000000000', 2)], 2, 2);
+
+    const zero_zero = and_or_truthtable.evaluate([Value.ZERO, Value.ZERO])
+    expect(zero_zero[0])
+      .toEqual(Value.ZERO);
+    expect(zero_zero[1])
+      .toEqual(Value.ZERO);
+
+    const zero_one = and_or_truthtable.evaluate([Value.ZERO, Value.ONE])
+    expect(zero_one[0])
+      .toEqual(Value.ZERO);
+    expect(zero_one[1])
+      .toEqual(Value.ONE);
+
+    const one_zero = and_or_truthtable.evaluate([Value.ONE, Value.ZERO]);
+    expect(one_zero[0])
+      .toEqual(Value.ZERO);
+    expect(one_zero[1])
+      .toEqual(Value.ONE);
+
+    const one_one = and_or_truthtable.evaluate([Value.ONE, Value.ONE])
+    expect(one_one[0])
+      .toEqual(Value.ONE);
+    expect(one_one[1])
+      .toEqual(Value.ONE);
   })
 })
