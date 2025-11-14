@@ -85,13 +85,13 @@ export class TruthtableBehaviour extends ChipBehaviour {
       const word = this.truthtable[wordIdx];
 
       let startBitIndex = 0;
-      let endBitIndex = 0;
+      let endBitIndex = 31;
       if (wordIdx === outputStartWord) startBitIndex = outputStartBitIndex;
       if (wordIdx === outputEndWord) endBitIndex = outputEndBitIndex;
 
       for (let bitIndex = startBitIndex; bitIndex <= endBitIndex; bitIndex++) {
         // index is from left, offset is from right
-        const bitOffset = bitIndex - 31;
+        const bitOffset = 31 - bitIndex;
         const bit = (word >>> bitOffset) & 1;
         const value = Value.fromBool(bit === 1);
         output[outputIdx] = value;
@@ -99,7 +99,7 @@ export class TruthtableBehaviour extends ChipBehaviour {
       }
     }
 
-    throw new Error("not yet implemented");
+    return output;
   }
 
   /**

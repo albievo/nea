@@ -209,6 +209,6 @@ describe('truthtable behaves as intended', () => {
 
     expect(
       nand_behaviour.evaluate([Value.ONE, Value.ONE])[0],
-    ).toEqual(Value.ONE);
+    ).toEqual(Value.ZERO);
   })
 })
