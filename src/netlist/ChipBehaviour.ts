@@ -60,50 +60,56 @@ export class TruthtableBehaviour extends ChipBehaviour {
   /**
    * Assumes netlist is static
    */
-  static buildTruthtable(netlist: Netlist): number[] {
+  static buildTruthtable(netlist: Netlist): Uint32Array {
     const inputNum = netlist.getInputNum();
     const outputNum = netlist.getOutputNum();
-
-    const truthtable: number[] = [0];
 
     // if would take > 1.25MB 
     if (inputNum > 20) {
       throw new Error('don\'t make a truthtable with more than 20 inputs');
     }
 
-    const maxInputDec = 2**inputNum
-    let bitsDone = 0;
+    const rows = 1 << inputNum; // 2^inputNum
+    const totalBits = rows * outputNum;
+    const words = Math.ceil(totalBits / 32);
+    const table = new Uint32Array(words); // initialised as 0s
 
-    for (let inputDec = 0; inputDec < maxInputDec; inputDec++) {
+    function makeInputs(inputDecimal: number): Value[] {
+      const arr = new Array<Value>(inputNum);
+      
+      for (let input = 0; input < inputNum; input++) {
+        arr[input] = Value.fromBool(((inputDecimal >> input) & 1) === 1);
+      }
+
+      return arr;
+    }
+
+    for (let inputDecimal = 0; inputDecimal < rows; inputDecimal++) {
       // get input array
-      const inputAsString = inputDec.toString(2).split('');
-      const inputs = Array.from(
-        { length: inputNum }, 
-        (_, idx) => Value.fromBool(inputAsString[idx] === '1')
-      );
-
+      const inputs = makeInputs(inputDecimal);
       // get output array
       const outputs = netlist.evaluate(inputs).outputValues;
 
-      // update truthtable based on output array
+      // iterate through output array
       for (let outputIdx = 0; outputIdx < outputNum; outputIdx++) {
+        // convert value to bit
         const bit = outputs[outputIdx] === Value.ONE
           ? 1
           : 0;
 
-        if (bitsDone < 32) {
-          const currentNumber = truthtable[truthtable.length - 1];
-          const newNumber = currentNumber*2 + bit;
-          truthtable[truthtable.length - 1] = newNumber;
-        }
-        else {
-          truthtable.push(bit);
-          bitsDone = 1;
+        // get the position of the relevant bit
+        const bitIndex = inputDecimal * outputNum + outputIdx;
+        const wordIndex = bitIndex >>> 5; // divides by 32
+        const bitOffset = bitIndex & 31; // mod 32
+
+        if (bit) {
+          // adds a 1 to the relevant position (>>> 0 just left-fills with 0s)
+          table[wordIndex] |= (1 << bitOffset) >>> 0;
         }
       }
     }
 
-    return truthtable;
+    return table;
   }
 }
 
