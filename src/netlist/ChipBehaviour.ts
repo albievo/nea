@@ -232,3 +232,20 @@ const primitiveInformation = new Map<string, {
     inputs: 2,
     outputs: 1
   })
+
+  .set("or", {
+    evaluteFunction: (input: Value[]): Value[] => {
+      if (input.length !== 2) {
+        throw new Error("or gate must have exactly 2 inputs");
+      };
+
+      const [a, b] = input;
+      
+      if (a === Value.ONE || b === Value.ONE) return [Value.ONE];
+      if (a === Value.ZERO && b === Value.ZERO) return [Value.ZERO];
+
+      return [Value.X];
+    },
+    inputs: 2,
+    outputs: 1
+  })

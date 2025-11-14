@@ -41,7 +41,7 @@ describe('primitives behave as intended', () => {
 })
 
 describe('truthtable behaves as intended', () => {
-  test('truthtable is correctly generated', () => {
+  test('truthtable is correctly generated with 1 output', () => {
     const nodeIds = [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()];
 
     const nand_netlist = new Netlist([
@@ -119,10 +119,38 @@ describe('truthtable behaves as intended', () => {
     expect(nand_truthtable[0]).toEqual(TruthtableBehaviour.buildTruthtable(nand_netlist)[0]);
   })
 
-  test('truthtable is correctly generated', () => {
-    const nodeIds = [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+  test('truthtable is correctly evaluated with 1 output0', () => {
+    const nand_truthtable = [parseInt('11100000000000000000000000000000', 2)];
+    const nand_behaviour = new TruthtableBehaviour(nand_truthtable, 2, 1);
 
-    const nand_netlist = new Netlist([
+    expect(
+        nand_behaviour.evaluate([Value.ZERO, Value.ZERO])[0],
+      ).toEqual(Value.ONE);
+
+    expect(
+        nand_behaviour.evaluate([Value.ONE, Value.ZERO])[0],
+      ).toEqual(Value.ONE);
+
+    expect(
+        nand_behaviour.evaluate([Value.ZERO, Value.ONE])[0],
+      ).toEqual(Value.ONE);
+
+    expect(
+      nand_behaviour.evaluate([Value.ONE, Value.ONE])[0],
+    ).toEqual(Value.ZERO);
+  })
+
+  test('truthtable is correctly generated with 2 outputs', () => {
+    const nodeIds = [
+      randomUUID(), // input 1
+      randomUUID(), // input 2
+      randomUUID(), // and gate
+      randomUUID(), // or gate
+      randomUUID(), // and output
+      randomUUID()  // or output
+    ];
+
+    const and_or_netlist = new Netlist([
       new NetlistNode(
         nodeIds[0],
         NodeType.INPUT
@@ -139,10 +167,14 @@ describe('truthtable behaves as intended', () => {
       new NetlistNode(
         nodeIds[3],
         NodeType.CHIP,
-        new PrimitiveBehaviour('not')
+        new PrimitiveBehaviour('or')
       ),
       new NetlistNode(
         nodeIds[4],
+        NodeType.OUTPUT
+      ),
+      new NetlistNode(
+        nodeIds[5],
         NodeType.OUTPUT
       )
     ], [
@@ -171,7 +203,7 @@ describe('truthtable behaves as intended', () => {
       new Connection(
         randomUUID(),
         {
-          nodeId: nodeIds[2],
+          nodeId: nodeIds[0],
           outputIdx: 0
         },
         {
@@ -182,33 +214,40 @@ describe('truthtable behaves as intended', () => {
       new Connection(
         randomUUID(),
         {
+          nodeId: nodeIds[1],
+          outputIdx: 0
+        },
+        {
           nodeId: nodeIds[3],
+          inputIdx: 1
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[2],
           outputIdx: 0
         },
         {
           nodeId: nodeIds[4],
           inputIdx: 0
         }
+      ),
+        new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[3],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[5],
+          inputIdx: 0
+        }
       )
     ]);
 
-    const nand_truthtable = [parseInt('11100000000000000000000000000000', 2)];
-    const nand_behaviour = new TruthtableBehaviour(nand_truthtable, 2, 1);
+    const and_or_truthtable = [parseInt('00010111000000000000000000000000', 2)];
 
-    expect(
-        nand_behaviour.evaluate([Value.ZERO, Value.ZERO])[0],
-      ).toEqual(Value.ONE);
-
-    expect(
-        nand_behaviour.evaluate([Value.ONE, Value.ZERO])[0],
-      ).toEqual(Value.ONE);
-
-    expect(
-        nand_behaviour.evaluate([Value.ZERO, Value.ONE])[0],
-      ).toEqual(Value.ONE);
-
-    expect(
-      nand_behaviour.evaluate([Value.ONE, Value.ONE])[0],
-    ).toEqual(Value.ZERO);
+    expect(TruthtableBehaviour.buildTruthtable(and_or_netlist)[0]).toEqual(and_or_truthtable[0])
   })
 })
