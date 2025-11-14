@@ -40,21 +40,70 @@ export class PrimitiveBehaviour extends ChipBehaviour {
 
 export class TruthtableBehaviour extends ChipBehaviour {
   kind = "truthtable";
-  private truthtable: boolean[][];
+  private truthtable: number[];
 
   readonly inputs: number;
   readonly outputs: number;
 
-  constructor(truthtable: boolean[][]) {
+  constructor(truthtable: number[], inputNum: number, outputNum: number) {
     super();
     this.truthtable = truthtable;
-    this.inputs = Math.log2(truthtable.length);
-    this.outputs = truthtable[0].length;
+    this.inputs = inputNum;
+    this.outputs = outputNum;
   }
 
   evaluate(inputs: Value[]): Value[] {
     throw new Error("not yet implemented");
     return [Value.X]
+  }
+
+  /**
+   * Assumes netlist is static
+   */
+  static buildTruthtable(netlist: Netlist): number[] {
+    const inputNum = netlist.getInputNum();
+    const outputNum = netlist.getOutputNum();
+
+    const truthtable: number[] = [0];
+
+    // if would take > 1.25MB 
+    if (inputNum > 20) {
+      throw new Error('don\'t make a truthtable with more than 20 inputs');
+    }
+
+    const maxInputDec = 2**inputNum
+    let bitsDone = 0;
+
+    for (let inputDec = 0; inputDec < maxInputDec; inputDec++) {
+      // get input array
+      const inputAsString = inputDec.toString(2).split('');
+      const inputs = Array.from(
+        { length: inputNum }, 
+        (_, idx) => Value.fromBool(inputAsString[idx] === '1')
+      );
+
+      // get output array
+      const outputs = netlist.evaluate(inputs).outputValues;
+
+      // update truthtable based on output array
+      for (let outputIdx = 0; outputIdx < outputNum; outputIdx++) {
+        const bit = outputs[outputIdx] === Value.ONE
+          ? 1
+          : 0;
+
+        if (bitsDone < 32) {
+          const currentNumber = truthtable[truthtable.length - 1];
+          const newNumber = currentNumber*2 + bit;
+          truthtable[truthtable.length - 1] = newNumber;
+        }
+        else {
+          truthtable.push(bit);
+          bitsDone = 1;
+        }
+      }
+    }
+
+    return truthtable;
   }
 }
 
