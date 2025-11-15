@@ -244,8 +244,6 @@ describe("evaluating a netlist", () => {
 
     const connectionIDs = Array.from({ length: 10 }, () => randomUUID());
 
-    console.log(connectionIDs);
-
     const oneBitRamNetlist = new Netlist([
       // inputs
       new NetlistNode(nodeIds[0], NodeType.INPUT), // D

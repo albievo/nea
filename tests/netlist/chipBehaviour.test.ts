@@ -22,7 +22,7 @@ describe('primitives behave as intended', () => {
     ).toEqual(Value.X);
   });
 
-  test('or primitives behaves as intended', () => {
+  test('not primitives behaves as intended', () => {
     const notBehaviour = new PrimitiveBehaviour('not');
 
     expect(
@@ -37,6 +37,23 @@ describe('primitives behave as intended', () => {
     expect(() => {
       notBehaviour.evaluate([Value.ZERO, Value.ZERO])[0]
     }).toThrow();
+  })
+
+  test('or primitives behaves as intended', () => {
+    const orBehaviour = new PrimitiveBehaviour('or');
+
+    expect(
+      orBehaviour.evaluate([Value.ZERO, Value.ZERO])[0]
+    ).toEqual(Value.ZERO);
+    expect(
+      orBehaviour.evaluate([Value.ZERO, Value.ONE])[0]
+    ).toEqual(Value.ONE);
+    expect(
+      orBehaviour.evaluate([Value.ZERO, Value.X])[0]
+    ).toEqual(Value.X);
+    expect(
+      orBehaviour.evaluate([Value.X, Value.ONE])[0]
+    ).toEqual(Value.ONE);
   })
 })
 
@@ -277,5 +294,25 @@ describe('truthtable behaves as intended', () => {
       .toEqual(Value.ONE);
     expect(one_one[1])
       .toEqual(Value.ONE);
+  })
+
+  test('truthtable is correctly evaluated across words', () => {
+    const truthtableBehaviour = new TruthtableBehaviour(
+      [
+        parseInt('00000000000000000000000010000000', 2),
+        parseInt('00000000000000010000000000000000', 2),
+        parseInt('00000000000000000000000000000000', 2)
+      ],
+      2,
+      24
+    )
+
+    const outputAtZeroOne = truthtableBehaviour.evaluate([Value.ZERO, Value.ONE])
+    expect(outputAtZeroOne[0]).toEqual(Value.ONE);
+    expect(outputAtZeroOne[23]).toEqual(Value.ONE);
+
+    for (let idx = 1; idx < 23; idx++) {
+      expect(outputAtZeroOne[idx]).toEqual(Value.ZERO);
+    }
   })
 })
