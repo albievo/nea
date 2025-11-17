@@ -168,6 +168,22 @@ export class Netlist {
     return this.outputNum;
   }
 
+  private reset() {
+    this.nodes.forEach((node) => {
+      node.resetInputOutputVals();
+    });
+  }
+
+  private enqueueSignalsFromPinWithValue(queue: Queue<Signal>, pin: OutputPin, value: Value): void {
+      const connections = this.outputIndex.
+        get(pin.nodeId)
+        ?.get(pin.outputIdx);
+
+      connections?.forEach(connection => {
+        queue.enqueue(connection.createSignal(value));
+      });
+  }
+
   public evaluate(input: Value[], reset: boolean = false): NetlistOutput {
     if (input.length !== this.inputNum) {
       throw new Error(`input is of length ${input.length} when it should be of ${this.inputNum}`);
@@ -175,9 +191,7 @@ export class Netlist {
 
     // reset all stored values
     if (reset) {
-      this.nodes.forEach((node) => {
-        node.resetInputOutputVals();
-      });
+      this.reset();
     }
 
     // create signal queue
@@ -185,12 +199,11 @@ export class Netlist {
 
     // add all signals from input elements to the queue
     this.inputNodeIds.forEach((nodeId, idx) => {
-
-      const connections = this.outputIndex.get(nodeId)?.get(0);
-
-      connections?.forEach(connection => {
-        signalQueue.enqueue(connection.createSignal(input[idx]));
-      });
+      this.enqueueSignalsFromPinWithValue(
+        signalQueue, 
+        { nodeId, outputIdx: 0 },
+        input[idx]
+      );
     });
 
     let iterations = 0;
@@ -229,18 +242,11 @@ export class Netlist {
           return;
         }
 
-        // get all the connections from this output
-        const connections = this.outputIndex
-          .get(currentSignal.to.nodeId)
-          ?.get(idx);
-
-        if (!connections) {
-          return;
-        }
-
-        connections.forEach(connection => {
-          signalQueue.enqueue(connection.createSignal(value));
-        })
+        this.enqueueSignalsFromPinWithValue(
+          signalQueue,
+          { nodeId: currentSignal.to.nodeId, outputIdx: idx },
+          value
+        )
       })
     }
 
