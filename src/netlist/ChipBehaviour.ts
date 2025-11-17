@@ -174,8 +174,10 @@ export class NetlistBehaviour extends ChipBehaviour {
   }
 
   evaluate(inputs: Value[]): Value[] {
-    throw new Error("not yet implemented");
-    return [Value.X];
+    // currently ignores output reason.
+    // Could maybe do something if due to max iteration? 
+    // but not super important
+    return this.netlist.evaluate(inputs).outputValues;
   }
 }
 
