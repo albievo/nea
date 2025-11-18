@@ -235,7 +235,6 @@ export class Netlist {
       currentSignalToNode.setInputVal(currentSignal.to.inputIdx, currentSignal.value);
       
       const newOutputs = currentSignalToNode.getOutputs();
-
       newOutputs.forEach((value, idx) => {
         // if the output is the same, dont send a signal
         if (value === oldOutputs[idx]) {
