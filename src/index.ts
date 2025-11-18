@@ -4,6 +4,8 @@ import { Netlist } from "./netlist/Netlist";
 import { Grid } from "./rendering/Grid";
 import { InitialGridRenderPayload } from "./rendering/RenderPayloads";
 
+import './index.scss'
+
 const netlist = new Netlist([], [])
 const workingChip = new WorkingChip(netlist)
 const renderManager = new RenderManager(workingChip);

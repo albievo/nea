@@ -31,12 +31,14 @@ export class Grid extends Renderable {
   }
 
   render(payload: AnyRenderPayload): void {
-    if (payload.kind === "initial-grid-render")  {
-      this.initialRender(payload);
+    switch (payload.kind) {
+      case "initial-grid-render": this.initialRender(payload);
     }
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
+    console.log('initial render');
+
     this.$HTMLElem = $('<canvas class="grid"></canvas>');
     $('#canvas-wrapper').append(this.$HTMLElem);
 
@@ -60,6 +62,8 @@ export class Grid extends Renderable {
 
     this.setCtx();
     this.configureHTMLElem();
+
+    this.renderGrid();
   }
 
   private calcCellDimAtMinZoom() {
@@ -74,8 +78,11 @@ export class Grid extends Renderable {
   }
 
   private configureHTMLElem() {
-    this.$HTMLElem!.width(this.canvasDimsPixels.getX());
-    this.$HTMLElem!.height(this.canvasDimsPixels.getY());
+    const canvas = this.$HTMLElem![0] as HTMLCanvasElement;
+
+    // IMPORTANT: set the canvas internal pixel buffer to match devicePixelRatio
+    canvas.width = this.canvasDimsPixels.getX();
+    canvas.height = this.canvasDimsPixels.getY();
   }
 
   private calcCellsVisible() {
@@ -89,8 +96,8 @@ export class Grid extends Renderable {
 
   private calcCanvasDimsPixels(): Vector2 {
     return new Vector2(
-      this.$HTMLElem?.height()! * this.devicePixelRatio,
-      this.$HTMLElem?.width()! * this.devicePixelRatio
+      this.$HTMLElem?.width()! * this.devicePixelRatio,
+      this.$HTMLElem?.height()! * this.devicePixelRatio
     )
   }
 
@@ -124,7 +131,7 @@ export class Grid extends Renderable {
     this.ctx = ctx;
   }
 
-  private renderGrid() {
+  private renderGrid() {    
     const ctx = this.ctx;
 
     //clear the canvas
@@ -137,9 +144,11 @@ export class Grid extends Renderable {
 
     const offset = this.offset.applyFunction(n => (n % 1) * cellDim);
 
-    //draw rows
     ctx.beginPath();
-    for (let row = 0; row < linesToDraw.getX(); row++) {
+
+    //draw rows
+    for (let row = 0; row < linesToDraw.getY(); row++) {
+      console.log(`row ${row}`);
       const rowY = row * cellDim - offset.getX();
 
       ctx.moveTo(0, rowY);
@@ -147,7 +156,8 @@ export class Grid extends Renderable {
     }
 
     //draw columns
-    for (let col: number = 0; col < linesToDraw.getY(); col++) {
+    for (let col: number = 0; col < linesToDraw.getX(); col++) {
+      console.log(`col ${col}`);
       const colX = col * cellDim - offset.getY();
 
       ctx.moveTo(colX, 0);
