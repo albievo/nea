@@ -80,7 +80,6 @@ export class Grid extends Renderable {
       .divide(cellDim);
 
     this.setOffset(newOffset);
-    this.renderGrid();
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
@@ -172,7 +171,9 @@ export class Grid extends Renderable {
     this.ctx = ctx;
   }
 
-  private renderGrid() {    
+  private renderGrid() {
+    console.log("rendering grid");
+    
     const ctx = this.ctx;
 
     //clear the canvas

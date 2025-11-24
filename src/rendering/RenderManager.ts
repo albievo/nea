@@ -21,13 +21,9 @@ export class RenderManager {
     const existing = this.pending.get(id);
     let normalisedPayload: RenderPayload;
 
-    if (payload.movement && (payload.movement.getX() !== 0 || payload.movement.getY() !== 0)) {
-      console.log(payload);
-    }
-
     normalisedPayload = existing
       ? this.mergePayloads(existing, payload)
-      : payload
+      : payload;
     
     this.pending.set(id, normalisedPayload);
 
@@ -59,8 +55,13 @@ export class RenderManager {
         continue;
       }
 
+      console.log(payload);
+
       renderable.render(payload);
     }
+
+    this.pending.clear();
+    this.scheduled = false;
   }
 
   public addRenderable(renderable: Renderable) {
