@@ -78,4 +78,8 @@ export class Vector2 {
   public mult(num: number) {
     return new Vector2(this.x * num, this.y * num);
   }
+
+  public divide(num: number) {
+    return new Vector2(this.x / num, this.y / num);
+  }
 }

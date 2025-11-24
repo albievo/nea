@@ -1,10 +1,6 @@
-export interface RenderPayload {
-  kind: RenderKind;
-}
+import { Vector2 } from "../utils/Vector2";
 
-export interface InitialGridRenderPayload extends RenderPayload {
-  kind: "initial-grid-render";
-
+export interface InitialGridRenderPayload {
   height: number;
   width: number;
   startingZoom: number;
@@ -12,12 +8,10 @@ export interface InitialGridRenderPayload extends RenderPayload {
   zoomCoefficient: number;
 }
 
-export type RenderKind = 
-  "initial-grid-render"
+export interface GridPayload {
+  initial?: InitialGridRenderPayload,
+  movement?: Vector2;
+}
 
-export type RenderPayloadMap = {
-  "initial-grid-render": InitialGridRenderPayload;
-  // add more later
-};
-
-export type AnyRenderPayload = RenderPayloadMap[RenderKind];
+export type RenderPayload = 
+  GridPayload

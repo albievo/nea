@@ -2,14 +2,16 @@ import { Vector2 } from "../utils/Vector2";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Renderable } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { AnyRenderPayload, InitialGridRenderPayload } from "./RenderPayloads";
-import $ from 'jquery';
+import { RenderPayload, GridPayload, InitialGridRenderPayload } from "./RenderPayloads";
+import $, { event } from 'jquery';
 
 export class Grid extends Renderable {
   protected $HTMLElem?: JQuery<HTMLElement>;
   private ctx!: CanvasRenderingContext2D;
 
   private devicePixelRatio = WebpageUtils.calculateDevicePixelRatio();
+
+  private lastMousePos = new Vector2(0, 0);
 
   private height!: number;
   private width!: number;
@@ -30,15 +32,19 @@ export class Grid extends Renderable {
     super(id, renderManager);
   }
 
-  render(payload: AnyRenderPayload): void {
-    switch (payload.kind) {
-      case "initial-grid-render": this.initialRender(payload);
+  render(payload: GridPayload): void {
+    if (payload.initial) {
+      this.initialRender(payload.initial);
     }
+
+    if (payload.movement) {
+      this.move(payload.movement);
+    }
+
+    this.renderGrid();
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
-    console.log('initial render');
-
     this.$HTMLElem = $('<canvas class="grid"></canvas>');
     $('#canvas-wrapper').append(this.$HTMLElem);
 
@@ -63,7 +69,42 @@ export class Grid extends Renderable {
     this.setCtx();
     this.configureHTMLElem();
 
+    this.$HTMLElem.on('mousedown', e => this.handleMouseDown(e));
+  }
+
+  private move(delta: Vector2) {
+    const cellDim = this.calcCellDim();
+
+    const newOffset = this.offset
+      .add(delta)
+      .divide(cellDim);
+
+    this.setOffset(newOffset);
     this.renderGrid();
+  }
+
+  private handleMouseDown(event: JQuery.MouseDownEvent) {
+    this.lastMousePos = new Vector2(
+      event.clientX * this.devicePixelRatio,
+      event.clientY * this.devicePixelRatio
+    );
+
+    this.followMouse();
+  }
+
+  private followMouse() {
+    $(document).on('mousemove.followMouse', e => {
+      if (!(e.clientX && e.clientY)) {
+        return;
+      }
+      
+      const newPos = new Vector2 (e.clientX, e.clientY).mult(this.devicePixelRatio);
+      const delta = newPos.subtract(this.lastMousePos);
+
+      this.lastMousePos = newPos;
+
+      this.renderManager.requestRender(this.id, {movement: delta})
+    })
   }
 
   private calcCellDimAtMinZoom() {
@@ -148,7 +189,6 @@ export class Grid extends Renderable {
 
     //draw rows
     for (let row = 0; row < linesToDraw.getY(); row++) {
-      console.log(`row ${row}`);
       const rowY = row * cellDim - offset.getX();
 
       ctx.moveTo(0, rowY);
@@ -157,7 +197,6 @@ export class Grid extends Renderable {
 
     //draw columns
     for (let col: number = 0; col < linesToDraw.getX(); col++) {
-      console.log(`col ${col}`);
       const colX = col * cellDim - offset.getY();
 
       ctx.moveTo(colX, 0);

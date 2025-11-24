@@ -15,7 +15,6 @@ const gridId = crypto.randomUUID();
 renderManager.addRenderable(new Grid(gridId, renderManager));
 
 const payload: InitialGridRenderPayload = {
-  kind: "initial-grid-render",
   height: 50,
   width: 50,
   startingZoom: 10,
@@ -23,4 +22,4 @@ const payload: InitialGridRenderPayload = {
   zoomCoefficient: 10
 }
 
-renderManager.requestRender(gridId, payload);
+renderManager.requestRender(gridId, {initial: payload});

@@ -1,6 +1,6 @@
 import { Renderable } from "./Renderable";
 import { WorkingChip } from "../application/WorkingChip"
-import { AnyRenderPayload, RenderPayload, RenderPayloadMap } from "./RenderPayloads";
+import { RenderPayload } from "./RenderPayloads";
 
 export class RenderManager {
   private workingChip: WorkingChip
@@ -21,6 +21,10 @@ export class RenderManager {
     const existing = this.pending.get(id);
     let normalisedPayload: RenderPayload;
 
+    if (payload.movement && (payload.movement.getX() !== 0 || payload.movement.getY() !== 0)) {
+      console.log(payload);
+    }
+
     normalisedPayload = existing
       ? this.mergePayloads(existing, payload)
       : payload
@@ -33,12 +37,19 @@ export class RenderManager {
     }
   }
 
-  private mergePayloads(a: RenderPayload, b: RenderPayload): RenderPayload {
-    switch (a.kind) {
-      case "initial-grid-render": throw new Error('cannot merge inital renders');
+  private mergePayloads(original: RenderPayload, toAdd: RenderPayload): RenderPayload {
+    const newPayload: RenderPayload = {}
+
+    if (toAdd.initial) {
+      throw new Error("cannot run an initial render after other renders");
+    }
+    if (toAdd.movement) {
+      newPayload.movement = original.movement
+        ? original.movement.add(toAdd.movement)
+        : toAdd.movement
     }
 
-    throw new Error('merging this render kind not yet implemented');
+    return newPayload;
   }
 
   private flush() {
