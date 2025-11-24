@@ -2,8 +2,8 @@ import { Vector2 } from "../utils/Vector2";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Renderable } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { RenderPayload, GridPayload, InitialGridRenderPayload } from "./RenderPayloads";
-import $, { event } from 'jquery';
+import { GridPayload, InitialGridRenderPayload } from "./RenderPayloads";
+import $ from 'jquery';
 
 export class Grid extends Renderable {
   protected $HTMLElem?: JQuery<HTMLElement>;
@@ -76,7 +76,7 @@ export class Grid extends Renderable {
     const cellDim = this.calcCellDim();
 
     const newOffset = this.offset
-      .add(delta)
+      .subtract(delta)
       .divide(cellDim);
 
     this.setOffset(newOffset);
@@ -172,8 +172,6 @@ export class Grid extends Renderable {
   }
 
   private renderGrid() {
-    console.log("rendering grid");
-    
     const ctx = this.ctx;
 
     //clear the canvas
@@ -190,7 +188,7 @@ export class Grid extends Renderable {
 
     //draw rows
     for (let row = 0; row < linesToDraw.getY(); row++) {
-      const rowY = row * cellDim - offset.getX();
+      const rowY = row * cellDim - offset.getY();
 
       ctx.moveTo(0, rowY);
       ctx.lineTo(this.canvasDimsPixels.getX(), rowY);
@@ -198,7 +196,7 @@ export class Grid extends Renderable {
 
     //draw columns
     for (let col: number = 0; col < linesToDraw.getX(); col++) {
-      const colX = col * cellDim - offset.getY();
+      const colX = col * cellDim - offset.getX();
 
       ctx.moveTo(colX, 0);
       ctx.lineTo(colX, this.canvasDimsPixels.getY());

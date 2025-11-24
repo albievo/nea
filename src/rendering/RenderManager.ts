@@ -34,7 +34,7 @@ export class RenderManager {
   }
 
   private mergePayloads(original: RenderPayload, toAdd: RenderPayload): RenderPayload {
-    const newPayload: RenderPayload = {}
+    const newPayload: RenderPayload = {};
 
     if (toAdd.initial) {
       throw new Error("cannot run an initial render after other renders");
@@ -54,8 +54,6 @@ export class RenderManager {
       if (!renderable) {
         continue;
       }
-
-      console.log(payload);
 
       renderable.render(payload);
     }
