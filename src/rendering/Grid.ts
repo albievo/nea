@@ -27,13 +27,13 @@ export class Grid extends Renderable {
   private cellDimAtMinZoom!: number;
 
   private maxZoom!: number;
-  private minZoom!: number;
+  private minZoom: number = 1;
   
   constructor(id: string, renderManager: RenderManager) {
     super(id, renderManager);
   }
 
-  render(payload: GridPayload): void {
+  public render(payload: GridPayload): void {
     if (payload.initial) {
       this.initialRender(payload.initial);
     }
@@ -106,8 +106,9 @@ export class Grid extends Renderable {
 
     this.setOffset(originalCellCoords.subtract(newMousePosCells));
 
+    console.log(this.zoom, boundedZoom);
+
     this.zoom = boundedZoom;
-    this.renderGrid();
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
