@@ -75,9 +75,10 @@ export class Grid extends Renderable {
   private move(delta: Vector2) {
     const cellDim = this.calcCellDim();
 
+    const deltaInCells = delta.divide(cellDim);
+
     const newOffset = this.offset
-      .subtract(delta)
-      .divide(cellDim);
+      .subtract(deltaInCells);
 
     this.setOffset(newOffset);
   }

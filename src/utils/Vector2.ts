@@ -69,10 +69,10 @@ export class Vector2 {
   }
 
   public applyFunction(func: (n: number) => number) {
-    this.setX(func(this.x));
-    this.setY(func(this.y));
-
-    return this;
+    return new Vector2(
+      func(this.x),
+      func(this.y)
+    );
   }
 
   public mult(num: number) {
