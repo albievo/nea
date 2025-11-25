@@ -2,7 +2,7 @@ import { Vector2 } from "../utils/Vector2";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Renderable } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridPayload, InitialGridRenderPayload } from "./RenderPayloads";
+import { GridPayload, InitialGridRenderPayload, ZoomPayload } from "./RenderPayloads";
 import $ from 'jquery';
 
 export class Grid extends Renderable {
@@ -41,6 +41,10 @@ export class Grid extends Renderable {
     if (payload.movement) {
       this.move(payload.movement);
     }
+    
+    if (payload.zoom) {
+      this.zoomBy(payload.zoom);
+    }
 
     this.renderGrid();
   }
@@ -71,6 +75,7 @@ export class Grid extends Renderable {
     this.configureHTMLElem();
 
     this.$HTMLElem.on('mousedown', e => this.handleMouseDown(e));
+    this.$HTMLElem.on('wheel', e => this.handleWheel(e));
   }
 
   private move(delta: Vector2) {
@@ -84,6 +89,27 @@ export class Grid extends Renderable {
     this.setOffset(newOffset);
   }
 
+  private zoomBy(payload: ZoomPayload) {
+    const oldCellDim = this.calcCellDim();
+
+    const oldMousePosCells = payload.mousePos.divide(oldCellDim);
+
+    // cell co-ords before zoom
+    const originalCellCoords = this.offset.add(oldMousePosCells);
+
+    const rawZoom = this.zoom + payload.delta;
+    const boundedZoom = Math.max(this.minZoom, Math.min(this.maxZoom, rawZoom));
+
+    const newCellDim = this.cellDimAtMinZoom * boundedZoom;
+
+    const newMousePosCells = payload.mousePos.divide(newCellDim);
+
+    this.setOffset(originalCellCoords.subtract(newMousePosCells));
+
+    this.zoom = boundedZoom;
+    this.renderGrid();
+  }
+
   private handleMouseDown(event: JQuery.MouseDownEvent) {
     this.lastMousePos = new Vector2(
       event.clientX * this.devicePixelRatio,
@@ -93,6 +119,20 @@ export class Grid extends Renderable {
     this.followMouse();
     
     this.$HTMLElem?.on('mouseup', () => this.stopFollowingMouse());
+  }
+
+  private handleWheel(event: JQuery.TriggeredEvent) {
+    const DOMEvent = event.originalEvent as WheelEvent;
+
+    const mousePos = new Vector2(
+      DOMEvent.clientX * this.devicePixelRatio,
+      DOMEvent.clientY * this.devicePixelRatio
+    )
+
+    this.renderManager.requestRender(this.id, {zoom: {
+      mousePos: mousePos,
+      delta: DOMEvent.deltaY * this.zoomCoeff
+    }});
   }
 
   private followMouse() {

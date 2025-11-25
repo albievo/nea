@@ -8,9 +8,15 @@ export interface InitialGridRenderPayload {
   zoomCoefficient: number;
 }
 
+export interface ZoomPayload {
+  delta: number;
+  mousePos: Vector2;
+}
+
 export interface GridPayload {
   initial?: InitialGridRenderPayload,
   movement?: Vector2;
+  zoom?: ZoomPayload;
 }
 
 export type RenderPayload = 

@@ -39,10 +39,19 @@ export class RenderManager {
     if (toAdd.initial) {
       throw new Error("cannot run an initial render after other renders");
     }
+    // needs updating for movement after zoom
     if (toAdd.movement) {
       newPayload.movement = original.movement
         ? original.movement.add(toAdd.movement)
         : toAdd.movement
+    }
+    if (toAdd.zoom) {
+      newPayload.zoom = {
+        delta: original.zoom 
+          ? original.zoom.delta + toAdd.zoom.delta
+          : toAdd.zoom.delta,
+        mousePos: toAdd.zoom.mousePos
+      }
     }
 
     return newPayload;
