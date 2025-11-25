@@ -18,6 +18,7 @@ export class Grid extends Renderable {
 
   private canvasDimsPixels!: Vector2;
 
+  // measured in cells
   private offset = new Vector2(0, 0);
 
   private zoom: number = 1;
@@ -62,8 +63,8 @@ export class Grid extends Renderable {
     const currentlyVisible = this.calcCellsVisible();
 
     this.setOffset(new Vector2(
-      this.width - currentlyVisible.getX(),
-      this.height - currentlyVisible.getY()
+      (this.width - currentlyVisible.getX()) / 2,
+      (this.height - currentlyVisible.getY()) / 2
     ));
 
     this.setCtx();
@@ -90,6 +91,8 @@ export class Grid extends Renderable {
     );
 
     this.followMouse();
+    
+    this.$HTMLElem?.on('mouseup', () => this.stopFollowingMouse());
   }
 
   private followMouse() {
@@ -103,8 +106,12 @@ export class Grid extends Renderable {
 
       this.lastMousePos = newPos;
 
-      this.renderManager.requestRender(this.id, {movement: delta})
+      this.renderManager.requestRender(this.id, {movement: delta});
     })
+  }
+
+  private stopFollowingMouse() {
+    $(document).off('mousemove.followMouse');
   }
 
   private calcCellDimAtMinZoom() {
