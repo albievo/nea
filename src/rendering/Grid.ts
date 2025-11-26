@@ -34,21 +34,11 @@ export class Grid extends Renderable {
   }
 
   public render(payload: GridPayload): void {
-    if (payload.initial) {
-      this.initialRender(payload.initial);
-    }
-
-    if (payload.movement) {
-      this.move(payload.movement);
-    }
-    
-    if (payload.zoom) {
-      this.zoomBy(payload.zoom);
-    }
-
-    if (payload.resize) {
-      this.fitToPage();
-    }
+    // could be cleaned up with a renderHandler record, but I like the readability here
+    if (payload.initial) this.initialRender(payload.initial);
+    if (payload.movement) this.move(payload.movement);
+    if (payload.zoom) this.zoomBy(payload.zoom);
+    if (payload.resize) this.fitToPage();
 
     this.renderGrid();
   }
@@ -68,6 +58,7 @@ export class Grid extends Renderable {
 
     // set up canvas rendering context
     this.setCtx();
+    // update values that care about the size of the page
     this.fitToPage();
 
     const currentlyVisible = this.calcCellsVisible();
