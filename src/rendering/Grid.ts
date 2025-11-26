@@ -214,10 +214,6 @@ export class Grid extends Renderable {
   private configureHTMLElem() {
     // make html element into a raw DOM object
     const canvas = this.$HTMLElem![0] as HTMLCanvasElement;
-
-    // set the canvas internal pixel buffer to match devicePixelRatio
-    canvas.width = this.canvasDimsPixels.getX();
-    canvas.height = this.canvasDimsPixels.getY();
   }
 
   /**calculate how many cells you should be able to see right now*/
