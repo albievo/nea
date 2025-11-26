@@ -17,6 +17,7 @@ export interface GridPayload {
   initial?: InitialGridRenderPayload,
   movement?: Vector2;
   zoom?: ZoomPayload;
+  resize?: boolean;
 }
 
 export type RenderPayload = 

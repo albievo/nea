@@ -46,6 +46,10 @@ export class Grid extends Renderable {
       this.zoomBy(payload.zoom);
     }
 
+    if (payload.resize) {
+      this.fitToPage();
+    }
+
     this.renderGrid();
   }
 
@@ -62,9 +66,9 @@ export class Grid extends Renderable {
     this.maxZoom = payload.maxZoom;
     this.zoomCoeff = payload.zoomCoefficient;
 
-    this.cellDimAtMinZoom = this.calcCellDimAtMinZoom();
-
-    this.canvasDimsPixels = this.calcCanvasDimsPixels();
+    // set up canvas rendering context
+    this.setCtx();
+    this.fitToPage();
 
     const currentlyVisible = this.calcCellsVisible();
 
@@ -74,13 +78,12 @@ export class Grid extends Renderable {
       (this.height - currentlyVisible.getY()) / 2
     ));
 
-    // set up canvas rendering context and html element
-    this.setCtx();
     this.configureHTMLElem();
 
     // attach listeners
     this.$HTMLElem.on('mousedown', e => this.handleMouseDown(e));
     this.$HTMLElem.on('wheel', e => this.handleWheel(e));
+    $(window).on('resize', () => this.handleResize());
   }
 
   private move(delta: Vector2) {
@@ -122,6 +125,14 @@ export class Grid extends Renderable {
     this.zoom = boundedZoom;
   }
 
+  private fitToPage() {
+    this.canvasDimsPixels = this.calcCanvasDimsPixels();
+    this.cellDimAtMinZoom = this.calcCellDimAtMinZoom();
+
+    this.ctx.canvas.width = this.canvasDimsPixels.getX();
+    this.ctx.canvas.height = this.canvasDimsPixels.getY();
+  }
+
   private handleMouseDown(event: JQuery.MouseDownEvent) {
     // update last mouse position to where the mouse started the drag
     this.lastMousePos = new Vector2(
@@ -137,7 +148,7 @@ export class Grid extends Renderable {
 
   /**
   Handles on a wheel specifically so that:
-  a) the wheel has an origin location, around which we zoom
+  a) the wheel has an origin location, around which we zoom, and
   b) zooming by touch doesn't really make sense: the action should pan
   */
   private handleWheel(event: JQuery.TriggeredEvent) {
@@ -155,6 +166,10 @@ export class Grid extends Renderable {
       mousePos: mousePos,
       delta: DOMEvent.deltaY * this.zoomCoeff
     }});
+  }
+
+  private handleResize() {
+    this.renderManager.requestRender(this.id, {resize: true});
   }
 
   private followMouse() {

@@ -72,6 +72,9 @@ export class RenderManager {
       }
     }
 
+    // if there is any resizing, new payload should include it
+    newPayload.resize = original.resize || toAdd.resize;
+
     return newPayload;
   }
 
