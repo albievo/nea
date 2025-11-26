@@ -18,18 +18,24 @@ export class RenderManager {
   }
 
   public requestRender(id: string, payload: RenderPayload) {
+    // is there an existing render to be completed for this renderable this frame
     const existing = this.pending.get(id);
     let normalisedPayload: RenderPayload;
 
+    // if there is an existing render, merge it with the newest one
     normalisedPayload = existing
       ? this.mergePayloads(existing, payload)
       : payload;
     
     this.pending.set(id, normalisedPayload);
 
+    this.requestFlush();
+  }
+
+  private requestFlush() {
     if (!this.scheduled) {
       this.scheduled = true;
-      this.flush();
+      requestAnimationFrame(() => this.flush());
     }
   }
 
