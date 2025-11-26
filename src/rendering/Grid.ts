@@ -50,9 +50,11 @@ export class Grid extends Renderable {
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
+    // create HTML element
     this.$HTMLElem = $('<canvas class="grid"></canvas>');
     $('#canvas-wrapper').append(this.$HTMLElem);
 
+    // set relevant values
     this.height = payload.height;
     this.width = payload.width;
 
@@ -66,14 +68,17 @@ export class Grid extends Renderable {
 
     const currentlyVisible = this.calcCellsVisible();
 
+    // set offset so that we are at the centre of the canvas
     this.setOffset(new Vector2(
       (this.width - currentlyVisible.getX()) / 2,
       (this.height - currentlyVisible.getY()) / 2
     ));
 
+    // set up canvas rendering context and html element
     this.setCtx();
     this.configureHTMLElem();
 
+    // attach listeners
     this.$HTMLElem.on('mousedown', e => this.handleMouseDown(e));
     this.$HTMLElem.on('wheel', e => this.handleWheel(e));
   }
@@ -81,8 +86,10 @@ export class Grid extends Renderable {
   private move(delta: Vector2) {
     const cellDim = this.calcCellDim();
 
+    // converts the delta from being in pixels to being in cells
     const deltaInCells = delta.divide(cellDim);
 
+    // calculate the new offset needed
     const newOffset = this.offset
       .subtract(deltaInCells);
 
@@ -90,28 +97,33 @@ export class Grid extends Renderable {
   }
 
   private zoomBy(payload: ZoomPayload) {
+    // dims of cells before the zoom
     const oldCellDim = this.calcCellDim();
 
+    // mouse pos in cells before the zoom (relative to page)
     const oldMousePosCells = payload.mousePos.divide(oldCellDim);
 
-    // cell co-ords before zoom
-    const originalCellCoords = this.offset.add(oldMousePosCells);
+    // mouse pos in cells before the zoom (relative to entire grid) - we want to keep this constant
+    const cellCoords = this.offset.add(oldMousePosCells);
 
+    // calculate tge new zoom
     const rawZoom = this.zoom + payload.delta;
     const boundedZoom = Math.max(this.minZoom, Math.min(this.maxZoom, rawZoom));
 
+    // dims of cells after the zoom
     const newCellDim = this.cellDimAtMinZoom * boundedZoom;
 
+    // calculate where the mouse is in the new cells
     const newMousePosCells = payload.mousePos.divide(newCellDim);
 
-    this.setOffset(originalCellCoords.subtract(newMousePosCells));
-
-    console.log(this.zoom, boundedZoom);
+    // set the offset so the mouse is in the same position relative to the whole grid
+    this.setOffset(cellCoords.subtract(newMousePosCells));
 
     this.zoom = boundedZoom;
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
+    // update last mouse position to where the mouse started the drag
     this.lastMousePos = new Vector2(
       event.clientX * this.devicePixelRatio,
       event.clientY * this.devicePixelRatio
@@ -119,17 +131,26 @@ export class Grid extends Renderable {
 
     this.followMouse();
     
+    // set listener to stop following the mouse
     this.$HTMLElem?.on('mouseup', () => this.stopFollowingMouse());
   }
 
+  /**
+  Handles on a wheel specifically so that:
+  a) the wheel has an origin location, around which we zoom
+  b) zooming by touch doesn't really make sense: the action should pan
+  */
   private handleWheel(event: JQuery.TriggeredEvent) {
+    // get the raw DOM event
     const DOMEvent = event.originalEvent as WheelEvent;
 
+    // get the mouse pos
     const mousePos = new Vector2(
       DOMEvent.clientX * this.devicePixelRatio,
       DOMEvent.clientY * this.devicePixelRatio
     )
-
+    
+    // request the new render
     this.renderManager.requestRender(this.id, {zoom: {
       mousePos: mousePos,
       delta: DOMEvent.deltaY * this.zoomCoeff
@@ -142,9 +163,15 @@ export class Grid extends Renderable {
         return;
       }
       
-      const newPos = new Vector2 (e.clientX, e.clientY).mult(this.devicePixelRatio);
+      // get the new mouse pos
+      const newPos = new Vector2 (
+        e.clientX,
+        e.clientY
+      ).mult(this.devicePixelRatio);
+      // get the vector from the last mouse position to the new one
       const delta = newPos.subtract(this.lastMousePos);
 
+      // update the last mouse position
       this.lastMousePos = newPos;
 
       this.renderManager.requestRender(this.id, {movement: delta});
@@ -155,7 +182,6 @@ export class Grid extends Renderable {
 
   private stopFollowingMouse() {
     $(document).off('mousemove.followMouse');
-
     this.setPointer('grab');
   }
 
@@ -171,13 +197,15 @@ export class Grid extends Renderable {
   }
 
   private configureHTMLElem() {
+    // make html element into a raw DOM object
     const canvas = this.$HTMLElem![0] as HTMLCanvasElement;
 
-    // IMPORTANT: set the canvas internal pixel buffer to match devicePixelRatio
+    // set the canvas internal pixel buffer to match devicePixelRatio
     canvas.width = this.canvasDimsPixels.getX();
     canvas.height = this.canvasDimsPixels.getY();
   }
 
+  /**calculate how many cells you should be able to see right now*/
   private calcCellsVisible() {
     const cellDim = this.calcCellDim()
 
@@ -198,6 +226,7 @@ export class Grid extends Renderable {
     return this.cellDimAtMinZoom * this.zoom;
   }
 
+  /**sets and bounds the offset*/
   private setOffset(offset: Vector2) {
     const currentlyVisible = this.calcCellsVisible();
     const maxXOffset = Math.max(0, this.width - currentlyVisible.getX());
