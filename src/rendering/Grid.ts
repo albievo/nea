@@ -149,10 +149,14 @@ export class Grid extends Renderable {
 
       this.renderManager.requestRender(this.id, {movement: delta});
     })
+
+    this.setPointer('grabbing');
   }
 
   private stopFollowingMouse() {
     $(document).off('mousemove.followMouse');
+
+    this.setPointer('grab');
   }
 
   private calcCellDimAtMinZoom() {
@@ -252,5 +256,13 @@ export class Grid extends Renderable {
     }
     
     ctx.stroke();
+  }
+
+  public setPointer(pointerStyle: string) {
+    if (pointerStyle === "default") {
+      this.$HTMLElem?.css("cursor", "grab");
+    } else {
+      this.$HTMLElem?.css("cursor", pointerStyle);
+    }
   }
 }
