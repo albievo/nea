@@ -1,16 +1,27 @@
 export class Vector2 {
-  protected x: number;
-  protected y: number;
+  private x: number;
+  private y: number;
+  private fixed = false;
 
-  constructor(x: number, y: number) {
+  public static origin = new Vector2(0, 0, true);
+
+  constructor(x: number, y: number, fixed?: boolean) {
     this.x = x;
     this.y = y;
+
+    this.fixed = fixed || false;
   }
 
   public setX(x: number) {
+    if (this.fixed) {
+      throw new Error('cannot edit fixed vectors');
+    }
     this.x = x;
   }
   public setY(y: number) {
+    if (this.fixed) {
+      throw new Error('cannot edit fixed vectors');
+    }
     this.y = y;
   }
 
@@ -50,14 +61,20 @@ export class Vector2 {
   }
 
   public copy() {
-    return new Vector2(this.x, this.y);
+    return new Vector2(this.x, this.y, this.fixed);
   }
 
   public incrementXBy(x: number) {
+    if (this.fixed) {
+      throw new Error('cannot edit fixed vectors');
+    }
     this.x += x;
   }
 
   public incrementYBy(y: number) {
+    if (this.fixed) {
+      throw new Error('cannot edit fixed vectors');
+    }
     this.y += y;
   }
 
