@@ -34,7 +34,6 @@ export class Grid extends Renderable {
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
-    console.log('initial render');
     // create HTML element
     this.$HTMLElem = $('<canvas class="grid"></canvas>');
     $('#canvas-wrapper').append(this.$HTMLElem);
@@ -43,21 +42,12 @@ export class Grid extends Renderable {
     this.height = payload.height;
     this.width = payload.width;
 
-    // this.availabilityMatrix = GeneralUtils.createMatrixOfVals<CellTakenBy>
-    //   (() => ({}), this.height, this.width);
     // set up canvas rendering context
     this.setCtx();
     // update values that care about the size of the page
     this.fitToPage();
 
-    // // set offset so that we are at the centre of the canvas
-    // this.setOffset(new Vector2(
-    //   (this.width - currentlyVisible.getX()) / 2,
-    //   (this.height - currentlyVisible.getY()) / 2
-    // ));
-
     // attach listeners
-    // this.$HTMLElem.on('mousedown', e => this.handleMouseDown(e));
     $(document).on('wheel', () => this.handleWheel());
     $(window).on('resize', () => this.handleResize());
   }
@@ -112,19 +102,6 @@ export class Grid extends Renderable {
     this.ctx.canvas.width = this.canvasDimsPixels.getX();
     this.ctx.canvas.height = this.canvasDimsPixels.getY();
   }
-
-  // private handleMouseDown(event: JQuery.MouseDownEvent) {
-  //   // update last mouse position to where the mouse started the drag
-  //   this.lastMousePos = new Vector2(
-  //     event.clientX * this.devicePixelRatio,
-  //     event.clientY * this.devicePixelRatio
-  //   );
-
-  //   this.followMouse();
-    
-  //   // set listener to stop following the mouse
-  //   this.$HTMLElem?.on('mouseup', () => this.stopFollowingMouse());
-  // }
 
   /**
   Handles on a wheel specifically so that:
@@ -240,7 +217,8 @@ export class Grid extends Renderable {
     // calculate offset
     const offsetWorld = camera.getPan().applyFunction(n => n % this.cellDimWorldUnits);
     const offsetScreen = offsetWorld.applyFunction(n => camera.worldUnitsToScreenPixels(n));
-
+    console.log(offsetScreen);
+    
     ctx.beginPath();
 
     //draw rows

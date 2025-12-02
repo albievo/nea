@@ -1,11 +1,9 @@
 import { Vector2 } from "../utils/Vector2";
 import $ from 'jquery';
 
-
 export class Camera {
   private zoom: number;
-  private pan: Vector2;
-  
+  private pan: Vector2; // top-left of screen in world units
   private dppr: number;
 
   private MIN_ZOOM = 1;
@@ -17,51 +15,41 @@ export class Camera {
     this.pan = pan.copy();
     this.dppr = dppr;
     this.maxZoom = maxZoom;
-    this.zoomCoeff = zoomCoeff
+    this.zoomCoeff = zoomCoeff;
 
     $(document).on('wheel', e => this.handleWheel(e));
+    $(document).on('mousedown', e => this.handleMouseDown(e));
   }
 
-
-  /**
-  Handles on a wheel specifically so that:
-  a) the wheel has an origin location, around which we zoom, and
-  b) zooming by touch doesn't really make sense: the action should pan
-  */
   private handleWheel(event: JQuery.TriggeredEvent) {
-    // get the raw DOM event
     const DOMEvent = event.originalEvent as WheelEvent;
 
-    // get the mouse pos
-    const mousePos = new Vector2(
-      DOMEvent.clientX * this.dppr,
-      DOMEvent.clientY * this.dppr
-    );
+    // mouse position in screen pixels
+    const mouseScreen = new Vector2(DOMEvent.clientX * this.dppr, DOMEvent.clientY * this.dppr);
+    const mouseWorld = this.screenToWorld(mouseScreen);
 
-    // the position of the mouse in world co ordinates
-    const mousePosWorld = mousePos
-      .subtract(this.pan)
-      .divide(this.zoom);
-    
-    // calculate the new zoom
+    // compute new zoom
     const rawZoom = this.zoom * (1 + DOMEvent.deltaY * this.zoomCoeff);
-    const boundedZoom = Math.min(
-      this.maxZoom, Math.max(this.MIN_ZOOM, rawZoom)
-    )
+    const boundedZoom = Math.min(this.maxZoom, Math.max(this.MIN_ZOOM, rawZoom));
+
+    // adjust pan to keep mouseWorld under cursor
+    // newPan + mouseWorldOffset * newZoom = mouseScreen
+    // => newPan = mouseWorld - (mouseScreen / newZoom)
+    this.pan = mouseWorld.subtract(mouseScreen.divide(boundedZoom));
+
     this.zoom = boundedZoom;
-
-    // calculate the new pan
-    this.pan = mousePos.subtract(mousePosWorld.mult(this.zoom));
-
-    const newMousePosWorld = mousePos
-      .subtract(this.pan)
-      .divide(this.zoom);
-
-    console.log(newMousePosWorld);
   }
 
+  private handleMouseDown(event)
+
+  /** Convert world coordinates to screen coordinates (pixels) */
   public worldPosToScreen(worldPos: Vector2) {
-    return worldPos.mult(this.zoom).subtract(this.pan);
+    return worldPos.subtract(this.pan).mult(this.zoom);
+  }
+
+  /** Convert screen coordinates (pixels) to world coordinates */
+  public screenToWorld(screenPos: Vector2) {
+    return screenPos.divide(this.zoom).add(this.pan);
   }
 
   public worldUnitsToScreenPixels(units: number) {
