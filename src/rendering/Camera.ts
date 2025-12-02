@@ -10,6 +10,8 @@ export class Camera {
   private maxZoom: number;
   private zoomCoeff: number;
 
+  private lastMousePos = new Vector2(0, 0);
+
   constructor(zoom: number, pan: Vector2, dppr: number, maxZoom: number, zoomCoeff: number) {
     this.zoom = zoom;
     this.pan = pan.copy();
@@ -40,7 +42,40 @@ export class Camera {
     this.zoom = boundedZoom;
   }
 
-  private handleMouseDown(event)
+  private handleMouseDown(event: JQuery.MouseDownEvent) {
+    this.lastMousePos = new Vector2(event.clientX, event.clientY);
+
+    this.followMouse();
+    $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
+  }
+
+  private followMouse() {
+    $(document).on('mousemove.followMouse', e => {
+      if (!(e.clientX && e.clientY)) {
+        return;
+      }
+      
+      // get the new mouse pos
+      const newPos = new Vector2 (
+        e.clientX,
+        e.clientY
+      ).mult(this.dppr);
+      // get the vector from the last mouse position to the new one
+      const delta = newPos.subtract(this.lastMousePos);
+      const worldUnitDelta = this.screenToWorld(delta);
+
+      this.pan = this.pan.add(worldUnitDelta);
+
+      // update the last mouse position
+      this.lastMousePos = newPos;
+    })
+
+  }
+
+  private stopFollowingMouse() {
+    $(document).off('mousemove.followMouse');
+    $(document).off('mouseup.stopFollowingMouse');
+  }
 
   /** Convert world coordinates to screen coordinates (pixels) */
   public worldPosToScreen(worldPos: Vector2) {

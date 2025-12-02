@@ -11,8 +11,6 @@ export class Grid extends Renderable {
   protected $HTMLElem?: JQuery<HTMLElement>;
   private ctx!: CanvasRenderingContext2D;
 
-  private lastMousePos = new Vector2(0, 0);
-
   private height!: number;
   private width!: number;
 
@@ -49,51 +47,13 @@ export class Grid extends Renderable {
 
     // attach listeners
     $(document).on('wheel', () => this.handleWheel());
+    $(document).on('mousedown', () => this.handleMouseDown());
     $(window).on('resize', () => this.handleResize());
   }
 
   private updateForCamera() {
     this.renderGrid();
   }
-
-  // private move(delta: Vector2) {
-  //   const cellDim = this.calcCellDim();
-
-  //   // converts the delta from being in pixels to being in cells
-  //   const deltaInCells = delta.divide(cellDim);
-
-  //   // calculate the new offset needed
-  //   const newOffset = this.offset
-  //     .subtract(deltaInCells);
-
-  //   this.setOffset(newOffset);
-  // }
-
-  // private zoomBy(payload: ZoomPayload) {
-  //   // dims of cells before the zoom
-  //   const oldCellDim = this.calcCellDim();
-
-  //   // mouse pos in cells before the zoom (relative to page)
-  //   const oldMousePosCells = payload.mousePos.divide(oldCellDim);
-
-  //   // mouse pos in cells before the zoom (relative to entire grid) - we want to keep this constant
-  //   const cellCoords = this.offset.add(oldMousePosCells);
-
-  //   // calculate tge new zoom
-  //   const rawZoom = this.zoom + payload.delta;
-  //   const boundedZoom = Math.max(this.minZoom, Math.min(this.maxZoom, rawZoom));
-
-  //   // dims of cells after the zoom
-  //   const newCellDim = this.cellDimAtMinZoom * boundedZoom;
-
-  //   // calculate where the mouse is in the new cells
-  //   const newMousePosCells = payload.mousePos.divide(newCellDim);
-
-  //   // set the offset so the mouse is in the same position relative to the whole grid
-  //   this.setOffset(cellCoords.subtract(newMousePosCells));
-
-  //   this.zoom = boundedZoom;
-  // }
 
   private fitToPage() {
     this.canvasDimsPixels = this.calcCanvasDimsPixels();
@@ -103,11 +63,6 @@ export class Grid extends Renderable {
     this.ctx.canvas.height = this.canvasDimsPixels.getY();
   }
 
-  /**
-  Handles on a wheel specifically so that:
-  a) the wheel has an origin location, around which we zoom, and
-  b) zooming by touch doesn't really make sense: the action should pan
-  */
   private handleWheel() {
     this.renderManager.requestRender(this.id, {camera: true});
   }
@@ -116,33 +71,15 @@ export class Grid extends Renderable {
     this.renderManager.requestRender(this.id, {resize: true});
   }
 
-  // private followMouse() {
-  //   $(document).on('mousemove.followMouse', e => {
-  //     if (!(e.clientX && e.clientY)) {
-  //       return;
-  //     }
-      
-  //     // get the new mouse pos
-  //     const newPos = new Vector2 (
-  //       e.clientX,
-  //       e.clientY
-  //     ).mult(this.devicePixelRatio);
-  //     // get the vector from the last mouse position to the new one
-  //     const delta = newPos.subtract(this.lastMousePos);
-
-  //     // update the last mouse position
-  //     this.lastMousePos = newPos;
-
-  //     this.renderManager.requestRender(this.id, {movement: delta});
-  //   })
-
-  //   this.setPointer('grabbing');
-  // }
-
-  // private stopFollowingMouse() {
-  //   $(document).off('mousemove.followMouse');
-  //   this.setPointer('grab');
-  // }
+  private handleMouseDown() {
+    $(document).on('mousemove.followMouse', () => {
+      this.renderManager.requestRender(this.id, {camera: true})
+    });
+    $(document).on('mouseup.stopFollowingMouse', () => {
+      $(document).off('mousemove.followMouse');
+      $(document).off('mouseup.stopFollowingMouse');
+    });
+  }
 
   private calcCellDimWorldUnits() {
     const dppr = this.renderManager.getDevicePixelRatio();
@@ -217,7 +154,6 @@ export class Grid extends Renderable {
     // calculate offset
     const offsetWorld = camera.getPan().applyFunction(n => n % this.cellDimWorldUnits);
     const offsetScreen = offsetWorld.applyFunction(n => camera.worldUnitsToScreenPixels(n));
-    console.log(offsetScreen);
     
     ctx.beginPath();
 
