@@ -72,13 +72,24 @@ export class Grid extends Renderable {
   }
 
   private handleMouseDown() {
-    $(document).on('mousemove.followMouse', () => {
-      this.renderManager.requestRender(this.id, {camera: true})
-    });
-    $(document).on('mouseup.stopFollowingMouse', () => {
-      $(document).off('mousemove.followMouse');
-      $(document).off('mouseup.stopFollowingMouse');
-    });
+    this.setPointer('grabbing');
+
+    $(document).on(
+      'mousemove.followMouse', () => this.handleDragged()
+    );
+    $(document).on(
+      'mouseup.stopFollowingMouse', () => this.stopFollowingMouse()
+    );
+  }
+
+  private handleDragged() {
+    this.renderManager.requestRender(this.id, {camera: true});
+  }
+
+  private stopFollowingMouse() {
+    $(document).off('mousemove.followMouse');
+    $(document).off('mouseup.stopFollowingMouse');
+    this.setPointer('default');
   }
 
   private calcCellDimWorldUnits() {

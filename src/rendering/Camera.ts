@@ -43,7 +43,10 @@ export class Camera {
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
-    this.lastMousePos = new Vector2(event.clientX, event.clientY);
+    this.lastMousePos = new Vector2(
+      event.clientX * this.dppr,
+      event.clientY * this.dppr
+    );
 
     this.followMouse();
     $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
@@ -57,14 +60,18 @@ export class Camera {
       
       // get the new mouse pos
       const newPos = new Vector2 (
-        e.clientX,
-        e.clientY
-      ).mult(this.dppr);
+        e.clientX * this.dppr,
+        e.clientY * this.dppr
+      )
       // get the vector from the last mouse position to the new one
       const delta = newPos.subtract(this.lastMousePos);
-      const worldUnitDelta = this.screenToWorld(delta);
+      const worldUnitDelta = delta.applyFunction(
+        n => this.screenPixelsToWorldUnits(n)
+      );
 
-      this.pan = this.pan.add(worldUnitDelta);
+      console.log(delta);
+
+      this.pan = this.pan.subtract(worldUnitDelta);
 
       // update the last mouse position
       this.lastMousePos = newPos;
@@ -89,6 +96,10 @@ export class Camera {
 
   public worldUnitsToScreenPixels(units: number) {
     return units * this.zoom;
+  }
+
+  public screenPixelsToWorldUnits(pixels: number) {
+    return pixels / this.zoom;
   }
 
   public getZoom() {
