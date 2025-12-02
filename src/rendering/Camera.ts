@@ -51,9 +51,13 @@ export class Camera {
     this.zoom = boundedZoom;
 
     // calculate the new pan
-    this.pan = this.pan
-      .subtract(mousePosWorld)
-      .mult(this.zoom);
+    this.pan = mousePos.subtract(mousePosWorld.mult(this.zoom));
+
+    const newMousePosWorld = mousePos
+      .subtract(this.pan)
+      .divide(this.zoom);
+
+    console.log(newMousePosWorld);
   }
 
   public worldPosToScreen(worldPos: Vector2) {
