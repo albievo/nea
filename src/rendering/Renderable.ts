@@ -1,9 +1,11 @@
+import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
 import { RenderPayload } from "./RenderPayloads";
 
 export abstract class Renderable {
   protected id: string;
-  protected renderManager: RenderManager
+  protected renderManager: RenderManager;
+  protected camera?: Camera;
 
   protected abstract $HTMLElem?: JQuery<HTMLElement>;
 
@@ -11,7 +13,11 @@ export abstract class Renderable {
 
   constructor(id: string, renderManager: RenderManager) {
     this.id = id;
-    this.renderManager = renderManager
+    this.renderManager = renderManager;
+  }
+
+  public setCamera(camera: Camera) {
+    this.camera = camera;
   }
 
   public getId() {

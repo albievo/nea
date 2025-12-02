@@ -1,9 +1,18 @@
 import { Renderable } from "./Renderable";
 import { WorkingChip } from "../application/WorkingChip"
 import { RenderPayload } from "./RenderPayloads";
+import { WebpageUtils } from "../utils/WebpageUtils";
+import { Vector2 } from "../utils/Vector2";
+import { Camera } from "./Camera";
 
 export class RenderManager {
-  private workingChip: WorkingChip
+  private workingChip: WorkingChip;
+
+  private camera: Camera;
+
+  private SIZE = 4096;
+
+  private devicePixelRatio = WebpageUtils.calculateDevicePixelRatio();
 
   private renderablesById = new Map<string, Renderable>();
   private pending = new Map<string, RenderPayload>();
@@ -15,6 +24,7 @@ export class RenderManager {
 
   constructor(workingChip: WorkingChip) {
     this.workingChip = workingChip;
+    this.camera = new Camera(5, Vector2.origin, this.devicePixelRatio, 15, 0.001);
   }
 
   public requestRender(id: string, payload: RenderPayload) {
@@ -54,23 +64,7 @@ export class RenderManager {
       throw new Error("cannot run an initial render after other renders");
     }
 
-    // needs updating for movement after zoom maybe?
-    // might not be humanly possible though, and if it is it won't make a big difference
-    if (toAdd.movement) {
-      // add the movements together
-      newPayload.movement = original.movement
-        ? original.movement.add(toAdd.movement)
-        : toAdd.movement
-    }
-
-    if (toAdd.zoom) {
-      newPayload.zoom = {
-        delta: original.zoom          // add zooms
-          ? original.zoom.delta + toAdd.zoom.delta
-          : toAdd.zoom.delta,
-        mousePos: toAdd.zoom.mousePos // mouse pos is just the latest. will never be different from the first by more than a few frames
-      }
-    }
+    newPayload.camera = original.camera || toAdd.camera;
 
     // if there is any resizing, new payload should include it
     newPayload.resize = original.resize || toAdd.resize;
@@ -101,5 +95,15 @@ export class RenderManager {
     }
     
     this.renderablesById.set(id, renderable);
+
+    renderable.setCamera(this.camera);
+  }
+
+  public getDevicePixelRatio(): number {
+    return this.devicePixelRatio;
+  }
+
+  public getSize() {
+    return this.SIZE;
   }
 }

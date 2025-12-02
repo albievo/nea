@@ -99,4 +99,8 @@ export class Vector2 {
   public divide(num: number) {
     return new Vector2(this.x / num, this.y / num);
   }
+
+  public fixedCopy() {
+    return new Vector2(this.x, this.y, true);
+  }
 }

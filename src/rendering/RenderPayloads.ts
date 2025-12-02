@@ -15,10 +15,18 @@ export interface ZoomPayload {
 
 export interface GridPayload {
   initial?: InitialGridRenderPayload,
-  movement?: Vector2;
-  zoom?: ZoomPayload;
+  camera?: boolean;
   resize?: boolean;
 }
 
+export interface InitialGridElementPayload {
+  color: "red" | "green" | "blue"
+}
+
+// export interface GridElementPayload {
+//   initial?: InitialGridElementPayload
+// }
+
 export type RenderPayload = 
   GridPayload
+  // GridElementPayload
