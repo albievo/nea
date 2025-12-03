@@ -12,6 +12,8 @@ export class Camera {
 
   private lastMousePos = new Vector2(0, 0);
 
+  readonly baseCellPixels = 48;
+
   constructor(
     zoom: number, pan: Vector2,
     dppr: number, maxZoom: number, zoomCoeff: number
@@ -38,9 +40,9 @@ export class Camera {
     const boundedZoom = Math.min(this.maxZoom, Math.max(this.MIN_ZOOM, rawZoom));
 
     // adjust pan to keep mouseWorld under cursor
-    // newPan + mouseWorldOffset * newZoom = mouseScreen
-    // => newPan = mouseWorld - (mouseScreen / newZoom)
-    this.pan = mouseWorld.subtract(mouseScreen.divide(boundedZoom));
+    this.pan = mouseWorld.subtract(mouseScreen.divide(boundedZoom * this.baseCellPixels));
+
+    console.log(this.pan);
 
     this.zoom = boundedZoom;
   }
@@ -72,8 +74,6 @@ export class Camera {
         n => this.screenPixelsToWorldUnits(n)
       );
 
-      console.log(delta);
-
       this.pan = this.pan.subtract(worldUnitDelta);
 
       // update the last mouse position
@@ -89,27 +89,25 @@ export class Camera {
 
   /** Convert world coordinates to screen coordinates (pixels) */
   public worldPosToScreen(worldPos: Vector2) {
-    return worldPos.subtract(this.pan).mult(this.zoom);
+    return worldPos.subtract(this.pan).mult(this.zoom * this.baseCellPixels);
   }
 
   /** Convert screen coordinates (pixels) to world coordinates */
   public screenToWorld(screenPos: Vector2) {
-    return screenPos.divide(this.zoom).add(this.pan);
+    return screenPos.divide(this.zoom * this.baseCellPixels).add(this.pan);
   }
 
   public worldUnitsToScreenPixels(units: number) {
-    return units * this.zoom;
+    return units * this.zoom * this.baseCellPixels;
   }
 
   public screenPixelsToWorldUnits(pixels: number) {
-    return pixels / this.zoom;
-  }
-
-  public getZoom() {
-    return this.zoom;
+    return pixels / (this.zoom * this.baseCellPixels);
   }
 
   public getPan() {
     return this.pan.fixedCopy();
   }
+
+  
 }
