@@ -10,9 +10,9 @@ export class RenderManager {
 
   private camera: Camera;
 
-  private SIZE = 4096;
-
   private devicePixelRatio = WebpageUtils.calculateDevicePixelRatio();
+
+  private worldSize: Vector2;
 
   private renderablesById = new Map<string, Renderable>();
   private pending = new Map<string, RenderPayload>();
@@ -22,8 +22,9 @@ export class RenderManager {
 
   private scheduled = false;
 
-  constructor(workingChip: WorkingChip) {
+  constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
+    this.worldSize = worldSize
     this.camera = new Camera(5, Vector2.origin, this.devicePixelRatio, 15, 0.001);
   }
 
@@ -101,9 +102,5 @@ export class RenderManager {
 
   public getDevicePixelRatio(): number {
     return this.devicePixelRatio;
-  }
-
-  public getSize() {
-    return this.SIZE;
   }
 }

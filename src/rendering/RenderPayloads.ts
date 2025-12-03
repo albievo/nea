@@ -1,8 +1,7 @@
 import { Vector2 } from "../utils/Vector2";
 
 export interface InitialGridRenderPayload {
-  height: number;
-  width: number;
+  size: Vector2;
   startingZoom: number;
   maxZoom: number;
   zoomCoefficient: number;

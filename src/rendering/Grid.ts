@@ -15,9 +15,7 @@ export class Grid extends Renderable {
   private width!: number;
 
   private canvasDimsPixels!: Vector2;
-  
-  private cellDimWorldUnits!: number;
-  
+    
   constructor(id: string, renderManager: RenderManager) {
     super(id, renderManager);
   }
@@ -37,8 +35,8 @@ export class Grid extends Renderable {
     $('#canvas-wrapper').append(this.$HTMLElem);
 
     // set relevant values
-    this.height = payload.height;
-    this.width = payload.width;
+    this.height = payload.size.getY();
+    this.width = payload.size.getX();
 
     // set up canvas rendering context
     this.setCtx();
@@ -57,7 +55,6 @@ export class Grid extends Renderable {
 
   private fitToPage() {
     this.canvasDimsPixels = this.calcCanvasDimsPixels();
-    this.cellDimWorldUnits = this.calcCellDimWorldUnits();
 
     this.ctx.canvas.width = this.canvasDimsPixels.getX();
     this.ctx.canvas.height = this.canvasDimsPixels.getY();
@@ -92,23 +89,13 @@ export class Grid extends Renderable {
     this.setPointer('default');
   }
 
-  private calcCellDimWorldUnits() {
-    const dppr = this.renderManager.getDevicePixelRatio();
-    const worldSize = this.renderManager.getSize();
-
-    return Math.max(
-      dppr * worldSize / this.height,
-      dppr * worldSize / this.width
-    );
-  }
-
   private calcCellDimScreenPixels() {
     const camera = this.camera;
     if (!camera) {
       throw new Error("please supply a camera");
     }
 
-    return camera.worldUnitsToScreenPixels(this.cellDimWorldUnits);
+    return camera.worldUnitsToScreenPixels(1);
   }
 
   /**calculate how many cells you should be able to see right now*/
@@ -163,7 +150,7 @@ export class Grid extends Renderable {
     const linesToDraw = this.calcCellsVisible().add(1);
 
     // calculate offset
-    const offsetWorld = camera.getPan().applyFunction(n => n % this.cellDimWorldUnits);
+    const offsetWorld = camera.getPan().applyFunction(n => n % 1);
     const offsetScreen = offsetWorld.applyFunction(n => camera.worldUnitsToScreenPixels(n));
     
     ctx.beginPath();

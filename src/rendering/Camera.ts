@@ -12,7 +12,10 @@ export class Camera {
 
   private lastMousePos = new Vector2(0, 0);
 
-  constructor(zoom: number, pan: Vector2, dppr: number, maxZoom: number, zoomCoeff: number) {
+  constructor(
+    zoom: number, pan: Vector2,
+    dppr: number, maxZoom: number, zoomCoeff: number
+  ) {
     this.zoom = zoom;
     this.pan = pan.copy();
     this.dppr = dppr;
