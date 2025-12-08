@@ -25,7 +25,7 @@ export class RenderManager {
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
-    this.camera = new Camera(5, Vector2.origin, this.devicePixelRatio, 15, 0.001);
+    this.camera = new Camera(5, Vector2.origin, this.devicePixelRatio, 15, 0.001, worldSize);
   }
 
   public requestRender(id: string, payload: RenderPayload) {

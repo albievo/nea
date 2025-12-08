@@ -7,7 +7,7 @@ import { InitialGridRenderPayload } from "./rendering/RenderPayloads";
 import './index.scss';
 import { Vector2 } from "./utils/Vector2";
 
-const worldSize = new Vector2(50, 50);
+const worldSize = new Vector2(10, 10);
 
 const netlist = new Netlist([], [])
 const workingChip = new WorkingChip(netlist)
