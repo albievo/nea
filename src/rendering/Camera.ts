@@ -10,6 +10,8 @@ export class Camera {
   private maxZoom: number;
   private zoomCoeff: number;
 
+  private windowDims!: Vector2;
+
   private lastMousePos = new Vector2(0, 0);
 
   readonly baseCellPixels = 48;
@@ -23,9 +25,11 @@ export class Camera {
     this.dppr = dppr;
     this.maxZoom = maxZoom;
     this.zoomCoeff = zoomCoeff;
+    this.fitToScreen();
 
     $(document).on('wheel', e => this.handleWheel(e));
     $(document).on('mousedown', e => this.handleMouseDown(e));
+    $(window).on('resize', () => this.fitToScreen());
   }
 
   private handleWheel(event: JQuery.TriggeredEvent) {
@@ -109,5 +113,20 @@ export class Camera {
     return this.pan.fixedCopy();
   }
 
-  
+  private fitToScreen() {
+    this.windowDims = new Vector2(
+      $(document).width()! * this.dppr,
+      $(document).height()! * this.dppr
+    )
+  }
+
+  /**calculate how many cells you should be able to see right now*/
+  public calcWorldUnitsOnScreen() {
+    const cellDim = this.worldUnitsToScreenPixels(1);
+    return this.windowDims.divide(cellDim);
+  }
+
+  public getWindowDims() {
+    return this.windowDims
+  }
 }

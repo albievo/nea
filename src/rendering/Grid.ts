@@ -13,8 +13,6 @@ export class Grid extends Renderable {
 
   private height!: number;
   private width!: number;
-
-  private canvasDimsPixels!: Vector2;
     
   constructor(id: string, renderManager: RenderManager) {
     super(id, renderManager);
@@ -54,10 +52,15 @@ export class Grid extends Renderable {
   }
 
   private fitToPage() {
-    this.canvasDimsPixels = this.calcCanvasDimsPixels();
+    const camera = this.camera;
+    if (!camera) {
+      throw new Error("please supply a camera");
+    }
 
-    this.ctx.canvas.width = this.canvasDimsPixels.getX();
-    this.ctx.canvas.height = this.canvasDimsPixels.getY();
+    const windowDims = camera.getWindowDims();
+
+    this.ctx.canvas.width = windowDims.getX();
+    this.ctx.canvas.height = windowDims.getY();
   }
 
   private handleWheel() {
@@ -89,34 +92,6 @@ export class Grid extends Renderable {
     this.setPointer('default');
   }
 
-  private calcCellDimScreenPixels() {
-    const camera = this.camera;
-    if (!camera) {
-      throw new Error("please supply a camera");
-    }
-
-    return camera.worldUnitsToScreenPixels(1);
-  }
-
-  /**calculate how many cells you should be able to see right now*/
-  private calcCellsVisible() {
-    const cellDim = this.calcCellDimScreenPixels();
-
-    return new Vector2(
-      this.canvasDimsPixels.getX() / cellDim,
-      this.canvasDimsPixels.getY() / cellDim
-    )
-  }
-
-  private calcCanvasDimsPixels(): Vector2 {
-    const dppr = this.renderManager.getDevicePixelRatio()
-
-    return new Vector2(
-      this.$HTMLElem?.width()! * dppr,
-      this.$HTMLElem?.height()! * dppr
-    )
-  }
-
   private setCtx() {
     const canvas = this.$HTMLElem?.[0];
     if (!(canvas instanceof HTMLCanvasElement)) {
@@ -142,12 +117,16 @@ export class Grid extends Renderable {
 
     const ctx = this.ctx;
 
-    //clear the canvas
-    ctx.clearRect(0, 0, this.canvasDimsPixels.getX(), this.canvasDimsPixels.getY());
-    
-    const cellDimScreen = this.calcCellDimScreenPixels();
+    const windowDims = camera.getWindowDims();
 
-    const linesToDraw = this.calcCellsVisible().add(1);
+    //clear the canvas
+    ctx.clearRect(0, 0, windowDims.getX(), windowDims.getY());
+    
+    const cellDimScreen = camera.worldUnitsToScreenPixels(1);
+
+    const linesToDraw = camera.calcWorldUnitsOnScreen().add(1);
+
+    console.log(linesToDraw);
 
     // calculate offset
     const offsetWorld = camera.getPan().applyFunction(n => n % 1);
@@ -160,7 +139,7 @@ export class Grid extends Renderable {
       const rowY = row * cellDimScreen - offsetScreen.getY();
 
       ctx.moveTo(0, rowY);
-      ctx.lineTo(this.canvasDimsPixels.getX(), rowY);
+      ctx.lineTo(windowDims.getX(), rowY);
     }
 
     //draw columns
@@ -168,7 +147,7 @@ export class Grid extends Renderable {
       const colX = col * cellDimScreen - offsetScreen.getX();
 
       ctx.moveTo(colX, 0);
-      ctx.lineTo(colX, this.canvasDimsPixels.getY());
+      ctx.lineTo(colX, windowDims.getY());
     }
     
     ctx.stroke();
