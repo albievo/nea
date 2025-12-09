@@ -1,6 +1,6 @@
 import { Renderable } from "./Renderable";
 import { WorkingChip } from "../application/WorkingChip"
-import { RenderPayload } from "./RenderPayloads";
+import { RenderPayload, RenderPayloadKind } from "./RenderPayloads";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
@@ -34,7 +34,7 @@ export class RenderManager {
 
     // if there is an existing render, merge it with the newest one
     const normalisedPayload = existing
-      ? this.mergePayloads(existing, payload)
+      ? this.mergePayloads(existing, payload, existing.kind)
       : payload;
     this.pending.set(id, normalisedPayload);
 
@@ -55,8 +55,8 @@ export class RenderManager {
     }
   }
 
-  private mergePayloads(original: RenderPayload, toAdd: RenderPayload): RenderPayload {
-    const newPayload: RenderPayload = {};
+  private mergePayloads(original: RenderPayload, toAdd: RenderPayload, kind: RenderPayloadKind): RenderPayload {
+    const newPayload: RenderPayload = {kind};
 
     // toAdd always comes after the original.
     // It doesn't make sense to run an intial render after other renders have been requested,

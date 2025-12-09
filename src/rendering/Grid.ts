@@ -64,11 +64,11 @@ export class Grid extends Renderable {
   }
 
   private handleWheel() {
-    this.renderManager.requestRender(this.id, {camera: true});
+    this.renderManager.requestRender(this.id, {kind: "grid", camera: true});
   }
 
   private handleResize() {
-    this.renderManager.requestRender(this.id, {resize: true});
+    this.renderManager.requestRender(this.id, {kind: "grid", resize: true});
   }
 
   private handleMouseDown() {
@@ -83,7 +83,7 @@ export class Grid extends Renderable {
   }
 
   private handleDragged() {
-    this.renderManager.requestRender(this.id, {camera: true});
+    this.renderManager.requestRender(this.id, {kind: "grid", camera: true});
   }
 
   private stopFollowingMouse() {

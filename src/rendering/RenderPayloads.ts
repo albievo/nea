@@ -13,19 +13,25 @@ export interface ZoomPayload {
 }
 
 export interface GridPayload {
-  initial?: InitialGridRenderPayload,
+  kind: "grid";
+  initial?: InitialGridRenderPayload;
+  camera?: boolean;
+  resize?: boolean;
+}
+
+export interface GridElementPayload {
+  kind: "grid-element";
+  initial?: InitialGridElementPayload;
   camera?: boolean;
   resize?: boolean;
 }
 
 export interface InitialGridElementPayload {
-  color: "red" | "green" | "blue"
+  color: "red" | "green" | "blue";
 }
 
-// export interface GridElementPayload {
-//   initial?: InitialGridElementPayload
-// }
-
 export type RenderPayload = 
-  GridPayload
-  // GridElementPayload
+  GridPayload |
+  GridElementPayload
+
+export type RenderPayloadKind = RenderPayload["kind"];

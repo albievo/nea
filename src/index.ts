@@ -24,4 +24,4 @@ const payload: InitialGridRenderPayload = {
   zoomCoefficient: 0.01
 }
 
-renderManager.requestRender(gridId, {initial: payload});
+renderManager.requestRender(gridId, {kind: "grid", initial: payload});
