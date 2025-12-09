@@ -29,8 +29,7 @@ export class Grid extends Renderable {
 
   private initialRender(payload: InitialGridRenderPayload): void {
     // create HTML element
-    this.$HTMLElem = $('<canvas class="grid"></canvas>');
-    $('#canvas-wrapper').append(this.$HTMLElem);
+    this.$HTMLElem = $('#canvas');
 
     // set relevant values
     this.height = payload.size.getY();
