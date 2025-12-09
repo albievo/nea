@@ -34,7 +34,7 @@ export class Camera {
 
     $(document).on('wheel', e => this.handleWheel(e));
     $(document).on('mousedown', e => this.handleMouseDown(e));
-    $(window).on('resize', () => this.handleResize());
+    events.on('resize', () => this.handleResize());
   }
 
   private handleWheel(event: JQuery.TriggeredEvent) {

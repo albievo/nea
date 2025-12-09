@@ -5,6 +5,7 @@ import { WebpageUtils } from "../utils/WebpageUtils";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
 import events from "../event/events";
+import $ from 'jquery';
 
 export class RenderManager {
   private workingChip: WorkingChip;
@@ -27,6 +28,8 @@ export class RenderManager {
     this.workingChip = workingChip;
     this.worldSize = worldSize
     this.camera = new Camera(5, Vector2.zeroes, this.devicePixelRatio, 15, 0.001, worldSize);
+
+    $(window).on('resize', () => events.emit('resize'));
   }
 
   public requestRender(id: string, payload: RenderPayload) {
