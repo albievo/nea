@@ -1,34 +1,34 @@
 export class Vector2 {
-  private x: number;
-  private y: number;
+  private xVal: number;
+  private yVal: number;
   private fixed = false;
 
-  public static origin = new Vector2(0, 0, true);
+  public static zeroes = new Vector2(0, 0, true);
 
   constructor(x: number, y: number, fixed?: boolean) {
-    this.x = x;
-    this.y = y;
+    this.xVal = x;
+    this.yVal = y;
 
     this.fixed = fixed || false;
   }
 
-  public setX(x: number) {
+  public set x(x: number) {
     if (this.fixed) {
       throw new Error('cannot edit fixed vectors');
     }
     this.x = x;
   }
-  public setY(y: number) {
+  public set y(y: number) {
     if (this.fixed) {
       throw new Error('cannot edit fixed vectors');
     }
     this.y = y;
   }
 
-  public getX(): number {
+  public get x(): number {
     return this.x;
   }
-  public getY(): number {
+  public get y(): number {
     return this.y;
   }
 
@@ -42,7 +42,7 @@ export class Vector2 {
     }
     //for vector addition
     else {
-      return new Vector2(this.x + a.getX(), this.y + a.getY());
+      return new Vector2(this.x + a.y, this.y + a.y)
     }
   }
 
@@ -56,7 +56,7 @@ export class Vector2 {
     }
     //for vector subtractition
     else {
-      return new Vector2(this.x - a.getX(), this.y - a.getY());
+      return new Vector2(this.x - a.x, this.y - a.y);
     }
   }
 
@@ -80,8 +80,8 @@ export class Vector2 {
 
   public equals(vector: Vector2) {
     return (
-      this.x == vector.getX() &&
-      this.y == vector.getY()
+      this.x == vector.x &&
+      this.y == vector.y
     )
   }
 
