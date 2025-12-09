@@ -11,6 +11,6 @@
     "inlineSources": true,
     "skipLibCheck": true
   },
-
+  "strict": true,
   "include": ["src/**/*"],
 }
