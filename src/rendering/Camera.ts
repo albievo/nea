@@ -1,3 +1,4 @@
+import events from "../event/events";
 import { Vector2 } from "../utils/Vector2";
 import $ from 'jquery';
 
@@ -43,6 +44,9 @@ export class Camera {
     const mouseScreen = new Vector2(DOMEvent.clientX * this.dppr, DOMEvent.clientY * this.dppr);
     const mouseWorld = this.screenToWorld(mouseScreen);
 
+    // just used to check whether there has been a change
+    const oldZoom = this.zoom;
+
     // compute new zoom
     const rawZoom = this.zoom * (1 + DOMEvent.deltaY * this.zoomCoeff);
     this.zoom = this.boundZoom(rawZoom);
@@ -51,6 +55,12 @@ export class Camera {
     this.setPan(
       mouseWorld.subtract(mouseScreen.divide(this.zoom * this.baseCellPixels))
     );
+
+    const zoomFactor = this.zoom  / oldZoom
+
+    if (zoomFactor !== 1) {
+      events.emit('zoom', { factor: zoomFactor, screenPos: mouseScreen });
+    }
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
@@ -60,6 +70,9 @@ export class Camera {
     );
 
     this.followMouse();
+
+    events.emit('begin-pan');
+
     $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
   }
 
@@ -74,6 +87,9 @@ export class Camera {
         e.clientX * this.dppr,
         e.clientY * this.dppr
       )
+
+      const oldPan = this.pan.fixedCopy();
+
       // get the vector from the last mouse position to the new one
       const delta = newPos.subtract(this.lastMousePos);
       const worldUnitDelta = delta.applyFunction(
@@ -86,6 +102,13 @@ export class Camera {
 
       // update the last mouse position
       this.lastMousePos = newPos;
+
+      const trueDelta = this.pan.subtract(oldPan)
+
+      // emit pan event if it has moved
+      if (!trueDelta.equals(Vector2.zeroes)) {
+        events.emit('pan', { delta: trueDelta });
+      }
     })
 
   }
@@ -93,6 +116,7 @@ export class Camera {
   private stopFollowingMouse() {
     $(document).off('mousemove.followMouse');
     $(document).off('mouseup.stopFollowingMouse');
+    events.emit('end-pan');
   }
 
   /** Convert world coordinates to screen coordinates (pixels) */
@@ -150,11 +174,11 @@ export class Camera {
 
     // how much we must scale (zoom) so that worldPixels fit inside windowDims
     const zoom = new Vector2(
-      this.windowDims.getX() / worldPixels.getX(),
-      this.windowDims.getY() / worldPixels.getY()
+      this.windowDims.x / worldPixels.x,
+      this.windowDims.y / worldPixels.y
     );
 
-    return Math.max(zoom.getX(), zoom.getY());
+    return Math.max(zoom.x, zoom.y);
   }
 
   private handleResize() {
@@ -173,8 +197,22 @@ export class Camera {
     const maxPan = this.worldSize.subtract(worldUnitsOnScreen);
 
     return new Vector2(
-      Math.max(0, Math.min(pan.getX(), maxPan.getX())),
-      Math.max(0, Math.min(pan.getY(), maxPan.getY()))
+      Math.max(0, Math.min(pan.x, maxPan.x)),
+      Math.max(0, Math.min(pan.y, maxPan.y))
     );
+  }
+
+  /**
+   * returns a boolean value representing whether a given world position is currently on the screen
+  */
+  public isOnScreen(point: Vector2): boolean {
+    const screenPos = this.worldPosToScreen(point);
+    
+    const isLeft = screenPos.x < 0;
+    const isAbove = screenPos.y < 0;
+    const isRight = screenPos.x > this.windowDims.x;
+    const isBelow = screenPos.y > this.windowDims.y;
+
+    return !(isLeft || isAbove || isRight || isBelow);
   }
 }

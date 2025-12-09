@@ -4,6 +4,7 @@ import { RenderPayload, RenderPayloadKind } from "./RenderPayloads";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
+import events from "../event/events";
 
 export class RenderManager {
   private workingChip: WorkingChip;
@@ -25,7 +26,7 @@ export class RenderManager {
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
-    this.camera = new Camera(5, Vector2.origin, this.devicePixelRatio, 15, 0.001, worldSize);
+    this.camera = new Camera(5, Vector2.zeroes, this.devicePixelRatio, 15, 0.001, worldSize);
   }
 
   public requestRender(id: string, payload: RenderPayload) {
@@ -88,7 +89,7 @@ export class RenderManager {
   }
 
   public addRenderable(renderable: Renderable) {
-    const id = renderable.getId();
+    const id = renderable.id;
 
     const existing = this.renderablesById.get(id);
     if (existing) {
@@ -97,7 +98,8 @@ export class RenderManager {
     
     this.renderablesById.set(id, renderable);
 
-    renderable.setCamera(this.camera);
+    renderable.camera = this.camera;
+    console.log(this.camera);
   }
 
   public getDevicePixelRatio(): number {

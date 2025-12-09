@@ -1,26 +1,37 @@
+import events from "../event/events";
+import { EventHandlerMap, EventTypes, Handler } from "../event/eventTypes";
 import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
 import { RenderPayload } from "./RenderPayloads";
 
 export abstract class Renderable {
-  protected id: string;
+  protected _id: string;
   protected renderManager: RenderManager;
-  protected camera?: Camera;
+  protected _camera?: Camera;
 
-  protected abstract $HTMLElem?: JQuery<HTMLElement>;
+  protected abstract getEventHandlers(): EventHandlerMap;
 
   public abstract render(payload: RenderPayload): void;
 
   constructor(id: string, renderManager: RenderManager) {
-    this.id = id;
+    this._id = id;
     this.renderManager = renderManager;
+
+    for (const [type, handler] of Object.entries(this.getEventHandlers()) as [
+      EventTypes,
+      Handler<any>
+    ][]) {
+      if (handler) {
+        events.on(type, handler);
+      }
+    }
   }
 
-  public setCamera(camera: Camera) {
-    this.camera = camera;
+  public set camera(camera: Camera) {
+    this._camera = camera;
   }
 
-  public getId() {
-    return this.id;
+  public get id() {
+    return this._id;
   }
 }

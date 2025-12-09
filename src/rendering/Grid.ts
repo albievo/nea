@@ -1,3 +1,5 @@
+import events from "../event/events";
+import { EventHandlerMap } from "../event/eventTypes";
 import { GeneralUtils } from "../utils/GeneralUtils";
 import { Vector2 } from "../utils/Vector2";
 import { WebpageUtils } from "../utils/WebpageUtils";
@@ -28,22 +30,17 @@ export class Grid extends Renderable {
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
-    // create HTML element
+    // get HTML elem
     this.$HTMLElem = $('#canvas');
 
     // set relevant values
-    this.height = payload.size.getY();
-    this.width = payload.size.getX();
+    this.height = payload.size.y;
+    this.width = payload.size.x;
 
     // set up canvas rendering context
     this.setCtx();
     // update values that care about the size of the page
     this.fitToPage();
-
-    // attach listeners
-    $(document).on('wheel', () => this.handleWheel());
-    $(document).on('mousedown', () => this.handleMouseDown());
-    $(window).on('resize', () => this.handleResize());
   }
 
   private updateForCamera() {
@@ -58,11 +55,11 @@ export class Grid extends Renderable {
 
     const windowDims = camera.getWindowDims();
 
-    this.ctx.canvas.width = windowDims.getX();
-    this.ctx.canvas.height = windowDims.getY();
+    this.ctx.canvas.width = windowDims.x;
+    this.ctx.canvas.height = windowDims.y;
   }
 
-  private handleWheel() {
+  private handleZoom() {
     this.renderManager.requestRender(this.id, {kind: "grid", camera: true});
   }
 
@@ -70,24 +67,15 @@ export class Grid extends Renderable {
     this.renderManager.requestRender(this.id, {kind: "grid", resize: true});
   }
 
-  private handleMouseDown() {
+  private handleBeginPan() {
     this.setPointer('grabbing');
-
-    $(document).on(
-      'mousemove.followMouse', () => this.handleDragged()
-    );
-    $(document).on(
-      'mouseup.stopFollowingMouse', () => this.stopFollowingMouse()
-    );
   }
 
-  private handleDragged() {
-    this.renderManager.requestRender(this.id, {kind: "grid", camera: true});
+  private handlePan() {
+    this.renderManager.requestRender(this.id, { kind: 'grid', camera: true });
   }
 
-  private stopFollowingMouse() {
-    $(document).off('mousemove.followMouse');
-    $(document).off('mouseup.stopFollowingMouse');
+  private handleEndPan() {
     this.setPointer('default');
   }
 
@@ -119,7 +107,7 @@ export class Grid extends Renderable {
     const windowDims = camera.getWindowDims();
 
     //clear the canvas
-    ctx.clearRect(0, 0, windowDims.getX(), windowDims.getY());
+    ctx.clearRect(0, 0, windowDims.x, windowDims.y);
     
     const cellDimScreen = camera.worldUnitsToScreenPixels(1);
 
@@ -132,19 +120,19 @@ export class Grid extends Renderable {
     ctx.beginPath();
 
     //draw rows
-    for (let row = 0; row < linesToDraw.getY(); row++) {
-      const rowY = row * cellDimScreen - offsetScreen.getY();
+    for (let row = 0; row < linesToDraw.y; row++) {
+      const rowY = row * cellDimScreen - offsetScreen.y;
 
       ctx.moveTo(0, rowY);
-      ctx.lineTo(windowDims.getX(), rowY);
+      ctx.lineTo(windowDims.x, rowY);
     }
 
     //draw columns
-    for (let col: number = 0; col < linesToDraw.getX(); col++) {
-      const colX = col * cellDimScreen - offsetScreen.getX();
+    for (let col: number = 0; col < linesToDraw.x; col++) {
+      const colX = col * cellDimScreen - offsetScreen.x;
 
       ctx.moveTo(colX, 0);
-      ctx.lineTo(colX, windowDims.getY());
+      ctx.lineTo(colX, windowDims.y);
     }
     
     ctx.stroke();
@@ -155,6 +143,15 @@ export class Grid extends Renderable {
       this.$HTMLElem?.css("cursor", "grab");
     } else {
       this.$HTMLElem?.css("cursor", pointerStyle);
+    }
+  }
+
+  protected getEventHandlers(): EventHandlerMap {
+    return {
+      'end-pan': () => this.handleEndPan(),
+      'begin-pan': () => this.handleBeginPan(),
+      'pan': () => this.handlePan(),
+      'zoom': () => this.handleZoom(),
     }
   }
 }
