@@ -1,13 +1,13 @@
 export class Vector2 {
-  private xVal: number;
-  private yVal: number;
+  private _x: number;
+  private _y: number;
   private fixed = false;
 
   public static zeroes = new Vector2(0, 0, true);
 
   constructor(x: number, y: number, fixed?: boolean) {
-    this.xVal = x;
-    this.yVal = y;
+    this._x = x;
+    this._y = y;
 
     this.fixed = fixed || false;
   }
@@ -26,10 +26,10 @@ export class Vector2 {
   }
 
   public get x(): number {
-    return this.x;
+    return this._x;
   }
   public get y(): number {
-    return this.y;
+    return this._y;
   }
 
   public add(a: number): Vector2;
