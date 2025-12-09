@@ -3,11 +3,14 @@ import { EventHandlerMap, EventTypes, Handler } from "../event/eventTypes";
 import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
 import { RenderPayload } from "./RenderPayloads";
+import $ from 'jquery';
 
 export abstract class Renderable {
   protected _id: string;
   protected renderManager: RenderManager;
   protected _camera?: Camera;
+
+  protected $canvas: JQuery<HTMLElement> = $('#canvas');
 
   protected abstract getEventHandlers(): EventHandlerMap;
 

@@ -6,14 +6,15 @@ import { GridPayload, InitialGridRenderPayload, ZoomPayload } from "./RenderPayl
 import $ from 'jquery';
 
 export class Grid extends Renderable {
-  protected $HTMLElem?: JQuery<HTMLElement>;
-  private ctx!: CanvasRenderingContext2D;
+  private ctx: CanvasRenderingContext2D;
 
   private height!: number;
   private width!: number;
     
   constructor(id: string, renderManager: RenderManager) {
     super(id, renderManager);
+
+    this.ctx = this.renderManager.ctx;
   }
 
   public render(payload: GridPayload): void {
@@ -26,15 +27,9 @@ export class Grid extends Renderable {
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
-    // get HTML elem
-    this.$HTMLElem = $('#canvas');
-
     // set relevant values
     this.height = payload.size.y;
     this.width = payload.size.x;
-
-    // set up canvas rendering context
-    this.setCtx();
     // update values that care about the size of the page
     this.fitToPage();
 
@@ -75,23 +70,6 @@ export class Grid extends Renderable {
 
   private handleEndPan() {
     this.setPointer('default');
-  }
-
-  private setCtx() {
-    const canvas = this.$HTMLElem?.[0];
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      throw new Error("browser cannot use canvas element")
-    }
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      throw new Error("Couldn't get 2d context of canvas htmlElement");
-    }
-
-    const dpr = this.renderManager.getDevicePixelRatio()
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    this.ctx = ctx;
   }
 
   private renderGrid() {
@@ -138,9 +116,9 @@ export class Grid extends Renderable {
 
   public setPointer(pointerStyle: string) {
     if (pointerStyle === "default") {
-      this.$HTMLElem?.css("cursor", "grab");
+      this.$canvas?.css("cursor", "grab");
     } else {
-      this.$HTMLElem?.css("cursor", pointerStyle);
+      this.$canvas?.css("cursor", pointerStyle);
     }
   }
 

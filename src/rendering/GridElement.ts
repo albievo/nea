@@ -1,3 +1,4 @@
+import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
 import { Renderable } from "./Renderable";
@@ -6,8 +7,6 @@ import { GridElementPayload, InitialGridElementPayload } from "./RenderPayloads"
 import $ from 'jquery';
 
 export class GridElement extends Renderable {
-  private $canvas: JQuery<HTMLElement>;
-
   // in world units
   private dims: Vector2;
   private pos: Vector2;
@@ -23,7 +22,6 @@ export class GridElement extends Renderable {
 
     this.dims = dims.fixedCopy();
     this.pos = pos.copy();
-    this.$canvas = $('#canvas');
   }
 
   public render(payload: GridElementPayload): void {
@@ -46,8 +44,6 @@ export class GridElement extends Renderable {
     if (!isOnScreen) {
       return;
     }
-
-    console.log(isOnScreen);
   }
 
   private isOnScreen(): boolean {

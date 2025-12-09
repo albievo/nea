@@ -24,10 +24,15 @@ export class RenderManager {
 
   private scheduled = false;
 
+  private $canvas = $('#canvas');
+
+  private _ctx!: CanvasRenderingContext2D;
+
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
     this.camera = new Camera(5, Vector2.zeroes, this.devicePixelRatio, 15, 0.001, worldSize);
+    this.setCtx()
 
     $(window).on('resize', () => events.emit('resize'));
   }
@@ -102,10 +107,36 @@ export class RenderManager {
     this.renderablesById.set(id, renderable);
 
     renderable.camera = this.camera;
-    console.log(this.camera);
   }
 
   public getDevicePixelRatio(): number {
     return this.devicePixelRatio;
+  }
+
+
+  private setCtx() {
+    const canvas = this.$canvas[0];
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      throw new Error("browser cannot use canvas element")
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Couldn't get 2d context of canvas htmlElement");
+    }
+
+    const dpr = this.getDevicePixelRatio()
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    this.ctx = ctx;
+  }
+
+  private set ctx(ctx: CanvasRenderingContext2D) {
+    this._ctx = ctx;
+  }
+
+  public get ctx(): CanvasRenderingContext2D {
+    return this._ctx;
   }
 }
