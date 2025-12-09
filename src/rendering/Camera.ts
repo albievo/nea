@@ -22,13 +22,14 @@ export class Camera {
     dppr: number, maxZoom: number, zoomCoeff: number,
     worldSize: Vector2
   ) {
-    this.zoom = zoom;
     this.pan = pan.copy();
     this.dppr = dppr;
     this.maxZoom = maxZoom;
     this.zoomCoeff = zoomCoeff;
     this.worldSize = worldSize;
+    // does min zoom
     this.fitToScreen();
+    this.zoom = this.boundZoom(zoom);
 
     $(document).on('wheel', e => this.handleWheel(e));
     $(document).on('mousedown', e => this.handleMouseDown(e));
@@ -130,7 +131,7 @@ export class Camera {
       $(document).height()! * this.dppr
     )
 
-    this.minZoom = this.computeMinZoom();
+    this.minZoom = this.calcMinZoom();
   }
 
   /**calculate how many cells you should be able to see right now*/
@@ -143,7 +144,7 @@ export class Camera {
     return this.windowDims
   }
 
-  private computeMinZoom(): number {
+  private calcMinZoom(): number {
     // how many pixels wide and tall the whole world would be at zoom=1
     const worldPixels = this.worldSize.mult(this.baseCellPixels);
 
@@ -153,7 +154,7 @@ export class Camera {
       this.windowDims.getY() / worldPixels.getY()
     );
 
-    return Math.max(zoom.getX(), zoom.getY()); // smallest zoom that fits whole world
+    return Math.max(zoom.getX(), zoom.getY());
   }
 
   private handleResize() {

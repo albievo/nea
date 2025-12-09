@@ -126,8 +126,6 @@ export class Grid extends Renderable {
 
     const linesToDraw = camera.calcWorldUnitsOnScreen().add(1);
 
-    console.log(linesToDraw);
-
     // calculate offset
     const offsetWorld = camera.getPan().applyFunction(n => n % 1);
     const offsetScreen = offsetWorld.applyFunction(n => camera.worldUnitsToScreenPixels(n));
