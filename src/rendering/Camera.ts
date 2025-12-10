@@ -41,22 +41,25 @@ export class Camera {
     const DOMEvent = event.originalEvent as WheelEvent;
 
     // mouse position in screen pixels
-    const mouseScreen = new Vector2(DOMEvent.clientX * this.dppr, DOMEvent.clientY * this.dppr);
+    const mouseScreen = new Vector2(
+      DOMEvent.clientX * this.dppr,
+      DOMEvent.clientY * this.dppr
+    );
     const mouseWorld = this.screenToWorld(mouseScreen);
 
     // just used to check whether there has been a change
     const oldZoom = this.zoom;
 
     // compute new zoom
-    const rawZoom = this.zoom * (1 + DOMEvent.deltaY * this.zoomCoeff);
-    this.zoom = this.boundZoom(rawZoom);
+    const rawZoomFactor = 1 + (DOMEvent.deltaY * this.zoomCoeff);
+    this.setZoom(this.zoom * rawZoomFactor);
 
     // adjust pan to keep mouseWorld under cursor
-    this.setPan(
-      mouseWorld.subtract(mouseScreen.divide(this.zoom * this.baseCellPixels))
-    );
+    const newMouseWorld = this.screenToWorld(mouseScreen);
+    const delta = newMouseWorld.subtract(mouseWorld);
+    this.setPan(this.pan.subtract(delta));
 
-    const zoomFactor = this.zoom  / oldZoom
+    const zoomFactor = this.zoom / oldZoom;
 
     if (zoomFactor !== 1) {
       events.emit('zoom', { factor: zoomFactor, screenPos: mouseScreen });
@@ -196,10 +199,12 @@ export class Camera {
     const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
     const maxPan = this.worldSize.subtract(worldUnitsOnScreen);
 
-    return new Vector2(
+    const finalPan = new Vector2(
       Math.max(0, Math.min(pan.x, maxPan.x)),
       Math.max(0, Math.min(pan.y, maxPan.y))
     );
+
+    return finalPan
   }
 
   /**

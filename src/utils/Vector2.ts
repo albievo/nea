@@ -16,13 +16,13 @@ export class Vector2 {
     if (this.fixed) {
       throw new Error('cannot edit fixed vectors');
     }
-    this.x = x;
+    this._x = x;
   }
   public set y(y: number) {
     if (this.fixed) {
       throw new Error('cannot edit fixed vectors');
     }
-    this.y = y;
+    this._y = y;
   }
 
   public get x(): number {
