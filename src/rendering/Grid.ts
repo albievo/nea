@@ -1,4 +1,9 @@
+import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
+import { GeneralUtils } from "../utils/GeneralUtils";
+import { Vector2 } from "../utils/Vector2";
+import { WebpageUtils } from "../utils/WebpageUtils";
+import { Camera } from "./Camera";
 import { Renderable } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import { GridPayload, InitialGridRenderPayload, ZoomPayload } from "./RenderPayloads";
@@ -39,7 +44,6 @@ export class Grid extends Renderable {
 
   private fitToPage() {
     const camera = this.camera;
-    console.log(camera);
     if (!camera) {
       throw new Error("please supply a camera");
     }
