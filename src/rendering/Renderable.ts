@@ -33,9 +33,6 @@ export abstract class Renderable {
   public set camera(camera: Camera) {
     this._camera = camera;
   }
-  public get camera(): Camera | undefined {
-    return this._camera;
-  }
 
   public get id() {
     return this._id;
