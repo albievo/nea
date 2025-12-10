@@ -31,8 +31,8 @@ export class RenderManager {
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
-    this.camera = new Camera(5, Vector2.zeroes, this.devicePixelRatio, 15, 0.001, worldSize);
-    this.setCtx()
+    this.camera = new Camera(5, 15, 0.001, this.devicePixelRatio, worldSize);
+    this.setCtx();
 
     $(window).on('resize', () => events.emit('resize'));
   }

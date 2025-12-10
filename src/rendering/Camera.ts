@@ -4,7 +4,7 @@ import $ from 'jquery';
 
 export class Camera {
   private zoom: number;
-  private pan: Vector2; // top-left of screen in world units
+  private pan!: Vector2; // top-left of screen in world units
   private dppr: number;
 
   private minZoom = 1;
@@ -19,11 +19,9 @@ export class Camera {
   readonly baseCellPixels = 48;
 
   constructor(
-    zoom: number, pan: Vector2,
-    dppr: number, maxZoom: number, zoomCoeff: number,
-    worldSize: Vector2
+    zoom: number, maxZoom: number, zoomCoeff: number,
+    dppr: number, worldSize: Vector2
   ) {
-    this.pan = pan.copy();
     this.dppr = dppr;
     this.maxZoom = maxZoom;
     this.zoomCoeff = zoomCoeff;
@@ -31,6 +29,14 @@ export class Camera {
     // does min zoom
     this.fitToScreen();
     this.zoom = this.boundZoom(zoom);
+
+    const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
+    console.log(worldUnitsOnScreen);
+    
+    this.setPan(
+      worldSize.subtract(worldUnitsOnScreen)
+        .divide(2)
+    );
 
     $(document).on('wheel', e => this.handleWheel(e));
     $(document).on('mousedown', e => this.handleMouseDown(e));
