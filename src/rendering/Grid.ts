@@ -1,3 +1,4 @@
+import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { Renderable } from "./Renderable";
 import { RenderManager } from "./RenderManager";
@@ -31,6 +32,8 @@ export class Grid extends Renderable {
     this.width = payload.size.x;
     // update values that care about the size of the page
     this.fitToPage();
+
+    events.on('resize', () => this.handleResize());
   }
 
   private updateForCamera() {
@@ -39,7 +42,6 @@ export class Grid extends Renderable {
 
   private fitToPage() {
     const camera = this.camera;
-    console.log(camera);
     if (!camera) {
       throw new Error("please supply a camera");
     }
