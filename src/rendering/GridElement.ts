@@ -35,15 +35,33 @@ export class GridElement extends Renderable {
   }
 
   private renderElement() {
+    // ensure camera exists    
     const camera = this.camera
     if (!camera) {
-      throw new Error ('please set a camera before rendering')
+      throw new Error ('please set a camera before rendering');
     }
-
+    
+    //don't render unless on screen
     const isOnScreen = this.isOnScreen();
     if (!isOnScreen) {
       return;
     }
+
+    const ctx = this.renderManager.ctx;
+
+    const screenPos = camera.worldPosToScreen(this.pos);
+    const screenDims = camera.worldUnitsToScreenPixels(this.dims.x);
+
+    console.log(`rendering element at ${screenPos.x}, ${screenPos.y} with dims ${screenDims}`);
+
+    // draw the element
+    ctx.fillStyle = this.colour || 'grey';
+    ctx.fillRect(
+      screenPos.x,
+      screenPos.y,
+      screenDims,
+      screenDims
+    );
   }
 
   private isOnScreen(): boolean {
@@ -55,9 +73,25 @@ export class GridElement extends Renderable {
     const bottomRight = this.pos.add(this.dims);
 
     return camera.isOnScreen(this.pos) || camera.isOnScreen(bottomRight);
-  } 
+  }
 
   protected getEventHandlers(): EventHandlerMap {
-    return {};
+    return {
+      'pan': () => this.handlePan(),
+      'zoom': () => this.handleZoom(),
+      'resize': () => this.handleResize()
+    };
   };
+
+  private handlePan() {
+    this.renderManager.requestRender(this.id, { kind: 'grid-element', camera: true });
+  }
+
+  private handleZoom() {
+    this.renderManager.requestRender(this.id, { kind: 'grid-element', camera: true });
+  }
+
+  private handleResize() {
+    this.renderManager.requestRender(this.id, { kind: 'grid-element', resize: true });
+  }
 }

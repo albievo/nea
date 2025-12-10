@@ -34,7 +34,10 @@ export class RenderManager {
     this.camera = new Camera(5, 15, 0.001, this.devicePixelRatio, worldSize);
     this.setCtx();
 
-    $(window).on('resize', () => events.emit('resize'));
+    $(window).on('resize', () => {
+      events.emit('resize');
+      this.fitCanvasToPage();
+    });
   }
 
   public requestRender(id: string, payload: RenderPayload) {
@@ -83,6 +86,12 @@ export class RenderManager {
   }
 
   private flush() {
+    const ctx = this.ctx;
+    const windowDims = this.camera.getWindowDims();
+
+    //clear the canvas
+    ctx.clearRect(0, 0, windowDims.x, windowDims.y);
+
     // iterate through pending render payloads
     for (let [id, payload] of this.pending) {
       const renderable = this.renderablesById.get(id);
@@ -113,7 +122,6 @@ export class RenderManager {
     return this.devicePixelRatio;
   }
 
-
   private setCtx() {
     const canvas = this.$canvas[0];
     if (!(canvas instanceof HTMLCanvasElement)) {
@@ -130,6 +138,8 @@ export class RenderManager {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     this.ctx = ctx;
+
+    this.fitCanvasToPage();
   }
 
   private set ctx(ctx: CanvasRenderingContext2D) {
@@ -138,5 +148,12 @@ export class RenderManager {
 
   public get ctx(): CanvasRenderingContext2D {
     return this._ctx;
+  }
+
+  private fitCanvasToPage() {
+    const windowDims = this.camera.getWindowDims();
+
+    this.ctx.canvas.width = windowDims.x;
+    this.ctx.canvas.height = windowDims.y;
   }
 }

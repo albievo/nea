@@ -31,7 +31,6 @@ export class Camera {
     this.zoom = this.boundZoom(zoom);
 
     const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
-    console.log(worldUnitsOnScreen);
     
     this.setPan(
       worldSize.subtract(worldUnitsOnScreen)

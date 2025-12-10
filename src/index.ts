@@ -25,8 +25,10 @@ renderManager.requestRender(gridId, {kind: "grid", initial: {
   zoomCoefficient: 0.01
 }});
 
+const gridElementId = crypto.randomUUID();
+
 renderManager.addRenderable(
-  new GridElement(crypto.randomUUID(), renderManager, new Vector2(1, 1), new Vector2(1, 1))
+  new GridElement(gridElementId, renderManager, new Vector2(5, 5), new Vector2(1, 1))
 );
 
-renderManager.requestRender(crypto.randomUUID(), {kind: 'grid-element', initial: { color: 'red' }});
+renderManager.requestRender(gridElementId, {kind: 'grid-element', initial: { color: 'red' }});

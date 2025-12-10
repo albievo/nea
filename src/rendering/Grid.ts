@@ -21,7 +21,6 @@ export class Grid extends Renderable {
     // could be cleaned up with a renderHandler record, but I like the readability here
     if (payload.initial) this.initialRender(payload.initial);
     if (payload.camera) this.updateForCamera();
-    if (payload.resize) this.fitToPage();
 
     this.renderGrid();
   }
@@ -30,26 +29,12 @@ export class Grid extends Renderable {
     // set relevant values
     this.height = payload.size.y;
     this.width = payload.size.x;
-    // update values that care about the size of the page
-    this.fitToPage();
 
     events.on('resize', () => this.handleResize());
   }
 
   private updateForCamera() {
     this.renderGrid();
-  }
-
-  private fitToPage() {
-    const camera = this.camera;
-    if (!camera) {
-      throw new Error("please supply a camera");
-    }
-
-    const windowDims = camera.getWindowDims();
-
-    this.ctx.canvas.width = windowDims.x;
-    this.ctx.canvas.height = windowDims.y;
   }
 
   private handleZoom() {
@@ -81,9 +66,6 @@ export class Grid extends Renderable {
     const ctx = this.ctx;
 
     const windowDims = camera.getWindowDims();
-
-    //clear the canvas
-    ctx.clearRect(0, 0, windowDims.x, windowDims.y);
     
     const cellDimScreen = camera.worldUnitsToScreenPixels(1);
 
