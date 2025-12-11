@@ -52,8 +52,6 @@ export class GridElement extends Renderable {
     const screenPos = camera.worldPosToScreen(this.pos);
     const screenDims = camera.worldUnitsToScreenPixels(this.dims.x);
 
-    console.log(`rendering element at ${screenPos.x}, ${screenPos.y} with dims ${screenDims}`);
-
     // draw the element
     ctx.fillStyle = this.colour || 'grey';
     ctx.fillRect(

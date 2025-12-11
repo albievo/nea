@@ -1,6 +1,7 @@
 import events from "../event/events";
 import { Vector2 } from "../utils/Vector2";
 import $ from 'jquery';
+import { RenderManager } from "./RenderManager";
 
 export class Camera {
   private zoom: number;
@@ -11,7 +12,8 @@ export class Camera {
   private maxZoom: number;
   private zoomCoeff: number;
 
-  private worldSize: Vector2
+  private worldSize: Vector2;
+  private renderManager: RenderManager;
   private windowDims!: Vector2;
 
   private lastMousePos = new Vector2(0, 0);
@@ -20,7 +22,8 @@ export class Camera {
 
   constructor(
     zoom: number, maxZoom: number, zoomCoeff: number,
-    dppr: number, worldSize: Vector2
+    dppr: number, worldSize: Vector2,
+    renderManager: RenderManager
   ) {
     this.dppr = dppr;
     this.maxZoom = maxZoom;
@@ -29,9 +32,10 @@ export class Camera {
     // does min zoom
     this.fitToScreen();
     this.zoom = this.boundZoom(zoom);
-
-    const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
+    this.renderManager = renderManager;
     
+    //centre camera
+    const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
     this.setPan(
       worldSize.subtract(worldUnitsOnScreen)
         .divide(2)
@@ -72,6 +76,10 @@ export class Camera {
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
+    if (this.renderManager.spaceHeld() === false) {
+      return;
+    }
+
     this.lastMousePos = new Vector2(
       event.clientX * this.dppr,
       event.clientY * this.dppr

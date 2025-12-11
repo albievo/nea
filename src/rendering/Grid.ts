@@ -45,16 +45,8 @@ export class Grid extends Renderable {
     this.renderManager.requestRender(this.id, {kind: "grid", resize: true});
   }
 
-  private handleBeginPan() {
-    this.setPointer('grabbing');
-  }
-
   private handlePan() {
     this.renderManager.requestRender(this.id, { kind: 'grid', camera: true });
-  }
-
-  private handleEndPan() {
-    this.setPointer('default');
   }
 
   private renderGrid() {
@@ -96,18 +88,8 @@ export class Grid extends Renderable {
     ctx.stroke();
   }
 
-  public setPointer(pointerStyle: string) {
-    if (pointerStyle === "default") {
-      this.$canvas?.css("cursor", "grab");
-    } else {
-      this.$canvas?.css("cursor", pointerStyle);
-    }
-  }
-
   protected getEventHandlers(): EventHandlerMap {
     return {
-      'end-pan': () => this.handleEndPan(),
-      'begin-pan': () => this.handleBeginPan(),
       'pan': () => this.handlePan(),
       'zoom': () => this.handleZoom(),
     }

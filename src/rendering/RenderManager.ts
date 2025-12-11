@@ -22,22 +22,36 @@ export class RenderManager {
   private nodeIdToRenderId = new Map<string, string>();
   private renderIdToNodeId = new Map<string, string>();
 
-  private scheduled = false;
+  private scheduled: boolean = false;
+  private space: boolean = false;
 
   private $canvas = $('#canvas');
-
   private _ctx!: CanvasRenderingContext2D;
 
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
-    this.camera = new Camera(5, 15, 0.001, this.devicePixelRatio, worldSize);
+    this.camera = new Camera(5, 15, 0.001, this.devicePixelRatio, worldSize, this);
     this.setCtx();
 
     $(window).on('resize', () => {
       events.emit('resize');
       this.fitCanvasToPage();
     });
+
+    // track whether space is held down
+    $(document).on('keydown', e => {
+      if (e.key === ' ') this.space = true;
+      this.setPointer('grab');
+
+    });
+    $(document).on('keyup', e => {
+      if (e.key === ' ') this.space = false
+      this.setPointer('default');
+    });
+
+    events.on('begin-pan', () => this.setPointer('grabbing'));
+    events.on('end-pan', () => this.setPointer('default'));
   }
 
   public requestRender(id: string, payload: RenderPayload) {
@@ -155,5 +169,22 @@ export class RenderManager {
 
     this.ctx.canvas.width = windowDims.x;
     this.ctx.canvas.height = windowDims.y;
+  }
+
+  public setPointer(pointerStyle: string) {
+    let pointer;
+
+    if (pointerStyle === "default") {
+      pointer = this.space ? 'grab' : 'default';
+    } else {
+      pointer = pointerStyle;
+    }
+
+    console.log(`setting pointer to ${pointer}`);
+    this.$canvas.css('cursor', pointer);
+  }
+
+  public spaceHeld(): boolean {
+    return this.space;
   }
 }
