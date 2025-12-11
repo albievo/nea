@@ -60,7 +60,7 @@ export class Camera {
     const oldZoom = this.zoom;
 
     // compute new zoom
-    const rawZoomFactor = 1 + (DOMEvent.deltaY * this.zoomCoeff);
+    const rawZoomFactor = 1 + (-DOMEvent.deltaY * this.zoomCoeff);
     this.setZoom(this.zoom * rawZoomFactor);
 
     // adjust pan to keep mouseWorld under cursor
