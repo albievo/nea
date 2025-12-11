@@ -60,6 +60,7 @@ export class Camera {
     const oldZoom = this.zoom;
 
     // compute new zoom
+    // zoom direction could be a setting later?
     const rawZoomFactor = 1 + (-DOMEvent.deltaY * this.zoomCoeff);
     this.setZoom(this.zoom * rawZoomFactor);
 
@@ -142,6 +143,8 @@ export class Camera {
 
   /** Convert screen coordinates (pixels) to world coordinates */
   public screenToWorld(screenPos: Vector2) {
+    const screenCoordsInWorldUnits = screenPos.divide(this.zoom * this.baseCellPixels)
+    console.log("screen coords:", screenCoordsInWorldUnits, ", pan:", this.pan, ", mouse pos: ",  screenCoordsInWorldUnits.add(this.pan));
     return screenPos.divide(this.zoom * this.baseCellPixels).add(this.pan);
   }
 

@@ -22,6 +22,8 @@ export class GridElement extends Renderable {
 
     this.dims = dims.fixedCopy();
     this.pos = pos.copy();
+
+    $(document).on('mousedown', e => this.handleMouseDown(e));
   }
 
   public render(payload: GridElementPayload): void {
@@ -68,7 +70,7 @@ export class GridElement extends Renderable {
       throw new Error ('please set a camera to check if the element is on screen')
     }
 
-    const bottomRight = this.pos.add(this.dims);
+    const bottomRight = this.calcBottomRight()
 
     return camera.isOnScreen(this.pos) || camera.isOnScreen(bottomRight);
   }
@@ -91,5 +93,34 @@ export class GridElement extends Renderable {
 
   private handleResize() {
     this.renderManager.requestRender(this.id, { kind: 'grid-element', resize: true });
+  }
+
+  private handleMouseDown(event: JQuery.MouseDownEvent) {
+
+    const camera = this.camera;
+    if (!camera) return;
+
+    const screenPos = new Vector2(event.clientX, event.clientY);
+    const worldPos = camera.screenToWorld(screenPos);
+
+    // console.log(`world pos: ${worldPos.x}, ${worldPos.y} contains element: ${this.contains(worldPos)}`);
+
+    if (!this.contains(worldPos)) return;
+  }
+
+  /**
+   * Checks whether a world pos in within the bounds of this element
+   */
+  private contains(worldPos: Vector2): boolean {
+    const bottomRight = this.calcBottomRight();
+
+    const withinX = this.pos.x <= worldPos.x && worldPos.x <= (bottomRight.x);
+    const withinY = this.pos.y <= worldPos.y && worldPos.y <= (bottomRight.y);
+
+    return withinX && withinY;
+  }
+
+  private calcBottomRight() {
+    return this.pos.add(this.dims);
   }
 }

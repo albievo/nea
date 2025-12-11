@@ -42,7 +42,7 @@ export class Vector2 {
     }
     //for vector addition
     else {
-      return new Vector2(this.x + a.y, this.y + a.y)
+      return new Vector2(this.x + a.x, this.y + a.y)
     }
   }
 

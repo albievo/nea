@@ -177,7 +177,6 @@ export class RenderManager {
   }
 
   public setPointer(pointerStyle: string) {
-    console.log(`setting pointer to ${pointerStyle}`);
     this.$canvas.css('cursor', pointerStyle);
   }
 
@@ -186,8 +185,6 @@ export class RenderManager {
   }
 
   private handleSpaceKeyDown() {
-    console.log('space key down');
-
     if (this.isPanning) {
       this.setPointer('grabbing');
     } else {
@@ -203,10 +200,6 @@ export class RenderManager {
   }
 
   private handleSpaceKeyUp() {
-    console.log('space key up');
-    // if (this.isPanning) {
-    //   this.setPointer('grabbing');
-    // }
     if (!this.isPanning) {
       this.setPointer('default');
     }
