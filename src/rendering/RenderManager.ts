@@ -24,6 +24,7 @@ export class RenderManager {
 
   private scheduled: boolean = false;
   private space: boolean = false;
+  private isPanning: boolean = false;
 
   private $canvas = $('#canvas');
   private _ctx!: CanvasRenderingContext2D;
@@ -40,18 +41,22 @@ export class RenderManager {
     });
 
     // track whether space is held down
-    $(document).on('keydown', e => {
-      if (e.key === ' ') this.space = true;
-      this.setPointer('grab');
-
-    });
-    $(document).on('keyup', e => {
-      if (e.key === ' ') this.space = false
-      this.setPointer('default');
+    $(document).on('keydown.spaceKeyTracker', e => {
+      if (e.key === ' ') this.handleSpaceKeyDown();
     });
 
-    events.on('begin-pan', () => this.setPointer('grabbing'));
-    events.on('end-pan', () => this.setPointer('default'));
+    events.on('begin-pan', () => { 
+      this.isPanning = true;
+      this.setPointer('grabbing'); 
+    });
+    events.on('end-pan', () => {
+      this.isPanning = false;
+      if (this.space) {
+        this.setPointer('grab');
+      } else {  
+        this.setPointer('default');
+      }
+    });
   }
 
   public requestRender(id: string, payload: RenderPayload) {
@@ -172,19 +177,45 @@ export class RenderManager {
   }
 
   public setPointer(pointerStyle: string) {
-    let pointer;
-
-    if (pointerStyle === "default") {
-      pointer = this.space ? 'grab' : 'default';
-    } else {
-      pointer = pointerStyle;
-    }
-
-    console.log(`setting pointer to ${pointer}`);
-    this.$canvas.css('cursor', pointer);
+    console.log(`setting pointer to ${pointerStyle}`);
+    this.$canvas.css('cursor', pointerStyle);
   }
 
   public spaceHeld(): boolean {
     return this.space;
+  }
+
+  private handleSpaceKeyDown() {
+    console.log('space key down');
+
+    if (this.isPanning) {
+      this.setPointer('grabbing');
+    } else {
+      this.setPointer('grab');
+    }
+    this.space = true;
+    $(document).off('keydown.spaceKeyTracker');
+    $(document).on('keyup.spaceKeyTracker', e => {
+      if (e.key === ' ') {
+        this.handleSpaceKeyUp();
+      }
+    });
+  }
+
+  private handleSpaceKeyUp() {
+    console.log('space key up');
+    // if (this.isPanning) {
+    //   this.setPointer('grabbing');
+    // }
+    if (!this.isPanning) {
+      this.setPointer('default');
+    }
+    this.space = false;
+    $(document).off('keyup.spaceKeyTracker');
+    $(document).on('keydown.spaceKeyTracker', e => {
+      if (e.key === ' ') {
+        this.handleSpaceKeyDown();
+      }
+    });
   }
 }
