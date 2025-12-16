@@ -2,7 +2,7 @@ import { RenderManager } from "./rendering/RenderManager";
 import { WorkingChip } from "./application/WorkingChip";
 import { Netlist } from "./netlist/Netlist";
 import { Grid } from "./rendering/Grid";
-import { InitialGridRenderPayload } from "./rendering/RenderPayloads";
+import { InitialGridRenderPayload, InitialGridElementMap } from "./rendering/RenderPayloads";
 
 import './index.scss';
 import { Vector2 } from "./utils/Vector2";
@@ -18,7 +18,8 @@ const gridId = crypto.randomUUID();
 
 renderManager.addRenderable(new Grid(gridId, renderManager));
 
-renderManager.requestRender(gridId, {kind: "grid", initial: {
+renderManager.requestRender({initialGrid: {
+  renderableId: gridId,
   size: worldSize,
   startingZoom: 10,
   maxZoom: 15,
@@ -31,4 +32,11 @@ renderManager.addRenderable(
   new GridElement(gridElementId, renderManager, new Vector2(5, 5), new Vector2(1, 1))
 );
 
-renderManager.requestRender(gridElementId, {kind: 'grid-element', initial: { color: 'red' }});
+const gridElementInitalPayload: InitialGridElementMap = {
+  gridElementId: {
+    renderableId: gridElementId,
+    color: 'red'
+  } 
+}
+
+renderManager.requestRender({initialGridElements: gridElementInitalPayload});

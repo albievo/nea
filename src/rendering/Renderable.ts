@@ -2,7 +2,7 @@ import events from "../event/events";
 import { EventHandlerMap, EventTypes, Handler } from "../event/eventTypes";
 import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
-import { RenderPayload } from "./RenderPayloads";
+import { AnyRenderBuffer, RenderBuffer, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
 import $ from 'jquery';
 
 export abstract class Renderable {
@@ -12,9 +12,11 @@ export abstract class Renderable {
 
   protected $canvas: JQuery<HTMLElement> = $('#canvas');
 
-  protected abstract getEventHandlers(): EventHandlerMap;
+  protected abstract renderBuffer: RenderBuffer;
 
-  public abstract render(payload: RenderPayload): void;
+  protected abstract _kind: RenderableKind;
+
+  protected abstract getEventHandlers(): EventHandlerMap;
 
   constructor(id: string, renderManager: RenderManager) {
     this._id = id;
@@ -40,4 +42,27 @@ export abstract class Renderable {
   public get id() {
     return this._id;
   }
+
+  public render() {
+    this.updateFromBuffer();
+    this.renderObject();
+    this.renderBuffer = { kind: this.kind };
+  }
+
+  protected abstract updateFromBuffer(): void;
+  protected abstract renderObject(): void;
+
+  public get kind() {
+    return this._kind;
+  }
+
+  /**
+   * merges new information into the current render buffer
+   * @param newPayload should be of the same type as the class
+   */
+  public appendRenderBuffer(newPayload: AnyRenderBuffer) {
+    const newRenderBuffer = RenderPayloadUtils.mergeRenderBuffers(this.renderBuffer, newPayload);
+  }
 }
+
+export type RenderableKind = "grid" | "grid-element"

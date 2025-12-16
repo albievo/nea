@@ -1,11 +1,12 @@
 import { Renderable } from "./Renderable";
 import { WorkingChip } from "../application/WorkingChip"
-import { RenderPayload, RenderPayloadKind } from "./RenderPayloads";
+import { PayloadRequiresFullRender, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
 import events from "../event/events";
 import $ from 'jquery';
+import { GeneralUtils } from "../utils/GeneralUtils";
 
 export class RenderManager {
   private workingChip: WorkingChip;
@@ -17,14 +18,14 @@ export class RenderManager {
   private worldSize: Vector2;
 
   private renderablesById = new Map<string, Renderable>();
-  private pending = new Map<string, RenderPayload>();
   
   private nodeIdToRenderId = new Map<string, string>();
   private renderIdToNodeId = new Map<string, string>();
 
   private scheduled: boolean = false;
-  private space: boolean = false;
-  private isPanning: boolean = false;
+  private fullRenderRequired: boolean = false;
+
+  private gridId?: string;
 
   private $canvas = $('#canvas');
   private _ctx!: CanvasRenderingContext2D;
@@ -40,92 +41,88 @@ export class RenderManager {
       this.fitCanvasToPage();
     });
 
-    // track whether space is held down
-    $(document).on('keydown.spaceKeyTracker', e => {
-      if (e.key === ' ') this.handleSpaceKeyDown();
-    });
+    // send out render requests whenever camera changes or resize occcurs
+    events.on('resize', () => this.requestRender({ resize: true }));
+    events.on('pan', () => this.requestRender({ camera: true }));
+    events.on('zoom', () => this.requestRender({ camera: true }));
 
-    events.on('begin-pan', () => { 
-      this.isPanning = true;
-      this.setPointer('grabbing'); 
-    });
-    events.on('end-pan', () => {
-      this.isPanning = false;
-      if (this.space) {
-        this.setPointer('grab');
-      } else {  
-        this.setPointer('default');
+    requestAnimationFrame(() => this.frame());
+  }
+
+  public requestRender(payload: RenderPayload) {
+    this.scheduled = true;
+
+    // check if any part of the payload requires a full render
+    this.fullRenderRequired ||= RenderPayloadUtils.payloadRequiresFullRender(payload);
+
+    // iterate through renderables
+    for (const renderable of Object.values(this.renderablesById)) {
+      renderable.appendRenderBuffer({ camera: payload.camera, resize: payload.resize });
+    }
+
+    // add grid's inital render
+    if (payload.initialGrid) {
+      // ensure there is a grid
+      if (!this.gridId) {
+        console.error('please add a grid');
+        return;
       }
-    });
-  }
+      const grid = this.renderablesById.get(this.gridId);
 
-  public requestRender(id: string, payload: RenderPayload) {
-    // is there an existing render to be completed for this renderable this frame
-    const existing = this.pending.get(id);
-
-    // if there is an existing render, merge it with the newest one
-    const normalisedPayload = existing
-      ? this.mergePayloads(existing, payload, existing.kind)
-      : payload;
-    this.pending.set(id, normalisedPayload);
-
-    this.requestFlush();
-  }
-
-  /**
-   * Flush on the next animation frame.
-   * Can only happen a max of once per frame, no matter how many times called
-   */
-  private requestFlush() {
-    if (!this.scheduled) {
-      this.scheduled = true;
-      requestAnimationFrame(() => {
-        this.flush();
-        this.scheduled = false
+      grid?.appendRenderBuffer({
+        kind: 'grid',
+        initial: payload.initialGrid
       });
     }
-  }
-
-  private mergePayloads(original: RenderPayload, toAdd: RenderPayload, kind: RenderPayloadKind): RenderPayload {
-    const newPayload: RenderPayload = {kind};
-
-    // toAdd always comes after the original.
-    // It doesn't make sense to run an intial render after other renders have been requested,
-    // so throw an error
-    if (toAdd.initial) {
-      throw new Error("cannot run an initial render after other renders");
+    
+    // add each grid element's initital renders
+    if (payload.initialGridElements) {
+      for (const [id, initialPayload] of Object.entries(payload.initialGridElements)) {
+        const gridElement = this.renderablesById.get(id);
+        gridElement?.appendRenderBuffer({ kind: 'grid-element', initial: initialPayload })
+      }
     }
 
-    newPayload.camera = original.camera || toAdd.camera;
-
-    // if there is any resizing, new payload should include it
-    newPayload.resize = original.resize || toAdd.resize;
-
-    return newPayload;
+    // add each grid element's movements
+    if (payload.gridElementsMovement) {
+      for (const [id, movementPayload] of Object.entries(payload.gridElementsMovement)) {
+        const gridElement = this.renderablesById.get(id);
+        gridElement?.appendRenderBuffer({ kind: 'grid-element', movement: movementPayload.delta })
+      }
+    }
   }
 
-  private flush() {
+  private frame() {
+    if (!this.scheduled) {
+      requestAnimationFrame(() => this.frame());
+      return;
+    }
+
     const ctx = this.ctx;
     const windowDims = this.camera.getWindowDims();
 
     //clear the canvas
-    ctx.clearRect(0, 0, windowDims.x, windowDims.y);
-
-    // iterate through pending render payloads
-    for (let [id, payload] of this.pending) {
-      const renderable = this.renderablesById.get(id);
-      if (!renderable) {
-        continue;
-      }
-
-      renderable.render(payload);
+    if (this.fullRenderRequired) {
+      ctx.clearRect(0, 0, windowDims.x, windowDims.y);
+      this.fullRenderRequired = false;
     }
 
-    this.pending.clear();
+    for (const renderable of this.renderablesById.values()) {
+      renderable.render();
+    }
+
+    this.scheduled = false;
+    requestAnimationFrame(() => this.frame());
   }
 
   public addRenderable(renderable: Renderable) {
     const id = renderable.id;
+
+    console.log(renderable.kind);
+
+    if (renderable.kind === 'grid') {
+      this.gridId = id;
+    }
 
     const existing = this.renderablesById.get(id);
     if (existing) {
@@ -175,40 +172,8 @@ export class RenderManager {
     this.ctx.canvas.width = windowDims.x;
     this.ctx.canvas.height = windowDims.y;
   }
+}
 
-  public setPointer(pointerStyle: string) {
-    this.$canvas.css('cursor', pointerStyle);
-  }
-
-  public spaceHeld(): boolean {
-    return this.space;
-  }
-
-  private handleSpaceKeyDown() {
-    if (this.isPanning) {
-      this.setPointer('grabbing');
-    } else {
-      this.setPointer('grab');
-    }
-    this.space = true;
-    $(document).off('keydown.spaceKeyTracker');
-    $(document).on('keyup.spaceKeyTracker', e => {
-      if (e.key === ' ') {
-        this.handleSpaceKeyUp();
-      }
-    });
-  }
-
-  private handleSpaceKeyUp() {
-    if (!this.isPanning) {
-      this.setPointer('default');
-    }
-    this.space = false;
-    $(document).off('keyup.spaceKeyTracker');
-    $(document).on('keydown.spaceKeyTracker', e => {
-      if (e.key === ' ') {
-        this.handleSpaceKeyDown();
-      }
-    });
-  }
+interface RenderPayloadWithFullRenderFlag extends RenderPayload {
+  fullRender: boolean;
 }

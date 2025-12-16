@@ -20,6 +20,9 @@ export class Camera {
 
   readonly baseCellPixels = 48;
 
+  private space: boolean = false;
+  private isPanning: boolean = false;
+
   constructor(
     zoom: number, maxZoom: number, zoomCoeff: number,
     dppr: number, worldSize: Vector2,
@@ -44,6 +47,12 @@ export class Camera {
     $(document).on('wheel', e => this.handleWheel(e));
     $(document).on('mousedown', e => this.handleMouseDown(e));
     events.on('resize', () => this.handleResize());
+
+
+    // track whether space is held down
+    $(document).on('keydown.spaceKeyTracker', e => {
+      if (e.key === ' ') this.handleSpaceKeyDown();
+    });
   }
 
   private handleWheel(event: JQuery.TriggeredEvent) {
@@ -77,7 +86,7 @@ export class Camera {
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
-    if (this.renderManager.spaceHeld() === false) {
+    if (this.space === false) {
       return;
     }
 
@@ -94,6 +103,10 @@ export class Camera {
   }
 
   private followMouse() {
+    // update cursor style
+    this.isPanning = true;
+    this.setPointer('grabbing'); 
+
     $(document).on('mousemove.followMouse', e => {
       if (!(e.clientX && e.clientY)) {
         return;
@@ -131,6 +144,14 @@ export class Camera {
   }
 
   private stopFollowingMouse() {
+    // update cursor style
+    this.isPanning = false;
+    if (this.space) {
+      this.setPointer('grab');
+    } else {  
+      this.setPointer('default');
+    }
+
     $(document).off('mousemove.followMouse');
     $(document).off('mouseup.stopFollowingMouse');
     events.emit('end-pan');
@@ -144,7 +165,6 @@ export class Camera {
   /** Convert screen coordinates (pixels) to world coordinates */
   public screenToWorld(screenPos: Vector2) {
     const screenCoordsInWorldUnits = screenPos.divide(this.zoom * this.baseCellPixels)
-    console.log("screen coords:", screenCoordsInWorldUnits, ", pan:", this.pan, ", mouse pos: ",  screenCoordsInWorldUnits.add(this.pan));
     return screenPos.divide(this.zoom * this.baseCellPixels).add(this.pan);
   }
 
@@ -235,5 +255,39 @@ export class Camera {
     const isBelow = screenPos.y > this.windowDims.y;
 
     return !(isLeft || isAbove || isRight || isBelow);
+  }
+
+
+  private handleSpaceKeyDown() {
+    if (this.isPanning) {
+      this.setPointer('grabbing');
+    } else {
+      this.setPointer('grab');
+    }
+    this.space = true;
+    $(document).off('keydown.spaceKeyTracker');
+    $(document).on('keyup.spaceKeyTracker', e => {
+      if (e.key === ' ') {
+        this.handleSpaceKeyUp();
+      }
+    });
+  }
+
+  private handleSpaceKeyUp() {
+    if (!this.isPanning) {
+      this.setPointer('default');
+    }
+    this.space = false;
+    $(document).off('keyup.spaceKeyTracker');
+    $(document).on('keydown.spaceKeyTracker', e => {
+      if (e.key === ' ') {
+        this.handleSpaceKeyDown();
+      }
+    });
+  }
+
+
+  public setPointer(pointerStyle: string) {
+    $('#canvas').css('cursor', pointerStyle);
   }
 }

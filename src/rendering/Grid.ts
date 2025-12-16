@@ -1,8 +1,8 @@
 import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
-import { Renderable } from "./Renderable";
+import { Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridPayload, InitialGridRenderPayload, ZoomPayload } from "./RenderPayloads";
+import { GridRenderBuffer, InitialGridRenderPayload } from "./RenderPayloads";
 import $ from 'jquery';
 
 export class Grid extends Renderable {
@@ -10,46 +10,33 @@ export class Grid extends Renderable {
 
   private height!: number;
   private width!: number;
-    
+
+  protected _kind: RenderableKind = 'grid';
+  protected renderBuffer: GridRenderBuffer = { kind: 'grid' };
+  
   constructor(id: string, renderManager: RenderManager) {
     super(id, renderManager);
 
     this.ctx = this.renderManager.ctx;
   }
 
-  public render(payload: GridPayload): void {
+  protected updateFromBuffer(): void {
     // could be cleaned up with a renderHandler record, but I like the readability here
-    if (payload.initial) this.initialRender(payload.initial);
-    if (payload.camera) this.updateForCamera();
-
-    this.renderGrid();
+    if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
     // set relevant values
     this.height = payload.size.y;
     this.width = payload.size.x;
-
-    events.on('resize', () => this.handleResize());
   }
 
-  private updateForCamera() {
-    this.renderGrid();
+  // COULD DELETE THIS IF NO LONGER NEEDED?
+  protected getEventHandlers(): EventHandlerMap {
+    return {}
   }
 
-  private handleZoom() {
-    this.renderManager.requestRender(this.id, {kind: "grid", camera: true});
-  }
-
-  private handleResize() {
-    this.renderManager.requestRender(this.id, {kind: "grid", resize: true});
-  }
-
-  private handlePan() {
-    this.renderManager.requestRender(this.id, { kind: 'grid', camera: true });
-  }
-
-  private renderGrid() {
+  protected renderObject() {
     const camera = this.camera;
     if (!camera) {
       throw new Error("please supply a camera");
@@ -86,13 +73,6 @@ export class Grid extends Renderable {
     }
     
     ctx.stroke();
-  }
-
-  protected getEventHandlers(): EventHandlerMap {
-    return {
-      'pan': () => this.handlePan(),
-      'zoom': () => this.handleZoom(),
-    }
   }
 }
 

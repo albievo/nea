@@ -15,4 +15,8 @@ export class GeneralUtils {
       Array.from({ length: m }, () => factory())
     );
   }
+
+  static objectIsEmpty(object: Object) {
+    return (Object.keys(object).length === 0);
+  }
 }

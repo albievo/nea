@@ -1,15 +1,18 @@
 import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
-import { Renderable } from "./Renderable";
+import { Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridElementPayload, InitialGridElementPayload } from "./RenderPayloads";
+import { GridElementRenderBuffer, InitialGridElementPayload } from "./RenderPayloads";
 import $ from 'jquery';
 
 export class GridElement extends Renderable {
   // in world units
   private dims: Vector2;
   private pos: Vector2;
+
+  protected _kind: RenderableKind = 'grid-element';
+  protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
 
   private colour?: string;
 
@@ -26,17 +29,20 @@ export class GridElement extends Renderable {
     $(document).on('mousedown', e => this.handleMouseDown(e));
   }
 
-  public render(payload: GridElementPayload): void {
-    if (payload.initial) this.initialRender(payload.initial);
-
-    this.renderElement();
+  protected updateFromBuffer(): void {
+    if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
+    if (this.renderBuffer.movement) this.move(this.renderBuffer.movement)
   }
 
   private initialRender(payload: InitialGridElementPayload) {
     this.colour = payload.color;
   }
 
-  private renderElement() {
+  private move(movement: Vector2) {
+    this.pos = this.pos.add(movement);
+  }
+
+  protected renderObject() {
     // ensure camera exists    
     const camera = this.camera
     if (!camera) {
@@ -76,24 +82,8 @@ export class GridElement extends Renderable {
   }
 
   protected getEventHandlers(): EventHandlerMap {
-    return {
-      'pan': () => this.handlePan(),
-      'zoom': () => this.handleZoom(),
-      'resize': () => this.handleResize()
-    };
+    return {}
   };
-
-  private handlePan() {
-    this.renderManager.requestRender(this.id, { kind: 'grid-element', camera: true });
-  }
-
-  private handleZoom() {
-    this.renderManager.requestRender(this.id, { kind: 'grid-element', camera: true });
-  }
-
-  private handleResize() {
-    this.renderManager.requestRender(this.id, { kind: 'grid-element', resize: true });
-  }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
 
@@ -102,8 +92,6 @@ export class GridElement extends Renderable {
 
     const screenPos = new Vector2(event.clientX, event.clientY);
     const worldPos = camera.screenToWorld(screenPos);
-
-    // console.log(`world pos: ${worldPos.x}, ${worldPos.y} contains element: ${this.contains(worldPos)}`);
 
     if (!this.contains(worldPos)) return;
   }
