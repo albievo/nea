@@ -61,15 +61,15 @@ export class GridElement extends Renderable {
     const ctx = this.renderManager.ctx;
 
     const screenPos = camera.worldPosToScreen(this.pos);
-    const screenDims = camera.worldUnitsToScreenPixels(this.dims.x);
+    const screenDims = this.dims.applyFunction((n) => camera.worldUnitsToScreenPixels(n));
 
     // draw the element
     ctx.fillStyle = this.colour || 'grey';
     ctx.fillRect(
       screenPos.x,
       screenPos.y,
-      screenDims,
-      screenDims
+      screenDims.x,
+      screenDims.y
     );
   }
 
@@ -106,7 +106,7 @@ export class GridElement extends Renderable {
     if (!this.contains(worldPos)) return;
 
     const centreOfPosCell = this.pos.add(new Vector2(0.5, 0.5));
-    const offset = screenPos.subtract(centreOfPosCell);
+    const offset = worldPos.subtract(centreOfPosCell);
 
     this.followMouse(offset);
 

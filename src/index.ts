@@ -29,7 +29,7 @@ renderManager.requestRender({initialGrid: {
 const gridElementId = crypto.randomUUID();
 
 renderManager.addRenderable(
-  new GridElement(gridElementId, renderManager, new Vector2(5, 5), new Vector2(1, 1))
+  new GridElement(gridElementId, renderManager, new Vector2(5, 5), new Vector2(2, 3))
 );
 
 const gridElementInitalPayload: InitialGridElementMap = {
