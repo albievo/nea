@@ -8,6 +8,8 @@ export type EventPayloads = {
   "end-pan": void;
   zoom: { factor: number, screenPos: Vector2 };
   resize: void;
+  "space-down": void;
+  "space-up": void;
 };
 
 export type EventTypes = keyof EventPayloads;

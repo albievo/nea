@@ -2,6 +2,7 @@ import events from "../event/events";
 import { Vector2 } from "../utils/Vector2";
 import $ from 'jquery';
 import { RenderManager } from "./RenderManager";
+import keyTracker from "./KeyTracker";
 
 export class Camera {
   private zoom: number;
@@ -20,7 +21,6 @@ export class Camera {
 
   readonly baseCellPixels = 48;
 
-  private space: boolean = false;
   private isPanning: boolean = false;
 
   constructor(
@@ -47,12 +47,8 @@ export class Camera {
     $(document).on('wheel', e => this.handleWheel(e));
     $(document).on('mousedown', e => this.handleMouseDown(e));
     events.on('resize', () => this.handleResize());
-
-
-    // track whether space is held down
-    $(document).on('keydown.spaceKeyTracker', e => {
-      if (e.key === ' ') this.handleSpaceKeyDown();
-    });
+    events.on('space-up', () => this.handleSpaceKeyUp());
+    events.on('space-down', () => this.handleSpaceKeyDown());
   }
 
   private handleWheel(event: JQuery.TriggeredEvent) {
@@ -86,7 +82,7 @@ export class Camera {
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
-    if (this.space === false) {
+    if (keyTracker.space === false) {
       return;
     }
 
@@ -146,7 +142,7 @@ export class Camera {
   private stopFollowingMouse() {
     // update cursor style
     this.isPanning = false;
-    if (this.space) {
+    if (keyTracker.space) {
       this.setPointer('grab');
     } else {  
       this.setPointer('default');
@@ -165,7 +161,7 @@ export class Camera {
   /** Convert screen coordinates (pixels) to world coordinates */
   public screenToWorld(screenPos: Vector2) {
     const screenCoordsInWorldUnits = screenPos.divide(this.zoom * this.baseCellPixels)
-    return screenPos.divide(this.zoom * this.baseCellPixels).add(this.pan);
+    return  screenCoordsInWorldUnits.add(this.pan);
   }
 
   public worldUnitsToScreenPixels(units: number) {
@@ -264,28 +260,13 @@ export class Camera {
     } else {
       this.setPointer('grab');
     }
-    this.space = true;
-    $(document).off('keydown.spaceKeyTracker');
-    $(document).on('keyup.spaceKeyTracker', e => {
-      if (e.key === ' ') {
-        this.handleSpaceKeyUp();
-      }
-    });
   }
 
   private handleSpaceKeyUp() {
     if (!this.isPanning) {
       this.setPointer('default');
     }
-    this.space = false;
-    $(document).off('keyup.spaceKeyTracker');
-    $(document).on('keydown.spaceKeyTracker', e => {
-      if (e.key === ' ') {
-        this.handleSpaceKeyDown();
-      }
-    });
   }
-
 
   public setPointer(pointerStyle: string) {
     $('#canvas').css('cursor', pointerStyle);

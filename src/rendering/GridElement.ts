@@ -1,6 +1,7 @@
 import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
+import keyTracker from "./KeyTracker";
 import { Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import { GridElementRenderBuffer, InitialGridElementPayload } from "./RenderPayloads";
@@ -36,6 +37,8 @@ export class GridElement extends Renderable {
 
   private initialRender(payload: InitialGridElementPayload) {
     this.colour = payload.color;
+
+    $(document).on('mousedown', (e) => this.handleMouseDown(e));
   }
 
   private move(movement: Vector2) {
@@ -86,6 +89,7 @@ export class GridElement extends Renderable {
   };
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
+    if (keyTracker.space) return;
 
     const camera = this.camera;
     if (!camera) return;
@@ -94,6 +98,8 @@ export class GridElement extends Renderable {
     const worldPos = camera.screenToWorld(screenPos);
 
     if (!this.contains(worldPos)) return;
+
+    console.log('clicked');
   }
 
   /**
