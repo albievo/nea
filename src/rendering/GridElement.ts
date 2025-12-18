@@ -101,12 +101,12 @@ export class GridElement extends Renderable {
     // get mouse positions
     const screenPos = new Vector2(event.clientX * dppr, event.clientY * dppr);
     const worldPos = camera.screenToWorld(screenPos);
+    const cell = worldPos.applyFunction(Math.floor);
 
     // ensure we are clicking on the element
     if (!this.contains(worldPos)) return;
 
-    const centreOfPosCell = this.pos.add(new Vector2(0.5, 0.5));
-    const offset = worldPos.subtract(centreOfPosCell);
+    const offset = cell.subtract(this.pos);
 
     this.followMouse(offset);
 
