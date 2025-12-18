@@ -105,7 +105,10 @@ export class GridElement extends Renderable {
     // ensure we are clicking on the element
     if (!this.contains(worldPos)) return;
 
-    this.followMouse();
+    const centreOfPosCell = this.pos.add(new Vector2(0.5, 0.5));
+    const offset = screenPos.subtract(centreOfPosCell);
+
+    this.followMouse(offset);
 
     $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
   }
@@ -115,7 +118,7 @@ export class GridElement extends Renderable {
     $(document).off('mouseup.stopFollowingMouse');
   }
 
-  private followMouse() {
+  private followMouse(offset: Vector2) {
     const dppr = this.renderManager.getDevicePixelRatio();
     const camera = this.camera;
     if (!camera) return;
@@ -132,8 +135,10 @@ export class GridElement extends Renderable {
       );
       const worldPos = camera.screenToWorld(screenPos);
 
+      const worldPosAfterOffset = worldPos.subtract(offset);
+
       // get the cell that the mouse is in
-      const cell = worldPos.applyFunction(Math.floor);
+      const cell = worldPosAfterOffset.applyFunction(Math.floor);
       
       // if we have moved cell
       if (!cell.equals(this.pos)) {
