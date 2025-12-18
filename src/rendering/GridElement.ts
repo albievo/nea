@@ -89,17 +89,66 @@ export class GridElement extends Renderable {
   };
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
+    const dppr = this.renderManager.getDevicePixelRatio();
+
+    // ensure space isn't being pressed (in this case we pan)
     if (keyTracker.space) return;
 
+    // ensure there is a camera
     const camera = this.camera;
     if (!camera) return;
 
-    const screenPos = new Vector2(event.clientX, event.clientY);
+    // get mouse positions
+    const screenPos = new Vector2(event.clientX * dppr, event.clientY * dppr);
     const worldPos = camera.screenToWorld(screenPos);
 
+    // ensure we are clicking on the element
     if (!this.contains(worldPos)) return;
 
-    console.log('clicked');
+    this.followMouse();
+
+    $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
+  }
+
+  private stopFollowingMouse() {
+    $(document).off('mousemove.followMouse');
+    $(document).off('mouseup.stopFollowingMouse');
+  }
+
+  private followMouse() {
+    const dppr = this.renderManager.getDevicePixelRatio();
+    const camera = this.camera;
+    if (!camera) return;
+
+    $(document).on('mousemove.followMouse', (event) => {
+      if (!(event.clientX && event.clientY)) {
+        return;
+      }
+
+      // get positions
+      const screenPos = new Vector2(
+        event.clientX * dppr,
+        event.clientY * dppr
+      );
+      const worldPos = camera.screenToWorld(screenPos);
+
+      // get the cell that the mouse is in
+      const cell = worldPos.applyFunction(Math.floor);
+      
+      // if we have moved cell
+      if (!cell.equals(this.pos)) {
+
+        // calculate movement
+        const delta = cell.subtract(this.pos);
+
+        // send render request
+        this.renderManager.requestRender({
+          gridElementsMovement: {
+            [this.id]: { delta }
+          }
+       })
+      }
+    });
   }
 
   /**

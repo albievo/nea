@@ -14,7 +14,6 @@ export interface InitialGridElementPayload {
 }
 
 export interface GridElementMovePayload {
-  gridElementId: string;
   delta: Vector2;
 }
 

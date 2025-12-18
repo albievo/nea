@@ -61,8 +61,6 @@ export abstract class Renderable {
    * @param newPayload should be of the same type as the class
    */
   public appendRenderBuffer(newPayload: AnyRenderBuffer) {
-    console.log('appending render buffer', newPayload)
-
     const newRenderBuffer = RenderPayloadUtils.mergeRenderBuffers(this.renderBuffer, newPayload);
     if (newRenderBuffer) {
       this.renderBuffer = newPayload
