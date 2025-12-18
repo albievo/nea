@@ -19,7 +19,7 @@ const gridId = crypto.randomUUID();
 renderManager.addRenderable(new Grid(gridId, renderManager));
 
 renderManager.requestRender({initialGrid: {
-  renderableId: gridId,
+  gridId: gridId,
   size: worldSize,
   startingZoom: 10,
   maxZoom: 15,
@@ -33,8 +33,7 @@ renderManager.addRenderable(
 );
 
 const gridElementInitalPayload: InitialGridElementMap = {
-  gridElementId: {
-    renderableId: gridElementId,
+  [gridElementId]: {
     color: 'red'
   } 
 }

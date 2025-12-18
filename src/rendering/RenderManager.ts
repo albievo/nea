@@ -78,6 +78,8 @@ export class RenderManager {
     // add each grid element's initital renders
     if (payload.initialGridElements) {
       for (const [id, initialPayload] of Object.entries(payload.initialGridElements)) {
+        console.log(id, initialPayload)
+
         const gridElement = this.renderablesById.get(id);
         gridElement?.appendRenderBuffer({ kind: 'grid-element', initial: initialPayload })
       }
@@ -117,8 +119,6 @@ export class RenderManager {
 
   public addRenderable(renderable: Renderable) {
     const id = renderable.id;
-
-    console.log(renderable.kind);
 
     if (renderable.kind === 'grid') {
       this.gridId = id;

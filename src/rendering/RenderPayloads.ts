@@ -1,22 +1,20 @@
 import { Vector2 } from "../utils/Vector2";
 import { RenderableKind } from "./Renderable";
 
-interface RenderableSpecificPayload {
-  renderableId: string;
-}
-
-export interface InitialGridRenderPayload extends RenderableSpecificPayload {
+export interface InitialGridRenderPayload {
+  gridId: string;
   size: Vector2;
   startingZoom: number;
   maxZoom: number;
   zoomCoefficient: number;
 }
 
-export interface InitialGridElementPayload extends RenderableSpecificPayload {
+export interface InitialGridElementPayload {
   color: "red" | "green" | "blue";
 }
 
-export interface GridElementMovePayload extends RenderableSpecificPayload {
+export interface GridElementMovePayload {
+  gridElementId: string;
   delta: Vector2;
 }
 
@@ -63,73 +61,6 @@ export type InitialGridElementMap = { [id: string]: InitialGridElementPayload };
 export type GridElementMovementMap = { [id: string]: GridElementMovePayload };
 
 export class RenderPayloadUtils {
-
-  // public static mergePayloads(original: RenderPayload, toAdd: RenderPayload): RenderPayload {
-  //   const newPayload: RenderPayload = {};
-
-  //   if (toAdd.initialGrid) {
-  //     if (original.initialGrid) console.error('grid\'s inital render already completed');
-  //     newPayload.initialGrid = toAdd.initialGrid;
-  //   }
-
-  //   if (toAdd.initialGridElements) {
-  //     newPayload.initialGridElements = original.initialGridElements
-  //       ? this.mergeInitialGridElements(original.initialGridElements, toAdd.initialGridElements)
-  //       : toAdd.initialGridElements;
-  //   }
-
-  //   if (toAdd.gridElementsMovement) {
-  //     newPayload.gridElementsMovement = original.gridElementsMovement
-  //       ? this.mergeGridElementsMovement(original.gridElementsMovement, toAdd.gridElementsMovement)
-  //       : toAdd.gridElementsMovement;
-  //   }
-
-  //   newPayload.camera = original.camera || toAdd.camera;
-
-  //   // if there is any resizing, new payload should include it
-  //   newPayload.resize = original.resize || toAdd.resize;
-
-  //   return newPayload;
-  // }
-
-  private static mergeInitialGridElements(
-    original: InitialGridElementMap,
-    toAdd: InitialGridElementMap
-  ): InitialGridElementMap  {
-    // copy original so that changing intialGridElements doesn't change original
-    const initialGridElements: InitialGridElementMap = { ...original };
-
-    for (const key in toAdd) {
-      if (key in original) {
-        console.error("grid element's initial render already completed");
-      } else {
-        initialGridElements.key = toAdd[key];
-      }
-    }
-
-    return initialGridElements;
-  }
-
-  private static mergeGridElementsMovement(
-    original: GridElementMovementMap,
-    toAdd: GridElementMovementMap
-  ): GridElementMovementMap  {
-    // copy original so that changing intialGridElements doesn't change original
-    const gridElementsMovement: GridElementMovementMap = { ...original };
-
-    for (const key in toAdd) {
-      if (key in original) {
-        gridElementsMovement.key = {
-          renderableId: key,
-          delta: original.key.delta.add(toAdd.key.delta)
-        }
-      } else {
-        gridElementsMovement.key = toAdd.key;
-      }
-    }
-
-    return gridElementsMovement;
-  }
 
   public static payloadRequiresFullRender(payload: RenderPayload): boolean {
     return (Object.keys(payload) as (keyof RenderPayload)[])  // get all keys of payload
