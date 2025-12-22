@@ -37,7 +37,6 @@ export class GridElement extends Renderable {
 
   protected updateFromBuffer(): void {
     if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
-    if (this.renderBuffer.movement) this.move(this.renderBuffer.movement)
   }
 
   protected getBoundingBox(): BoundingBox {
@@ -53,10 +52,6 @@ export class GridElement extends Renderable {
     this.colour = payload.color;
 
     $(document).on('mousedown', (e) => this.handleMouseDown(e));
-  }
-
-  private move(movement: Vector2) {
-    this.pos = this.pos.add(movement);
   }
 
   protected renderObject() {
@@ -136,9 +131,12 @@ export class GridElement extends Renderable {
 
       // get the cell that the mouse is in
       let cell = worldPosAfterOffset.applyFunction(Math.floor);
+
+      console.log(this.pos.equals(cell));
       
-      // if we have moved cell
+      // if we haven't moved cell, end the method 
       if (cell.equals(this.pos)) return;
+      console.log('run');
 
       //updating taken cells is done seperately in case new cells overlap with old ones
       //might be able to be done more efficiently but we arent gonna have to do much iteration
@@ -177,6 +175,8 @@ export class GridElement extends Renderable {
           );
         }
       }
+
+      this.pos = cell.copy();
     });
   }
 
