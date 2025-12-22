@@ -30,12 +30,16 @@ export class RenderManager {
   private $canvas = $('#canvas');
   private _ctx!: CanvasRenderingContext2D;
 
+  private availabilityGrid: CellTakenBy[][];
+
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
     this.camera = new Camera(5, 15, 0.001, this.devicePixelRatio, worldSize, this);
     this.setCtx();
 
+    this.availabilityGrid = GeneralUtils.createMatrixOfVals(() => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x);
+ 
     $(window).on('resize', () => {
       events.emit('resize');
       this.fitCanvasToPage();
@@ -170,8 +174,30 @@ export class RenderManager {
     this.ctx.canvas.width = windowDims.x;
     this.ctx.canvas.height = windowDims.y;
   }
+
+  public addElementToCell(pos: Vector2, id: string) {
+    this.availabilityGrid[pos.y][pos.x] = { type: 'element', ids: [id]};
+  }
+
+  public addWireToCell(pos: Vector2, id: string) {
+    const cellTakenBy = this.availabilityGrid[pos.y][pos.x];
+
+    if (cellTakenBy.type === 'element') return;
+
+    cellTakenBy.type = 'wire';
+    cellTakenBy.ids.push(id);
+  }
+
+  public rmvElementFromCell(pos: Vector2) {
+    this.availabilityGrid[pos.y][pos.x] = { type: undefined, ids: [] };
+  }
+
+  public cellHasElement(pos: Vector2): boolean {
+    return this.availabilityGrid[pos.y][pos.x].type === 'element';
+  }
 }
 
-interface RenderPayloadWithFullRenderFlag extends RenderPayload {
-  fullRender: boolean;
+interface CellTakenBy {
+  type?: 'wire' | 'element',
+  ids: string[]
 }

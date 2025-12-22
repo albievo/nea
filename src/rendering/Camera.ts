@@ -273,17 +273,6 @@ export class Camera {
     $('#canvas').css('cursor', pointerStyle);
   }
 
-  public getRelativePosition(point: Vector2): RelativePostion {
-    const screenPos = this.worldPosToScreen(point);
-    
-    const above = screenPos.y < 0;
-    const right = screenPos.x > this.windowDims.x;
-    const below = screenPos.y > this.windowDims.y;
-    const left = screenPos.x < 0;
-
-    return { above, right, below, left };
-  }
-
   public intersects(boundingBox: BoundingBox): boolean {
     const bottomRight = this.pan.add(this.calcWorldUnitsOnScreen());
 
@@ -297,11 +286,4 @@ export class Camera {
 
     return true;
   }
-}
-
-type RelativePostion = {
-  above: boolean,
-  right: boolean,
-  below: boolean,
-  left: boolean
 }

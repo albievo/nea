@@ -1,5 +1,6 @@
 import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
+import { TruthtableBehaviour } from "../netlist/ChipBehaviour";
 import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
@@ -15,6 +16,8 @@ export class GridElement extends Renderable {
   protected _kind: RenderableKind = 'grid-element';
   protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
 
+  private lastValidPosition: Vector2;
+
   private colour?: string;
 
   constructor(
@@ -26,6 +29,8 @@ export class GridElement extends Renderable {
 
     this.dims = dims.fixedCopy();
     this.pos = pos.copy();
+
+    this.lastValidPosition = this.pos.copy();
 
     $(document).on('mousedown', e => this.handleMouseDown(e));
   }
@@ -130,22 +135,74 @@ export class GridElement extends Renderable {
       const worldPosAfterOffset = worldPos.subtract(offset);
 
       // get the cell that the mouse is in
-      const cell = worldPosAfterOffset.applyFunction(Math.floor);
+      let cell = worldPosAfterOffset.applyFunction(Math.floor);
       
       // if we have moved cell
-      if (!cell.equals(this.pos)) {
+      if (cell.equals(this.pos)) return;
 
-        // calculate movement
-        const delta = cell.subtract(this.pos);
+      //updating taken cells is done seperately in case new cells overlap with old ones
+      //might be able to be done more efficiently but we arent gonna have to do much iteration
+      // free up old cells
+      for (let x = 0; x < this.dims.x; x++) {
+        for (let y = 0; y < this.dims.y; y++) {
+          this.renderManager.rmvElementFromCell(
+            this.pos.add(new Vector2(x, y))
+          ); 
+        }
+      }
 
-        // send render request
-        this.renderManager.requestRender({
-          gridElementsMovement: {
-            [this.id]: { delta }
-          }
-       })
+      // ensure not moving to a taken cell
+      if (!this.isValidPosition(cell)) {
+        cell = this.lastValidPosition.copy();
+      } else {
+        this.lastValidPosition = cell.copy();
+      }
+
+      // calculate movement
+      const delta = cell.subtract(this.pos);
+
+      // send render request
+      this.renderManager.requestRender({
+        gridElementsMovement: {
+          [this.id]: { delta }
+        }
+      })
+
+      // add new cell positions
+      for (let x = 0; x < this.dims.x; x++) {
+        for (let y = 0; y < this.dims.y; y++) {
+          this.renderManager.addElementToCell(
+            cell.add(new Vector2(x, y)), this.id
+          );
+        }
       }
     });
+  }
+
+  private isValidPosition(pos: Vector2): boolean {
+    const width = this.dims.x;
+    const height = this.dims.y;
+
+    // adding constants should give the element being moved a "forcefield" of width 1
+    const boundingBox: BoundingBox = {
+      left: pos.x - 1,
+      right: pos.x + width + 1,
+      top: pos.y - 1,
+      bottom: pos.y + height + 1
+    }
+
+    // iterate throught each cell to check
+    for (let x = boundingBox.left; x <= boundingBox.right; x++) {
+      for (let y = boundingBox.top; y < boundingBox.bottom; y++) {
+        const checkingPos = new Vector2(x, y);
+
+        if (this.renderManager.cellHasElement(checkingPos)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   /**

@@ -84,8 +84,3 @@ export class Grid extends Renderable {
     ctx.stroke();
   }
 }
-
-interface CellTakenBy {
-  type?: 'wire' | 'node',
-  ids?: string[]
-}
