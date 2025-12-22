@@ -185,8 +185,8 @@ export class GridElement extends Renderable {
     if ( 
       pos.x <= 0 ||
       pos.y <= 0 ||
-      pos.x + this.dims.x >= worldSize.x - 1 ||
-      pos.y + this.dims.y >= worldSize.y - 1
+      pos.x + this.dims.x >= worldSize.x  ||
+      pos.y + this.dims.y >= worldSize.y
     ) {
       console.log('out of bounds');
       return false; 
@@ -204,7 +204,7 @@ export class GridElement extends Renderable {
     }
 
     // iterate throught each cell to check
-    for (let x = boundingBox.left; x <= boundingBox.right; x++) {
+    for (let x = boundingBox.left; x < boundingBox.right; x++) {
       for (let y = boundingBox.top; y < boundingBox.bottom; y++) {
         const checkingPos = new Vector2(x, y);
 

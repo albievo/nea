@@ -8,7 +8,7 @@ import './index.scss';
 import { Vector2 } from "./utils/Vector2";
 import { GridElement } from "./rendering/GridElement";
 
-const worldSize = new Vector2(10, 10);
+const worldSize = new Vector2(5, 5 );
 
 const netlist = new Netlist([], [])
 const workingChip = new WorkingChip(netlist)
@@ -29,7 +29,7 @@ renderManager.requestRender({initialGrid: {
 const gridElement1Id = crypto.randomUUID();
 
 renderManager.addRenderable(
-  new GridElement(gridElement1Id, renderManager, new Vector2(5, 5), new Vector2(2, 3))
+  new GridElement(gridElement1Id, renderManager, new Vector2(1, 1), new Vector2(1, 1))
 );
 
 const gridElement1InitalPayload: InitialGridElementMap = {
@@ -40,17 +40,17 @@ const gridElement1InitalPayload: InitialGridElementMap = {
 
 renderManager.requestRender({initialGridElements: gridElement1InitalPayload});
 
-const gridElement2Id = crypto.randomUUID();
+// const gridElement2Id = crypto.randomUUID();
 
-renderManager.addRenderable(
-  new GridElement(gridElement2Id, renderManager, new Vector2(1, 1), new Vector2(2, 1 ))
-);
+// renderManager.addRenderable(
+//   new GridElement(gridElement2Id, renderManager, new Vector2(1, 1), new Vector2(2, 1 ))
+// );
 
-const gridElement2InitalPayload: InitialGridElementMap = {
-  [gridElement2Id]: {
-    color: 'blue'
-  } 
-}
+// const gridElement2InitalPayload: InitialGridElementMap = {
+//   [gridElement2Id]: {
+//     color: 'blue'
+//   } 
+// }
 
-renderManager.requestRender({initialGridElements: gridElement2InitalPayload});
+// renderManager.requestRender({initialGridElements: gridElement2InitalPayload});
 

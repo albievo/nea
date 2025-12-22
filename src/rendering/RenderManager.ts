@@ -39,6 +39,8 @@ export class RenderManager {
     this.setCtx();
 
     this.availabilityGrid = GeneralUtils.createMatrixOfVals(() => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x);
+
+    console.log(this.availabilityGrid)
  
     $(window).on('resize', () => {
       events.emit('resize');
@@ -193,6 +195,8 @@ export class RenderManager {
   }
 
   public cellHasElement(pos: Vector2): boolean {
+    console.log(pos.x, pos.y )
+
     return (
       this.availabilityGrid[pos.y][pos.x].type === 'element'
     ); 
