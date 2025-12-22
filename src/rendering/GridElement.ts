@@ -17,6 +17,7 @@ export class GridElement extends Renderable {
   protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
 
   private lastValidPosition: Vector2;
+  private lastMouseCell: Vector2 = Vector2.zeroes;
 
   private colour?: string;
 
@@ -99,7 +100,7 @@ export class GridElement extends Renderable {
     if (!this.contains(worldPos)) return;
 
     const offset = cell.subtract(this.pos);
-
+    this.lastMouseCell = cell.copy();
     this.followMouse(offset);
 
     $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
@@ -132,11 +133,10 @@ export class GridElement extends Renderable {
       // get the cell that the mouse is in
       let cell = worldPosAfterOffset.applyFunction(Math.floor);
 
-      console.log(this.pos.equals(cell));
-      
-      // if we haven't moved cell, end the method 
-      if (cell.equals(this.pos)) return;
-      console.log('run');
+      // if we haven't moved cell, end the method
+      if (cell.equals(this.lastMouseCell)) return;
+
+      this.lastMouseCell = cell.copy();
 
       //updating taken cells is done seperately in case new cells overlap with old ones
       //might be able to be done more efficiently but we arent gonna have to do much iteration
@@ -151,7 +151,6 @@ export class GridElement extends Renderable {
 
       // ensure not moving to a taken cell
       if (!this.isValidPosition(cell)) {
-        console.log('not a valid position');
         cell = this.lastValidPosition.copy();
       } else {
         this.lastValidPosition = cell.copy();
@@ -175,12 +174,24 @@ export class GridElement extends Renderable {
           );
         }
       }
-
       this.pos = cell.copy();
     });
   }
 
   private isValidPosition(pos: Vector2): boolean {
+    const worldSize = this.renderManager.getWorldSize()
+
+    // ensure it is being moved to within the world
+    if ( 
+      pos.x <= 0 ||
+      pos.y <= 0 ||
+      pos.x + this.dims.x >= worldSize.x - 1 ||
+      pos.y + this.dims.y >= worldSize.y - 1
+    ) {
+      console.log('out of bounds');
+      return false; 
+    }
+
     const width = this.dims.x;
     const height = this.dims.y;
 
