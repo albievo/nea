@@ -3,6 +3,7 @@ import { Vector2 } from "../utils/Vector2";
 import $ from 'jquery';
 import { RenderManager } from "./RenderManager";
 import keyTracker from "./KeyTracker";
+import { BoundingBox } from "./Renderable";
 
 export class Camera {
   private zoom: number;
@@ -271,4 +272,36 @@ export class Camera {
   public setPointer(pointerStyle: string) {
     $('#canvas').css('cursor', pointerStyle);
   }
+
+  public getRelativePosition(point: Vector2): RelativePostion {
+    const screenPos = this.worldPosToScreen(point);
+    
+    const above = screenPos.y < 0;
+    const right = screenPos.x > this.windowDims.x;
+    const below = screenPos.y > this.windowDims.y;
+    const left = screenPos.x < 0;
+
+    return { above, right, below, left };
+  }
+
+  public intersects(boundingBox: BoundingBox): boolean {
+    const bottomRight = this.pan.add(this.calcWorldUnitsOnScreen());
+
+    // If one rectangle is to the left of the other
+    if (this.pan.x > boundingBox.right || boundingBox.left > bottomRight.x)
+      return false;
+
+    // If one rectangle is above the other
+    if (this.pan.y > boundingBox.bottom || boundingBox.top > bottomRight.y)
+      return false;
+
+    return true;
+  }
+}
+
+type RelativePostion = {
+  above: boolean,
+  right: boolean,
+  below: boolean,
+  left: boolean
 }

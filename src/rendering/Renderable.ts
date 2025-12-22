@@ -1,5 +1,6 @@
 import events from "../event/events";
 import { EventHandlerMap, EventTypes, Handler } from "../event/eventTypes";
+import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
 import { AnyRenderBuffer, RenderBuffer, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
@@ -44,13 +45,23 @@ export abstract class Renderable {
   }
 
   public render() {
+    const camera = this.camera;
+    if (!camera) return;
+
     this.updateFromBuffer();
+    
+    const boundingBox = this.getBoundingBox();
+    if (!camera.intersects(boundingBox)) {
+      return;
+    }
+
     this.renderObject();
     this.renderBuffer = { kind: this.kind };
   }
 
   protected abstract updateFromBuffer(): void;
   protected abstract renderObject(): void;
+  protected abstract getBoundingBox(): BoundingBox;
 
   public get kind() {
     return this._kind;
@@ -68,4 +79,11 @@ export abstract class Renderable {
   }
 }
 
-export type RenderableKind = "grid" | "grid-element"
+export type RenderableKind = "grid" | "grid-element";
+
+export interface BoundingBox {
+  top: number,
+  left: number,
+  right: number,
+  bottom: number
+}

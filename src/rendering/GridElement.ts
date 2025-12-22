@@ -2,7 +2,7 @@ import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
-import { Renderable, RenderableKind } from "./Renderable";
+import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import { GridElementRenderBuffer, InitialGridElementPayload } from "./RenderPayloads";
 import $ from 'jquery';
@@ -35,6 +35,15 @@ export class GridElement extends Renderable {
     if (this.renderBuffer.movement) this.move(this.renderBuffer.movement)
   }
 
+  protected getBoundingBox(): BoundingBox {
+    return {
+      top: this.pos.y,
+      left: this.pos.x,
+      right: this.pos.x + this.dims.x,
+      bottom: this.pos.y + this.dims.y
+    }
+  }
+
   private initialRender(payload: InitialGridElementPayload) {
     this.colour = payload.color;
 
@@ -51,12 +60,6 @@ export class GridElement extends Renderable {
     if (!camera) {
       throw new Error ('please set a camera before rendering');
     }
-    
-    //don't render unless on screen
-    const isOnScreen = this.isOnScreen();
-    if (!isOnScreen) {
-      return;
-    }
 
     const ctx = this.renderManager.ctx;
 
@@ -71,17 +74,6 @@ export class GridElement extends Renderable {
       screenDims.x,
       screenDims.y
     );
-  }
-
-  private isOnScreen(): boolean {
-    const camera = this.camera
-    if (!camera) {
-      throw new Error ('please set a camera to check if the element is on screen')
-    }
-
-    const bottomRight = this.calcBottomRight()
-
-    return camera.isOnScreen(this.pos) || camera.isOnScreen(bottomRight);
   }
 
   protected getEventHandlers(): EventHandlerMap {

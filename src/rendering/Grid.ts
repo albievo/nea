@@ -1,6 +1,6 @@
 import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
-import { Renderable, RenderableKind } from "./Renderable";
+import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import { GridRenderBuffer, InitialGridRenderPayload } from "./RenderPayloads";
 import $ from 'jquery';
@@ -23,6 +23,15 @@ export class Grid extends Renderable {
   protected updateFromBuffer(): void {
     // could be cleaned up with a renderHandler record, but I like the readability here
     if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
+  }
+
+  protected getBoundingBox(): BoundingBox {
+    return {
+      top: 0,
+      left: 0,
+      right: this.width + 1,
+      bottom: this.height + 1 
+    }
   }
 
   private initialRender(payload: InitialGridRenderPayload): void {
