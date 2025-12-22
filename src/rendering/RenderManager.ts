@@ -193,7 +193,11 @@ export class RenderManager {
   }
 
   public cellHasElement(pos: Vector2): boolean {
-    return this.availabilityGrid[pos.y][pos.x].type === 'element';
+    return (
+      0 < pos.x && pos.x < this.worldSize.x
+      && 0 < pos.y && pos.y < this.worldSize.y  
+      && this.availabilityGrid[pos.y][pos.x].type === 'element'
+    ); 
   }
 }
 

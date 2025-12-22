@@ -153,6 +153,7 @@ export class GridElement extends Renderable {
 
       // ensure not moving to a taken cell
       if (!this.isValidPosition(cell)) {
+        console.log('not a valid position');
         cell = this.lastValidPosition.copy();
       } else {
         this.lastValidPosition = cell.copy();
