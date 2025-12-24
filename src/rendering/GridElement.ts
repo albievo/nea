@@ -82,8 +82,6 @@ export class GridElement extends Renderable {
   };
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
-    const dppr = this.renderManager.getDevicePixelRatio();
-
     // ensure space isn't being pressed (in this case we pan)
     if (keyTracker.space) return;
 
@@ -92,9 +90,8 @@ export class GridElement extends Renderable {
     if (!camera) return;
 
     // get mouse positions
-    const screenPos = new Vector2(event.clientX * dppr, event.clientY * dppr);
-    const worldPos = camera.screenToWorld(screenPos);
-    const cell = worldPos.applyFunction(Math.floor);
+    const worldPos = camera.getWorldPosFromJqueryMouseEvent(event);
+    const cell = worldPos.applyFunction(Math.floor); 
 
     // ensure we are clicking on the element
     if (!this.contains(worldPos)) return;
@@ -116,20 +113,11 @@ export class GridElement extends Renderable {
     const camera = this.camera;
     if (!camera) return;
 
-    $(document).on('mousemove.followMouse', (event) => {
-      if (!(event.clientX && event.clientY)) {
-        return;
-      }
+    $(document).on('mousemove.followMouse', (e) => {
+      const event = e as JQuery.MouseMoveEvent;
 
-      // get positions
-      const screenPos = new Vector2(
-        event.clientX * dppr,
-        event.clientY * dppr
-      );
-      const worldPos = camera.screenToWorld(screenPos);
-
+      const worldPos = camera.getWorldPosFromJqueryMouseEvent(event);
       const worldPosAfterOffset = worldPos.subtract(offset);
-
       // get the cell that the mouse is in
       let cell = worldPosAfterOffset.applyFunction(Math.floor);
 

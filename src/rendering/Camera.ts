@@ -102,7 +102,7 @@ export class Camera {
   private followMouse() {
     // update cursor style
     this.isPanning = true;
-    this.setPointer('grabbing'); 
+    this.renderManager.setPointer('grabbing'); 
 
     $(document).on('mousemove.followMouse', e => {
       if (!(e.clientX && e.clientY)) {
@@ -144,9 +144,9 @@ export class Camera {
     // update cursor style
     this.isPanning = false;
     if (keyTracker.space) {
-      this.setPointer('grab');
+      this.renderManager.setPointer('grab');
     } else {  
-      this.setPointer('default');
+      this.renderManager.setPointer('default');
     }
 
     $(document).off('mousemove.followMouse');
@@ -257,20 +257,16 @@ export class Camera {
 
   private handleSpaceKeyDown() {
     if (this.isPanning) {
-      this.setPointer('grabbing');
+      this.renderManager.setPointer('grabbing');
     } else {
-      this.setPointer('grab');
+      this.renderManager.setPointer('grab');
     }
   }
 
   private handleSpaceKeyUp() {
     if (!this.isPanning) {
-      this.setPointer('default');
+      this.renderManager.setPointer('default');
     }
-  }
-
-  public setPointer(pointerStyle: string) {
-    $('#canvas').css('cursor', pointerStyle);
   }
 
   public intersects(boundingBox: BoundingBox): boolean {
@@ -285,5 +281,13 @@ export class Camera {
       return false;
 
     return true;
+  }
+
+  public getWorldPosFromJqueryMouseEvent(event: JQuery.MouseEventBase): Vector2 {
+    const screenPos = new Vector2(
+      event.clientX * this.dppr,
+      event.clientY * this.dppr
+    );
+    return this.screenToWorld(screenPos);
   }
 }

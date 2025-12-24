@@ -52,6 +52,8 @@ export class RenderManager {
     events.on('pan', () => this.requestRender({ camera: true }));
     events.on('zoom', () => this.requestRender({ camera: true }));
 
+    $(document).on('mousemove.gridElementCursor', (e) => this.handleMouseMove(e as JQuery.MouseMoveEvent));
+
     requestAnimationFrame(() => this.frame());
   }
 
@@ -204,6 +206,20 @@ export class RenderManager {
 
   public getWorldSize() {
     return this.worldSize;
+  }
+
+  private handleMouseMove(event: JQuery.MouseMoveEvent) {
+    const worldPos = this.camera.getWorldPosFromJqueryMouseEvent(event);
+    const cell = worldPos.applyFunction(Math.floor);
+
+    const takenBy = this.availabilityGrid[cell.y][cell.x];
+    if (takenBy.type === 'element') {
+      this.setPointer('move');
+    }
+  }
+
+  public setPointer(pointerStyle: string) {
+    $('#canvas').css('cursor', pointerStyle);
   }
 }
 
