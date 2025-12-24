@@ -7,6 +7,7 @@ import { Camera } from "./Camera";
 import events from "../event/events";
 import $ from 'jquery';
 import { GeneralUtils } from "../utils/GeneralUtils";
+import keyTracker from "./KeyTracker";
 
 export class RenderManager {
   private workingChip: WorkingChip;
@@ -39,8 +40,6 @@ export class RenderManager {
     this.setCtx();
 
     this.availabilityGrid = GeneralUtils.createMatrixOfVals(() => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x);
-
-    console.log(this.availabilityGrid)
  
     $(window).on('resize', () => {
       events.emit('resize');
@@ -197,8 +196,6 @@ export class RenderManager {
   }
 
   public cellHasElement(pos: Vector2): boolean {
-    console.log(pos.x, pos.y )
-
     return (
       this.availabilityGrid[pos.y][pos.x].type === 'element'
     ); 
@@ -211,10 +208,16 @@ export class RenderManager {
   private handleMouseMove(event: JQuery.MouseMoveEvent) {
     const worldPos = this.camera.getWorldPosFromJqueryMouseEvent(event);
     const cell = worldPos.applyFunction(Math.floor);
-
     const takenBy = this.availabilityGrid[cell.y][cell.x];
-    if (takenBy.type === 'element') {
-      this.setPointer('move');
+
+    // if we arent panning or space is being pressed
+    if (!this.camera.panning() && !keyTracker.space) {
+      if (takenBy.type === 'element') {
+        this.setPointer('move');
+      }
+      else {
+        this.setPointer('default');
+      }
     }
   }
 

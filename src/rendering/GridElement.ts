@@ -52,6 +52,16 @@ export class GridElement extends Renderable {
   private initialRender(payload: InitialGridElementPayload) {
     this.colour = payload.color;
 
+    //add availability
+    for (let x = 0; x < this.dims.x; x++) {
+      for (let y = 0; y < this.dims.y; y++) {
+        this.renderManager.addElementToCell(
+          this.pos.add(new Vector2(x, y)),
+          this.id
+        ); 
+      }
+    }
+
     $(document).on('mousedown', (e) => this.handleMouseDown(e));
   }
 
@@ -176,7 +186,6 @@ export class GridElement extends Renderable {
       pos.x + this.dims.x >= worldSize.x  ||
       pos.y + this.dims.y >= worldSize.y
     ) {
-      console.log('out of bounds');
       return false; 
     }
 

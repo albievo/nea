@@ -290,4 +290,8 @@ export class Camera {
     );
     return this.screenToWorld(screenPos);
   }
+
+  public panning() {
+    return this.isPanning;
+  }
 }
