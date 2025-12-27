@@ -21,9 +21,6 @@ renderManager.addRenderable(new Grid(gridId, renderManager));
 renderManager.requestRender({initialGrid: {
   gridId: gridId,
   size: worldSize,
-  startingZoom: 10,
-  maxZoom: 15,
-  zoomCoefficient: 0.01
 }});
 
 const gridElement1Id = crypto.randomUUID();

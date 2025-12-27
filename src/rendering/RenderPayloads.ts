@@ -4,9 +4,6 @@ import { RenderableKind } from "./Renderable";
 export interface InitialGridRenderPayload {
   gridId: string;
   size: Vector2;
-  startingZoom: number;
-  maxZoom: number;
-  zoomCoefficient: number;
 }
 
 export interface InitialGridElementPayload {
