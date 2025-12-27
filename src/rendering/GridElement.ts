@@ -1,6 +1,7 @@
 import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { TruthtableBehaviour } from "../netlist/ChipBehaviour";
+import { GeneralUtils } from "../utils/GeneralUtils";
 import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
@@ -13,6 +14,14 @@ export class GridElement extends Renderable {
   private dims: Vector2;
   private pos: Vector2;
 
+  private inputs: number;
+  private outputs: number;
+
+  private inputPositions: boolean[];
+  private outputPositions: boolean[];
+
+  private readonly PIN_RADIUS = 0.3;
+
   protected _kind: RenderableKind = 'grid-element';
   protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
 
@@ -21,16 +30,23 @@ export class GridElement extends Renderable {
 
   private colour?: string;
 
-  constructor(
-    id: string,
-    renderManager: RenderManager,
-    pos: Vector2, dims: Vector2,
-  ) {
-    super(id, renderManager);
+  constructor(details: GridElementDetails) {
+    super(details.id, details.renderManager);
+    
+    this.inputs = details.inputs;
+    this.outputs = details.outputs;
 
-    this.dims = dims.fixedCopy();
-    this.pos = pos.copy();
+    this.dims = new Vector2(
+      details.width,
+      Math.max(this.inputs, this.outputs)
+    );
+    // make position arrays
+    this.inputPositions = new Array(this.dims.y).fill(false);
+    this.outputPositions = new Array (this.dims.y).fill(false);
+    // make position arrays have the right values
+    this.calcInputOutputPositions();
 
+    this.pos = details.startingPos.copy();
     this.lastValidPosition = this.pos.copy();
 
     $(document).on('mousedown', e => this.handleMouseDown(e));
@@ -65,6 +81,31 @@ export class GridElement extends Renderable {
     $(document).on('mousedown', (e) => this.handleMouseDown(e));
   }
 
+  private calcInputOutputPositions() {
+    // hard coded as small so making symmetrical is ok
+    if (this.inputs === 1 && this.outputs === 2) {
+      this.inputPositions = [false, true, false];
+      this.outputPositions = [true, false, true];
+    }
+    else if (this.inputs === 2 && this.outputs === 1) {
+      this.inputPositions = [true, false, true];
+      this.outputPositions = [false, true, false];
+    }
+    // for most cases, place pins as centrally as possible
+    else { 
+      if (this.inputs > this.outputs) {
+        this.inputPositions = new Array (this.dims.y).fill(true);
+        const topPadding = Math.floor((this.inputs - this.outputs) / 2);
+        this.outputPositions.fill(true, topPadding, topPadding + this.outputs + 1);
+      }
+      else {
+        this.outputPositions = new Array (this.dims.y).fill(true);
+        const topPadding = Math.floor((this.outputs - this.inputs) / 2)
+        this.inputPositions.fill(true, topPadding, topPadding + this.inputs + 1);
+      }
+    }
+  }
+
   protected renderObject() {
     // ensure camera exists    
     const camera = this.camera
@@ -85,6 +126,64 @@ export class GridElement extends Renderable {
       screenDims.x,
       screenDims.y
     );
+
+    // calculate screen radius of pins
+    const radiusScreen = camera.worldUnitsToScreenPixels(this.PIN_RADIUS);
+
+    // draw the inputs
+    for (let inputPos = 0; inputPos < this.inputs; inputPos++) {
+      if (this.inputPositions[inputPos]) { // if we should render a pin here
+        const centreWorld = new Vector2(
+          this.pos.x,
+          this.pos.y + inputPos + 0.5
+        )
+        const centreScreen = camera.worldPosToScreen(centreWorld);
+
+        this.renderInputPin(centreScreen, radiusScreen);
+      }
+    }
+
+    // draw the outputs
+    for (let outputPos = 0; outputPos < this.outputs; outputPos++) {
+      if (this.outputPositions[outputPos]) { // if we should render a pin here
+        const centreWorld = new Vector2(
+          this.pos.x + this.dims.x,
+          this.pos.y + outputPos + 0.5
+        )
+        const centreScreen = camera.worldPosToScreen(centreWorld);
+
+        this.renderOutputPin(centreScreen, radiusScreen);
+      }
+    }
+  }
+
+  private renderInputPin(centre: Vector2, radius: number) {
+    const ctx = this.renderManager.ctx;
+
+    ctx.beginPath();
+    ctx.arc(
+      centre.x, centre.y,
+      radius,
+      -Math.PI / 2, Math.PI / 2
+    )
+
+    ctx.fillStyle = 'lightblue';
+    ctx.fill();
+  }
+
+  private renderOutputPin(centre: Vector2, radius: number) {
+    const ctx = this.renderManager.ctx;
+
+    ctx.beginPath();
+    ctx.arc(
+      centre.x + 1, centre.y,
+      radius,
+      Math.PI / 2,
+      Math.PI * 3/2
+    )
+
+    ctx.fillStyle = 'lightblue';
+    ctx.fill();
   }
 
   protected getEventHandlers(): EventHandlerMap {
@@ -229,4 +328,13 @@ export class GridElement extends Renderable {
   private calcBottomRight() {
     return this.pos.add(this.dims);
   }
+}
+
+interface GridElementDetails {
+  id: string,
+  renderManager: RenderManager,
+  startingPos: Vector2,
+  inputs: number,
+  outputs: number,
+  width: number // measured in world units
 }

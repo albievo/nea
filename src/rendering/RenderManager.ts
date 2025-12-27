@@ -36,7 +36,7 @@ export class RenderManager {
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
-    this.camera = new Camera(5, 15, 0.001, this.devicePixelRatio, worldSize, this);
+    this.camera = new Camera(2, 15, 0.001, this.devicePixelRatio, worldSize, this);
     this.setCtx();
 
     this.availabilityGrid = GeneralUtils.createMatrixOfVals(() => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x);

@@ -8,7 +8,7 @@ import './index.scss';
 import { Vector2 } from "./utils/Vector2";
 import { GridElement } from "./rendering/GridElement";
 
-const worldSize = new Vector2(25, 25);
+const worldSize = new Vector2(50, 50);
 
 const netlist = new Netlist([], [])
 const workingChip = new WorkingChip(netlist)
@@ -26,7 +26,14 @@ renderManager.requestRender({initialGrid: {
 const gridElement1Id = crypto.randomUUID();
 
 renderManager.addRenderable(
-  new GridElement(gridElement1Id, renderManager, new Vector2(12 , 13), new Vector2(3, 2))
+  new GridElement({
+    id: gridElement1Id,
+    renderManager,
+    startingPos: new Vector2(23, 23),
+    inputs: 2,
+    outputs: 3,
+    width: 3 
+  })
 );
 
 const gridElement1InitalPayload: InitialGridElementMap = {
