@@ -30,8 +30,8 @@ renderManager.addRenderable(
     id: gridElement1Id,
     renderManager,
     startingPos: new Vector2(23, 23),
-    inputs: 8,
-    outputs: 2,
+    inputs: 3,
+    outputs: 1,
     width: 3 
   })
 );
@@ -44,17 +44,24 @@ const gridElement1InitalPayload: InitialGridElementMap = {
 
 renderManager.requestRender({initialGridElements: gridElement1InitalPayload});
 
-// const gridElement2Id = crypto.randomUUID();
+const gridElement2Id = crypto.randomUUID();
 
-// renderManager.addRenderable(
-//   new GridElement(gridElement2Id, renderManager, new Vector2(1, 1), new Vector2(2, 1 ))
-// );
+renderManager.addRenderable(
+  new GridElement({
+    id: gridElement2Id,
+    renderManager,
+    startingPos: new Vector2(20, 20),
+    inputs: 1,
+    outputs: 1,
+    width: 2
+  })
+);
 
-// const gridElement2InitalPayload: InitialGridElementMap = {
-//   [gridElement2Id]: {
-//     color: 'blue'
-//   } 
-// }
+const gridElement2InitalPayload: InitialGridElementMap = {
+  [gridElement2Id]: {
+    color: 'blue'
+  } 
+}
 
-// renderManager.requestRender({initialGridElements: gridElement2InitalPayload});
+renderManager.requestRender({initialGridElements: gridElement2InitalPayload});
 
