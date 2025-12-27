@@ -36,6 +36,17 @@ export class GridElement extends Renderable {
     this.inputs = details.inputs;
     this.outputs = details.outputs;
 
+    let yDim: number;
+    if ( // hard coded to mske common configurations look nicer
+      this.inputs === 2 && this.outputs === 1 ||
+      this.inputs === 1 && this.outputs === 2
+    ) {
+      yDim = 3
+    }
+    else {
+      yDim = Math.max(this.inputs, this.outputs)
+    }
+
     this.dims = new Vector2(
       details.width,
       Math.max(this.inputs, this.outputs)

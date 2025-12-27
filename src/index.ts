@@ -31,7 +31,7 @@ renderManager.addRenderable(
     renderManager,
     startingPos: new Vector2(23, 23),
     inputs: 2,
-    outputs: 3,
+    outputs: 1,
     width: 3 
   })
 );
