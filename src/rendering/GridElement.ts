@@ -107,12 +107,12 @@ export class GridElement extends Renderable {
       if (this.inputs > this.outputs) {
         this.inputPositions = new Array (this.dims.y).fill(true);
         const topPadding = Math.floor((this.inputs - this.outputs) / 2);
-        this.outputPositions.fill(true, topPadding, topPadding + this.outputs + 1);
+        this.outputPositions.fill(true, topPadding, topPadding + this.outputs);
       }
       else {
         this.outputPositions = new Array (this.dims.y).fill(true);
         const topPadding = Math.floor((this.outputs - this.inputs) / 2)
-        this.inputPositions.fill(true, topPadding, topPadding + this.inputs + 1);
+        this.inputPositions.fill(true, topPadding, topPadding + this.inputs);
       }
     }
   }
@@ -151,7 +151,7 @@ export class GridElement extends Renderable {
         this.renderInputPin(centreScreen, radiusScreen);
       }
 
-      // draw trhe ouputs
+      // draw trhe ouputs 
       if (this.outputPositions[pinIdx]) { // if we should render a pin here
         const xPos = this.pos.x + this.dims.x
         const centreWorld = new Vector2(xPos, yPos);

@@ -30,8 +30,8 @@ renderManager.addRenderable(
     id: gridElement1Id,
     renderManager,
     startingPos: new Vector2(23, 23),
-    inputs: 2,
-    outputs: 1,
+    inputs: 8,
+    outputs: 2,
     width: 3 
   })
 );
