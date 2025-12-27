@@ -208,6 +208,14 @@ export class RenderManager {
   private handleMouseMove(event: JQuery.MouseMoveEvent) {
     const worldPos = this.camera.getWorldPosFromJqueryMouseEvent(event);
     const cell = worldPos.applyFunction(Math.floor);
+    if ( // if out of bounds
+      cell.x < 0 ||
+      cell.y < 0 ||
+      cell.x >= this.worldSize.x ||
+      cell.y >= this.worldSize.y
+    ) {
+      return;
+    }
     const takenBy = this.availabilityGrid[cell.y][cell.x];
 
     // if we arent panning or space is being pressed
