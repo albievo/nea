@@ -49,7 +49,7 @@ export class GridElement extends Renderable {
 
     this.dims = new Vector2(
       details.width,
-      Math.max(this.inputs, this.outputs)
+      yDim
     );
     // make position arrays
     this.inputPositions = new Array(this.dims.y).fill(false);
@@ -141,28 +141,21 @@ export class GridElement extends Renderable {
     // calculate screen radius of pins
     const radiusScreen = camera.worldUnitsToScreenPixels(this.PIN_RADIUS);
 
-    // draw the inputs
-    for (let inputPos = 0; inputPos < this.inputs; inputPos++) {
-      if (this.inputPositions[inputPos]) { // if we should render a pin here
-        const centreWorld = new Vector2(
-          this.pos.x,
-          this.pos.y + inputPos + 0.5
-        )
-        const centreScreen = camera.worldPosToScreen(centreWorld);
+    for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
+      const yPos = this.pos.y + pinIdx + 0.5
 
+      // draw the inputs
+      if (this.inputPositions[pinIdx]) { // if we should render a pin here
+        const centreWorld = new Vector2(this.pos.x, yPos)
+        const centreScreen = camera.worldPosToScreen(centreWorld);
         this.renderInputPin(centreScreen, radiusScreen);
       }
-    }
 
-    // draw the outputs
-    for (let outputPos = 0; outputPos < this.outputs; outputPos++) {
-      if (this.outputPositions[outputPos]) { // if we should render a pin here
-        const centreWorld = new Vector2(
-          this.pos.x + this.dims.x,
-          this.pos.y + outputPos + 0.5
-        )
+      // draw trhe ouputs
+      if (this.outputPositions[pinIdx]) { // if we should render a pin here
+        const xPos = this.pos.x + this.dims.x
+        const centreWorld = new Vector2(xPos, yPos);
         const centreScreen = camera.worldPosToScreen(centreWorld);
-
         this.renderOutputPin(centreScreen, radiusScreen);
       }
     }
