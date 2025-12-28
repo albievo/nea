@@ -191,8 +191,18 @@ export class GridElement extends Renderable {
   }
 
   protected getEventHandlers(): EventHandlerMap {
-    return {}
+    return {
+      'mouse-moved-into-element': this.handleMouseMovedOntoElement
+    }
   };
+
+  private handleMouseMovedOntoElement(e: { elementId: string }) {
+    if (!(e.elementId === this.id)) {
+      return;
+    }
+
+    console.log(this.id);
+  }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
     // ensure space isn't being pressed (in this case we pan)
