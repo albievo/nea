@@ -2,6 +2,7 @@ import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { TruthtableBehaviour } from "../netlist/ChipBehaviour";
 import { GeneralUtils } from "../utils/GeneralUtils";
+import { MathUtils } from "../utils/MathUtils";
 import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
@@ -17,8 +18,9 @@ export class GridElement extends Renderable {
   private inputs: number;
   private outputs: number;
 
-  private inputPositions: boolean[];
-  private outputPositions: boolean[];
+  // -1 means no pin, any other number is the index of the pin
+  private inputPositions!: number[];
+  private outputPositions!: number[];
 
   private readonly PIN_RADIUS = 0.3;
 
@@ -51,11 +53,9 @@ export class GridElement extends Renderable {
       details.width,
       yDim
     );
+
     // make position arrays
-    this.inputPositions = new Array(this.dims.y).fill(false);
-    this.outputPositions = new Array (this.dims.y).fill(false);
-    // make position arrays have the right values
-    this.calcInputOutputPositions();
+    this.calcPinPositions();
 
     this.pos = details.startingPos.copy();
     this.lastValidPosition = this.pos.copy();
@@ -92,37 +92,51 @@ export class GridElement extends Renderable {
     $(document).on('mousedown', (e) => this.handleMouseDown(e));
   }
 
-  private calcInputOutputPositions() {
+  private calcPinPositions() {
     // hard coded as small so making symmetrical is ok
     if (this.inputs === 1 && this.outputs === 2) {
-      this.inputPositions = [false, true, false];
-      this.outputPositions = [true, false, true];
+      this.inputPositions = [-1, 0, -1];
+      this.outputPositions = [0, -1, 1];
     }
     else if (this.inputs === 2 && this.outputs === 1) {
-      this.inputPositions = [true, false, true];
-      this.outputPositions = [false, true, false];
+      this.inputPositions = [0, -1, 1];
+      this.outputPositions = [-1, 0, -1];
     }
     // for most cases, place pins as centrally as possible
     else { 
       if (this.inputs > this.outputs) {
-        this.inputPositions = new Array (this.dims.y).fill(true);
+        // fill up inputs like [0, 1, 2, 3...]
+        this.inputPositions = Array.from(
+          { length: this.dims.y },
+          (_, inputIdx) => inputIdx
+        );
+
+        // fill up outputs like [-1, -1, 0, 1, 2, -1, -1]
         const topPadding = Math.floor((this.inputs - this.outputs) / 2);
-        this.outputPositions.fill(true, topPadding, topPadding + this.outputs);
+        for (let outputIdx = 0; outputIdx < this.outputs; outputIdx++) {
+          this.outputPositions[outputIdx + topPadding] = outputIdx;
+        }
       }
+
       else {
-        this.outputPositions = new Array (this.dims.y).fill(true);
-        const topPadding = Math.floor((this.outputs - this.inputs) / 2)
-        this.inputPositions.fill(true, topPadding, topPadding + this.inputs);
+        // fill up outputs like [0, 1, 2, 3...]
+        this.outputPositions = Array.from(
+          { length: this.dims.y },
+          (_, outputIdx) => outputIdx
+        );
+
+        // fill up outputs like [-1, -1, 0, 1, 2, -1, -1]
+        const topPadding = Math.floor((this.outputs - this.inputs) / 2);
+        for (let inputIdx = 0; inputIdx < this.inputs; inputIdx++) {
+          this.inputPositions[inputIdx + topPadding] = inputIdx;
+        }
       }
     }
   }
 
   protected renderObject() {
     // ensure camera exists    
-    const camera = this.camera
-    if (!camera) {
-      throw new Error ('please set a camera before rendering');
-    }
+    const camera = this.renderManager.camera
 
     const ctx = this.renderManager.ctx;
 
@@ -145,14 +159,14 @@ export class GridElement extends Renderable {
       const yPos = this.pos.y + pinIdx + 0.5
 
       // draw the inputs
-      if (this.inputPositions[pinIdx]) { // if we should render a pin here
+      if (this.inputPositions[pinIdx] !== -1) { // if we should render a pin here
         const centreWorld = new Vector2(this.pos.x, yPos)
         const centreScreen = camera.worldPosToScreen(centreWorld);
         this.renderInputPin(centreScreen, radiusScreen);
       }
 
       // draw trhe ouputs 
-      if (this.outputPositions[pinIdx]) { // if we should render a pin here
+      if (this.outputPositions[pinIdx] !== -1) { // if we should render a pin here
         const xPos = this.pos.x + this.dims.x
         const centreWorld = new Vector2(xPos, yPos);
         const centreScreen = camera.worldPosToScreen(centreWorld);
@@ -192,25 +206,65 @@ export class GridElement extends Renderable {
 
   protected getEventHandlers(): EventHandlerMap {
     return {
-      'mouse-moved-into-element': this.handleMouseMovedOntoElement
+      'mouse-moved-into-element': this.handleMouseMovedOntoElement.bind(this)
     }
   };
 
-  private handleMouseMovedOntoElement(e: { elementId: string }) {
-    if (!(e.elementId === this.id)) {
+  private handleMouseMovedOntoElement(elementEntry: { elementId: string }) {
+    // check whether it is over this element
+    if (!(elementEntry.elementId === this.id)) {
       return;
     }
 
-    console.log(this.id);
+    $(document).on('mousemove', (mouseMove) => {
+      const mousePos = this.renderManager.camera.getWorldPosFromJqueryMouseEvent(mouseMove);
+
+      // iterate through pins
+      for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
+        // if there is an input pin here
+        if (this.inputPositions[posIdx] !== -1) {
+          // calculate the distance from the mouse to the pin
+          const inputDistFromTop = posIdx + 0.5;
+          const inputPos = this.pos.add(new Vector2(0, inputDistFromTop))
+          const distToMouse = MathUtils.calcDistBetweenPoints(mousePos, inputPos);
+
+          // if its in the pin, activate it
+          if (distToMouse <= this.PIN_RADIUS) {
+            const inputPinIdx = this.inputPositions[posIdx]
+            this.activateInputPin(inputPinIdx);
+          }
+        }
+
+        // if there is an output pin here
+        if (this.outputPositions[posIdx] !== -1) {
+          // calculate the distance from the mouse to the pin
+          const outputDistFromTop = posIdx + 0.5;
+          const outputPos = this.pos.add(new Vector2(this.dims.x, outputDistFromTop))
+          const distToMouse = MathUtils.calcDistBetweenPoints(mousePos, outputPos);
+
+          // if its in the pin, activate it
+          if (distToMouse <= this.PIN_RADIUS) {
+            const outputPinIdx = this.outputPositions[posIdx]
+            this.activateOutputPin(outputPinIdx);
+          }
+        }
+      }
+    }) 
+  }
+
+  private activateInputPin(idx: number) {
+    console.log(`activating input pin ${idx}`)
+  }
+
+  private activateOutputPin(idx: number) {
+    console.log(`activating output pin ${idx}`)
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
     // ensure space isn't being pressed (in this case we pan)
     if (keyTracker.space) return;
 
-    // ensure there is a camera
-    const camera = this.camera;
-    if (!camera) return;
+    const camera = this.renderManager.camera;
 
     // get mouse positions
     const worldPos = camera.getWorldPosFromJqueryMouseEvent(event);
@@ -232,9 +286,7 @@ export class GridElement extends Renderable {
   }
 
   private followMouse(offset: Vector2) {
-    const dppr = this.renderManager.getDevicePixelRatio();
-    const camera = this.camera;
-    if (!camera) return;
+    const camera = this.renderManager.camera;
 
     $(document).on('mousemove.followMouse', (e) => {
       const event = e as JQuery.MouseMoveEvent;

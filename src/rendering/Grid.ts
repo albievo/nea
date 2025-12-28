@@ -46,10 +46,7 @@ export class Grid extends Renderable {
   }
 
   protected renderObject() {
-    const camera = this.camera;
-    if (!camera) {
-      throw new Error("please supply a camera");
-    }
+    const camera = this.renderManager.camera
 
     const ctx = this.ctx;
 

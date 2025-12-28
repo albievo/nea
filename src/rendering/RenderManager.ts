@@ -141,8 +141,6 @@ export class RenderManager {
     }
     
     this.renderablesById.set(id, renderable);
-
-    renderable.camera = this.camera;
   }
 
   public getDevicePixelRatio(): number {

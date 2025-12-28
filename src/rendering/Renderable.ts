@@ -9,7 +9,6 @@ import $ from 'jquery';
 export abstract class Renderable {
   protected _id: string;
   protected renderManager: RenderManager;
-  protected _camera?: Camera;
 
   protected $canvas: JQuery<HTMLElement> = $('#canvas');
 
@@ -33,20 +32,12 @@ export abstract class Renderable {
     }
   }
 
-  public set camera(camera: Camera) {
-    this._camera = camera;
-  }
-  public get camera(): Camera | undefined {
-    return this._camera;
-  }
-
   public get id() {
     return this._id;
   }
 
   public render() {
-    const camera = this.camera;
-    if (!camera) return;
+    const camera = this.renderManager.camera;
 
     this.updateFromBuffer();
     
