@@ -35,14 +35,14 @@ export class MouseTracker {
 
     // if we are on an element and we havent yet said that we are
     if (!this.isOnElement && takenBy.type === 'element') {
-      events.emit('mouse-moved-into-element');
       this.isOnElement = true;
+      events.emit('mouse-moved-into-element');
       console.log('mouse moved onto element');
     }
     // if we arent on an element and havent yet said that we arents
     else if (this.isOnElement && !(takenBy.type === 'element')) {
-      events.emit('mouse-moved-off-element');
       this.isOnElement = false;
+      events.emit('mouse-moved-off-element');
       console.log('mouse moved off element');
     }
   }
