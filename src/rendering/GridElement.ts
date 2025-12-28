@@ -118,7 +118,7 @@ export class GridElement extends Renderable {
           { length: this.dims.y },
           (_, idx) => {
             const outputIdx = idx - topPadding;
-            return (outputIdx >= 0 && outputIdx < this.outputs) ? idx : -1;
+            return (outputIdx >= 0 && outputIdx < this.outputs) ? outputIdx : -1;
           }
         );
       }
@@ -136,7 +136,7 @@ export class GridElement extends Renderable {
           { length: this.dims.y },
           (_, idx) => {
             const inputIdx = idx - topPadding;
-            return (inputIdx >= 0 && inputIdx < this.inputs) ? idx : -1;
+            return (inputIdx >= 0 && inputIdx < this.inputs) ? inputIdx : -1;
           }
         );
       }
