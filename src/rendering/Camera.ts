@@ -22,7 +22,7 @@ export class Camera {
 
   readonly baseCellPixels = 48;
 
-  private isPanning: boolean = false;
+  private _isPanning: boolean = false;
 
   constructor(
     zoom: number, maxZoom: number, zoomCoeff: number,
@@ -48,8 +48,6 @@ export class Camera {
     $(document).on('wheel', e => this.handleWheel(e));
     $(document).on('mousedown', e => this.handleMouseDown(e));
     events.on('resize', () => this.handleResize());
-    events.on('space-up', () => this.handleSpaceKeyUp());
-    events.on('space-down', () => this.handleSpaceKeyDown());
   }
 
   private handleWheel(event: JQuery.TriggeredEvent) {
@@ -100,9 +98,7 @@ export class Camera {
   }
 
   private followMouse() {
-    // update cursor style
-    this.isPanning = true;
-    this.renderManager.setPointer('grabbing'); 
+    this._isPanning = true;
 
     $(document).on('mousemove.followMouse', e => {
       if (!(e.clientX && e.clientY)) {
@@ -141,13 +137,7 @@ export class Camera {
   }
 
   private stopFollowingMouse() {
-    // update cursor style
-    this.isPanning = false;
-    if (keyTracker.space) {
-      this.renderManager.setPointer('grab');
-    } else {  
-      this.renderManager.setPointer('default');
-    }
+    this._isPanning = false;
 
     $(document).off('mousemove.followMouse');
     $(document).off('mouseup.stopFollowingMouse');
@@ -254,21 +244,6 @@ export class Camera {
     return !(isLeft || isAbove || isRight || isBelow);
   }
 
-
-  private handleSpaceKeyDown() {
-    if (this.isPanning) {
-      this.renderManager.setPointer('grabbing');
-    } else {
-      this.renderManager.setPointer('grab');
-    }
-  }
-
-  private handleSpaceKeyUp() {
-    if (!this.isPanning) {
-      this.renderManager.setPointer('default');
-    }
-  }
-
   public intersects(boundingBox: BoundingBox): boolean {
     const bottomRight = this.pan.add(this.calcWorldUnitsOnScreen());
 
@@ -291,7 +266,7 @@ export class Camera {
     return this.screenToWorld(screenPos);
   }
 
-  public panning() {
-    return this.isPanning;
+  public get isPanning(): boolean {
+    return this._isPanning;
   }
 }

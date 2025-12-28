@@ -8,11 +8,16 @@ import events from "../event/events";
 import $ from 'jquery';
 import { GeneralUtils } from "../utils/GeneralUtils";
 import keyTracker from "./KeyTracker";
+import { CursorHandler } from "./CursorHandler";
+import { MouseTracker } from "./MouseTracker";
 
 export class RenderManager {
   private workingChip: WorkingChip;
 
-  private camera: Camera;
+  private _camera: Camera;
+
+  private _cursorHandler: CursorHandler;
+  private _mouseTracker: MouseTracker;
 
   private devicePixelRatio = WebpageUtils.calculateDevicePixelRatio();
 
@@ -31,15 +36,18 @@ export class RenderManager {
   private $canvas = $('#canvas');
   private _ctx!: CanvasRenderingContext2D;
 
-  private availabilityGrid: CellTakenBy[][];
+  private _availabilityGrid: CellTakenBy[][];
 
   constructor(workingChip: WorkingChip, worldSize: Vector2) {
     this.workingChip = workingChip;
     this.worldSize = worldSize
-    this.camera = new Camera(2, 15, 0.001, this.devicePixelRatio, worldSize, this);
+    this._camera = new Camera(2, 15, 0.001, this.devicePixelRatio, worldSize, this);
     this.setCtx();
 
-    this.availabilityGrid = GeneralUtils.createMatrixOfVals(() => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x);
+    this._availabilityGrid = GeneralUtils.createMatrixOfVals(() => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x);
+
+    this._mouseTracker = new MouseTracker(this, this.worldSize);
+    this._cursorHandler = new CursorHandler(this);
  
     $(window).on('resize', () => {
       events.emit('resize');
@@ -50,8 +58,6 @@ export class RenderManager {
     events.on('resize', () => this.requestRender({ resize: true }));
     events.on('pan', () => this.requestRender({ camera: true }));
     events.on('zoom', () => this.requestRender({ camera: true }));
-
-    $(document).on('mousemove.gridElementCursor', (e) => this.handleMouseMove(e as JQuery.MouseMoveEvent));
 
     requestAnimationFrame(() => this.frame());
   }
@@ -205,32 +211,14 @@ export class RenderManager {
     return this.worldSize;
   }
 
-  private handleMouseMove(event: JQuery.MouseMoveEvent) {
-    const worldPos = this.camera.getWorldPosFromJqueryMouseEvent(event);
-    const cell = worldPos.applyFunction(Math.floor);
-    if ( // if out of bounds
-      cell.x < 0 ||
-      cell.y < 0 ||
-      cell.x >= this.worldSize.x ||
-      cell.y >= this.worldSize.y
-    ) {
-      return;
-    }
-    const takenBy = this.availabilityGrid[cell.y][cell.x];
-
-    // if we arent panning or space is being pressed
-    if (!this.camera.panning() && !keyTracker.space) {
-      if (takenBy.type === 'element') {
-        this.setPointer('move');
-      }
-      else {
-        this.setPointer('default');
-      }
-    }
+  public get camera() {
+    return this._camera;
   }
-
-  public setPointer(pointerStyle: string) {
-    $('#canvas').css('cursor', pointerStyle);
+  public get mouseTracker() {
+    return this._mouseTracker;
+  }
+  public get availabilityGrid() {
+    return this._availabilityGrid
   }
 }
 

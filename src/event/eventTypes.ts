@@ -10,6 +10,8 @@ export type EventPayloads = {
   resize: void;
   "space-down": void;
   "space-up": void;
+  "mouse-moved-into-element": void;
+  "mouse-moved-off-element": void;
 };
 
 export type EventTypes = keyof EventPayloads;
