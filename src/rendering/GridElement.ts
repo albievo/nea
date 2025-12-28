@@ -102,6 +102,7 @@ export class GridElement extends Renderable {
       this.inputPositions = [0, -1, 1];
       this.outputPositions = [-1, 0, -1];
     }
+
     // for most cases, place pins as centrally as possible
     else { 
       if (this.inputs > this.outputs) {
@@ -113,9 +114,13 @@ export class GridElement extends Renderable {
 
         // fill up outputs like [-1, -1, 0, 1, 2, -1, -1]
         const topPadding = Math.floor((this.inputs - this.outputs) / 2);
-        for (let outputIdx = 0; outputIdx < this.outputs; outputIdx++) {
-          this.outputPositions[outputIdx + topPadding] = outputIdx;
-        }
+        this.outputPositions = Array.from(
+          { length: this.dims.y },
+          (_, idx) => {
+            const outputIdx = idx - topPadding;
+            return (outputIdx >= 0 && outputIdx < this.outputs) ? idx : -1;
+          }
+        );
       }
 
       else {
@@ -127,9 +132,13 @@ export class GridElement extends Renderable {
 
         // fill up outputs like [-1, -1, 0, 1, 2, -1, -1]
         const topPadding = Math.floor((this.outputs - this.inputs) / 2);
-        for (let inputIdx = 0; inputIdx < this.inputs; inputIdx++) {
-          this.inputPositions[inputIdx + topPadding] = inputIdx;
-        }
+        this.inputPositions = Array.from(
+          { length: this.dims.y },
+          (_, idx) => {
+            const inputIdx = idx - topPadding;
+            return (inputIdx >= 0 && inputIdx < this.inputs) ? idx : -1;
+          }
+        );
       }
     }
   }

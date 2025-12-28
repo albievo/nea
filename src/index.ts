@@ -65,3 +65,23 @@ const gridElement2InitalPayload: InitialGridElementMap = {
 
 renderManager.requestRender({initialGridElements: gridElement2InitalPayload});
 
+const gridElement3Id = crypto.randomUUID();
+
+renderManager.addRenderable(
+  new GridElement({
+    id: gridElement3Id,
+    renderManager,
+    startingPos: new Vector2(28, 20),
+    inputs: 2,
+    outputs: 1,
+    width: 2
+  })
+);
+
+const gridElement3InitalPayload: InitialGridElementMap = {
+  [gridElement3Id]: {
+    color: 'green'
+  } 
+}
+
+renderManager.requestRender({initialGridElements: gridElement3InitalPayload});
