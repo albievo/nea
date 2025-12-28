@@ -234,7 +234,7 @@ export class RenderManager {
   }
 }
 
-interface CellTakenBy {
+export interface CellTakenBy {
   type?: 'wire' | 'element',
   ids: string[]
 }
