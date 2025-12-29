@@ -85,5 +85,3 @@ const gridElement3InitalPayload: InitialGridElementMap = {
 }
 
 renderManager.requestRender({initialGridElements: gridElement3InitalPayload});
-
-events.on('mouse-changed-cell', (e) => console.log(e.oldCell, e.newCell));

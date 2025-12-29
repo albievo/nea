@@ -34,11 +34,11 @@ export class MouseTracker {
     }
 
     if (!cell.equals(this.mouseCell)) {
-      const oldCell = this.mouseCell
+      const from = this.mouseCell
       this.mouseCell = cell;
       events.emit('mouse-changed-cell', {
-        oldCell, 
-        newCell: cell
+        from, 
+        to: cell
       })
     }
     

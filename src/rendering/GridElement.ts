@@ -30,7 +30,6 @@ export class GridElement extends Renderable {
   private mouseOnPin: number = -1;
 
   private lastValidPosition: Vector2;
-  private lastMouseCell: Vector2 = Vector2.zeroes;
 
   private colour?: string;
 
@@ -61,9 +60,14 @@ export class GridElement extends Renderable {
 
     this.pos = details.startingPos.copy();
     this.lastValidPosition = this.pos.copy();
-
-    $(document).on('mousedown', e => this.handleMouseDown(e));
   }
+
+  protected getEventHandlers(): EventHandlerMap {
+    return {
+      'mouse-moved-into-element': this.handleMouseMovedOntoElement.bind(this),
+      'mouse-moved-off-element': this.handleMouseMovedOffElement.bind(this)
+    }
+  };
 
   protected updateFromBuffer(): void {
     if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
@@ -90,8 +94,6 @@ export class GridElement extends Renderable {
         ); 
       }
     }
-
-    $(document).on('mousedown', (e) => this.handleMouseDown(e));
   }
 
   private calcPinPositions() {
@@ -215,20 +217,14 @@ export class GridElement extends Renderable {
     ctx.fill();
   }
 
-  protected getEventHandlers(): EventHandlerMap {
-    return {
-      'mouse-moved-into-element': this.handleMouseMovedOntoElement.bind(this),
-      'mouse-moved-off-element': this.handleMouseMovedOffElement.bind(this)
-    }
-  };
-
   private handleMouseMovedOntoElement(details: { elementId: string }) {
     // check whether it is over this element
     if (!(details.elementId === this.id)) {
       return;
     }
 
-    $(document).on('mousemove.trackMouseOnElement', (mouseMove: JQuery.MouseMoveEvent) => {
+    // add listener for mouse moving
+    $(document).on('mousemove.mousemoveOnElement', (mouseMove: JQuery.MouseMoveEvent) => {
       const mousePos = this.renderManager.camera.getWorldPosFromJqueryMouseEvent(mouseMove);
 
       if (this.mouseOnPin === -1) { // if we arent currently on a pin, check if we are now
@@ -242,8 +238,7 @@ export class GridElement extends Renderable {
             // check whether we are in the pin
             const onOutputPin = this.isMouseOnOutputPin(mousePos, posIdx);
             if (onOutputPin) {
-              this.activateOutputPin(pinAtPos);
-              return;
+              this.mouseOnPin = pinAtPos;
             }
           }
         }
@@ -253,24 +248,40 @@ export class GridElement extends Renderable {
         const posIdx = this.getOutputPosIdx(this.mouseOnPin);
         // check if were on it
         const onOutputPin = this.isMouseOnOutputPin(mousePos, posIdx);
-        // if not, deactivate output pins
-        if (!onOutputPin) this.deactivateOutputPins();
+        // if not, make mouse on pin correct
+        if (!onOutputPin) this.mouseOnPin = -1;
       }
-    }) 
+    });
+
+    // add listener for clicking
+    $(document).on('mousedown.mousedownOnElement', (mousedown: JQuery.MouseDownEvent) => {
+      // if we should be panning, dont do anything
+      if (keyTracker.space) return; 
+
+      // if the mouse is on a pin, attach a wire
+      if (this.mouseOnPin !== -1) {
+        this.attachTempWire(this.mouseOnPin);
+      }
+      // otherwise, drag the element
+      else {
+        // get mouse positions
+        const worldPos = this.renderManager.camera.getWorldPosFromJqueryMouseEvent(mousedown);
+        const cell = worldPos.applyFunction(Math.floor); 
+
+        // calculate offset
+        const offset = cell.subtract(this.pos);
+
+        // follow mouse
+        this.followMouse(offset);
+
+        $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
+      } 
+    })
   }
 
   private handleMouseMovedOffElement() {
     $(document).off('mousemove.trackMouseOnElement');
-    this.deactivateOutputPins();
-  }
-
-  private activateOutputPin(idx: number) {
-    this.mouseOnPin = idx;
-  }
-
-  private deactivateOutputPins() {
-    console.log('deactivating output pins');
-    this.mouseOnPin = -1;
+    $(document).off('mousemove.mousedownOnElement');
   }
 
   /**
@@ -286,46 +297,16 @@ export class GridElement extends Renderable {
     return distToMouse <= this.PIN_RADIUS && mousePos.x <= outputPos.x
   }
 
-  private handleMouseDown(event: JQuery.MouseDownEvent) {
-    // ensure space isn't being pressed (in this case we pan)
-    if (keyTracker.space) return;
-
-    const camera = this.renderManager.camera;
-
-    // get mouse positions
-    const worldPos = camera.getWorldPosFromJqueryMouseEvent(event);
-    const cell = worldPos.applyFunction(Math.floor); 
-
-    // ensure we are clicking on the element
-    if (!this.contains(worldPos)) return;
-
-    const offset = cell.subtract(this.pos);
-    this.lastMouseCell = cell.copy();
-    this.followMouse(offset);
-
-    $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
-  }
-
   private stopFollowingMouse() {
-    $(document).off('mousemove.followMouse');
+    events.off('mouse-changed-cell', 'draggingListener');
     $(document).off('mouseup.stopFollowingMouse');
   }
 
+  // offset is represents the vector from the top left of the element to the top left of the cell clicked in 
+  // hence it is an integer vector
   private followMouse(offset: Vector2) {
-    const camera = this.renderManager.camera;
-
-    $(document).on('mousemove.followMouse', (e) => {
-      const event = e as JQuery.MouseMoveEvent;
-
-      const worldPos = camera.getWorldPosFromJqueryMouseEvent(event);
-      const worldPosAfterOffset = worldPos.subtract(offset);
-      // get the cell that the mouse is in
-      let cell = worldPosAfterOffset.applyFunction(Math.floor);
-
-      // if we haven't moved cell, end the method
-      if (cell.equals(this.lastMouseCell)) return;
-
-      this.lastMouseCell = cell.copy();
+    events.on('mouse-changed-cell', (event) => {
+      let cell = event.to.subtract(offset);
 
       //updating taken cells is done seperately in case new cells overlap with old ones
       //might be able to be done more efficiently but we arent gonna have to do much iteration
@@ -364,7 +345,7 @@ export class GridElement extends Renderable {
         }
       }
       this.pos = cell.copy();
-    });
+    }, 'draggingListener');
   }
 
   private isValidPosition(pos: Vector2): boolean {
@@ -405,18 +386,6 @@ export class GridElement extends Renderable {
     return true;
   }
 
-  /**
-   * Checks whether a world pos in within the bounds of this element
-   */
-  private contains(worldPos: Vector2): boolean {
-    const bottomRight = this.calcBottomRight();
-
-    const withinX = this.pos.x <= worldPos.x && worldPos.x <= (bottomRight.x);
-    const withinY = this.pos.y <= worldPos.y && worldPos.y <= (bottomRight.y);
-
-    return withinX && withinY;
-  }
-
   private calcBottomRight() {
     return this.pos.add(this.dims);
   }
@@ -428,6 +397,10 @@ export class GridElement extends Renderable {
       }
     }
     return -1;
+  }
+
+  private attachTempWire(outputIdx: number) {
+    console.log(`attaching to output ${outputIdx}`);
   }
 }
 

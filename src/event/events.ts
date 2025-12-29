@@ -3,7 +3,7 @@ import { EventTypes, EventPayloads, EventHandlerMap, Handler } from "./eventType
 class Events {
   // maps event types to a list of functions to trigger when that event is emitted
   private listeners: {
-    [K in EventTypes]?: Handler<EventPayloads[K]>[];
+    [K in EventTypes]?: HandlerWithId<K>[];
   } = {};
 
   /**
@@ -24,7 +24,7 @@ class Events {
 
     // run each handler w/ the payload
     for (const handler of handlers) {
-      handler(arg);
+      handler.handler(arg);
     }
   }
 
@@ -33,29 +33,53 @@ class Events {
    */
   on<K extends EventTypes>(
     type: K,
-    handler: Handler<EventPayloads[K]>
+    handler: Handler<EventPayloads[K]>,
+    id?: string,
   ): void {
     if (!this.listeners[type]) {
       this.listeners[type] = [];
     }
-    this.listeners[type]!.push(handler);
+    this.listeners[type]!.push({
+      handler,
+      id
+    });
   }
 
   /**
-   * Removes the passed handler
+   * removes the handler with the passed id
    */
   public off<K extends EventTypes>(
     type: K,
-    handler: Handler<EventPayloads[K]>
+    id: string
   ): void {
     const handlers = this.listeners[type];
     if (!handlers) return;
 
-    const index = handlers.indexOf(handler);
-    if (index !== -1) {
+    const indices = this.findIndicesOfHandlersWithId(handlers, id);
+    indices.forEach(index => {
       handlers.splice(index, 1);
-    }
+    });
   }
+
+  private findIndicesOfHandlersWithId<K extends EventTypes>(
+    handlers: HandlerWithId<K>[],
+    id: string
+  ): number[] {
+    const indices: number[] = [];
+
+    for (let handlerIdx = 0; handlerIdx < handlers.length; handlerIdx++) {
+      if (handlers[handlerIdx].id === id) {
+        indices.push(handlerIdx);
+      }
+    }
+
+    return indices;
+  }
+}
+
+interface HandlerWithId<K extends EventTypes> {
+  handler: Handler<EventPayloads[K]>,
+  id?: string
 }
 
 const events = new Events();
