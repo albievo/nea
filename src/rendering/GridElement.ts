@@ -241,15 +241,19 @@ export class GridElement extends Renderable {
           if (pinAtPos !== -1) {
             // check whether we are in the pin
             const onOutputPin = this.isMouseOnOutputPin(mousePos, posIdx);
-            if (onOutputPin) this.activateOutputPin(pinAtPos);
-            return;
+            if (onOutputPin) {
+              this.activateOutputPin(pinAtPos);
+              return;
+            }
           }
         }
       }
       else { // if we are currently on a pin, check if we are still
         // get the position of the pin we should be on
         const posIdx = this.getOutputPosIdx(this.mouseOnPin);
+        // check if were on it
         const onOutputPin = this.isMouseOnOutputPin(mousePos, posIdx);
+        // if not, deactivate output pins
         if (!onOutputPin) this.deactivateOutputPins();
       }
     }) 
@@ -257,11 +261,11 @@ export class GridElement extends Renderable {
 
   private handleMouseMovedOffElement() {
     $(document).off('mousemove.trackMouseOnElement');
+    this.deactivateOutputPins();
   }
 
   private activateOutputPin(idx: number) {
     this.mouseOnPin = idx;
-    console.log(`activating output pin ${idx}`)
   }
 
   private deactivateOutputPins() {
