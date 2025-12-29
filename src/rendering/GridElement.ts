@@ -11,6 +11,9 @@ import { GridElementRenderBuffer, InitialGridElementPayload } from "./RenderPayl
 import $ from 'jquery';
 
 export class GridElement extends Renderable {
+  protected _kind: RenderableKind = 'grid-element';
+  protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
+
   // in world units
   private dims: Vector2;
   private pos: Vector2;
@@ -24,8 +27,7 @@ export class GridElement extends Renderable {
 
   private readonly PIN_RADIUS = 0.3;
 
-  protected _kind: RenderableKind = 'grid-element';
-  protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
+  private mouseOnPin: number = -1;
 
   private lastValidPosition: Vector2;
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -215,58 +217,69 @@ export class GridElement extends Renderable {
 
   protected getEventHandlers(): EventHandlerMap {
     return {
-      'mouse-moved-into-element': this.handleMouseMovedOntoElement.bind(this)
+      'mouse-moved-into-element': this.handleMouseMovedOntoElement.bind(this),
+      'mouse-moved-off-element': this.handleMouseMovedOffElement.bind(this)
     }
   };
 
-  private handleMouseMovedOntoElement(elementEntry: { elementId: string }) {
+  private handleMouseMovedOntoElement(details: { elementId: string }) {
     // check whether it is over this element
-    if (!(elementEntry.elementId === this.id)) {
+    if (!(details.elementId === this.id)) {
       return;
     }
 
-    $(document).on('mousemove', (mouseMove) => {
+    $(document).on('mousemove.trackMouseOnElement', (mouseMove: JQuery.MouseMoveEvent) => {
       const mousePos = this.renderManager.camera.getWorldPosFromJqueryMouseEvent(mouseMove);
 
-      // iterate through pins
-      for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
-        // if there is an input pin here
-        if (this.inputPositions[posIdx] !== -1) {
-          // calculate the distance from the mouse to the pin
-          const inputDistFromTop = posIdx + 0.5;
-          const inputPos = this.pos.add(new Vector2(0, inputDistFromTop))
-          const distToMouse = MathUtils.calcDistBetweenPoints(mousePos, inputPos);
+      if (this.mouseOnPin === -1) { // if we arent currently on a pin, check if we are now
 
-          // if its in the pin, activate it
-          if (distToMouse <= this.PIN_RADIUS) {
-            const inputPinIdx = this.inputPositions[posIdx]
-            this.activateInputPin(inputPinIdx);
+        // iterate through potential pin positions
+        for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
+
+          // if there is an output pin here
+          const pinAtPos = this.outputPositions[posIdx]
+          if (pinAtPos !== -1) {
+            // check whether we are in the pin
+            const onOutputPin = this.isMouseOnOutputPin(mousePos, posIdx);
+            if (onOutputPin) this.activateOutputPin(pinAtPos);
+            return;
           }
         }
-
-        // if there is an output pin here
-        if (this.outputPositions[posIdx] !== -1) {
-          // calculate the distance from the mouse to the pin
-          const outputDistFromTop = posIdx + 0.5;
-          const outputPos = this.pos.add(new Vector2(this.dims.x, outputDistFromTop))
-          const distToMouse = MathUtils.calcDistBetweenPoints(mousePos, outputPos);
-
-          // if its in the pin, activate it
-          if (distToMouse <= this.PIN_RADIUS) {
-            const outputPinIdx = this.outputPositions[posIdx]
-            this.activateOutputPin(outputPinIdx);
-          }
-        }
+      }
+      else { // if we are currently on a pin, check if we are still
+        // get the position of the pin we should be on
+        const posIdx = this.getOutputPosIdx(this.mouseOnPin);
+        const onOutputPin = this.isMouseOnOutputPin(mousePos, posIdx);
+        if (!onOutputPin) this.deactivateOutputPins();
       }
     }) 
   }
 
-  private activateInputPin(idx: number) {
-    console.log(`activating input pin ${idx}`)
+  private handleMouseMovedOffElement() {
+    $(document).off('mousemove.trackMouseOnElement');
   }
 
   private activateOutputPin(idx: number) {
+    this.mouseOnPin = idx;
     console.log(`activating output pin ${idx}`)
+  }
+
+  private deactivateOutputPins() {
+    console.log('deactivating output pins');
+    this.mouseOnPin = -1;
+  }
+
+  /**
+   * @param mousePos mouse position in world units
+   * @param pinIdx the position of the pin in the array outputPositions
+   */
+  private isMouseOnOutputPin(mousePos: Vector2, posIdx: number): boolean {
+    // calculate the distance from the mouse to the pin
+    const outputDistFromTop = posIdx + 0.5;
+    const outputPos = this.pos.add(new Vector2(this.dims.x, outputDistFromTop))
+    const distToMouse = MathUtils.calcDistBetweenPoints(mousePos, outputPos);
+
+    return distToMouse <= this.PIN_RADIUS && mousePos.x <= outputPos.x
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
@@ -402,6 +415,15 @@ export class GridElement extends Renderable {
 
   private calcBottomRight() {
     return this.pos.add(this.dims);
+  }
+
+  private getOutputPosIdx(pinIdx: number): number {
+    for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
+      if (this.outputPositions[posIdx] === pinIdx) {
+        return posIdx
+      }
+    }
+    return -1;
   }
 }
 
