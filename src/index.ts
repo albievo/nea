@@ -3,10 +3,10 @@ import { WorkingChip } from "./application/WorkingChip";
 import { Netlist } from "./netlist/Netlist";
 import { Grid } from "./rendering/Grid";
 import { InitialGridRenderPayload, InitialGridElementMap } from "./rendering/RenderPayloads";
-
-import './index.scss';
 import { Vector2 } from "./utils/Vector2";
 import { GridElement } from "./rendering/GridElement";
+import events from "./event/events"; 
+import './index.scss';
 
 const worldSize = new Vector2(50, 50);
 
@@ -85,3 +85,5 @@ const gridElement3InitalPayload: InitialGridElementMap = {
 }
 
 renderManager.requestRender({initialGridElements: gridElement3InitalPayload});
+
+events.on('mouse-changed-cell', (e) => console.log(e.oldCell, e.newCell));

@@ -8,6 +8,7 @@ export class MouseTracker {
   private renderManager: RenderManager;
   private worldSize: Vector2;
 
+  private _mouseCell: Vector2 = Vector2.zeroes;
   private _isOnElement: boolean = false;
 
   constructor(renderManager: RenderManager, worldSize: Vector2) {
@@ -31,8 +32,17 @@ export class MouseTracker {
     ) {
       return;
     }
-    const takenBy = availabilityGrid[cell.y][cell.x];
 
+    if (!cell.equals(this.mouseCell)) {
+      const oldCell = this.mouseCell
+      this.mouseCell = cell;
+      events.emit('mouse-changed-cell', {
+        oldCell, 
+        newCell: cell
+      })
+    }
+    
+    const takenBy = availabilityGrid[cell.y][cell.x];
     // if we are on an element and we havent yet said that we are
     if (!this.isOnElement && takenBy.type === 'element') {
       this.isOnElement = true;
@@ -50,8 +60,17 @@ export class MouseTracker {
   public get isOnElement() {
     return this._isOnElement;
   }
-
   private set isOnElement(val: boolean) {
     this._isOnElement = val;
+  }
+
+  public get mouseCell() {
+    return this._mouseCell
+  }
+  private set mouseCell(cell: Vector2) {
+    this._mouseCell = new Vector2(
+      Math.max(0, Math.min(this.worldSize.x, cell.x)),
+      Math.max(0, Math.min(this.worldSize.y, cell.y))
+    )
   }
 }
