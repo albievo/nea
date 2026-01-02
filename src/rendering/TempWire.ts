@@ -41,6 +41,8 @@ export class TempWire extends Renderable {
   protected updateFromBuffer(): void {
     const newPath = this.renderBuffer.updatedPath;
 
+    console.log(`new path: ${newPath}`);
+
     if (newPath) {
       this.path = [];
 
@@ -107,6 +109,6 @@ export class TempWire extends Renderable {
     
     this.renderManager.requestRender({
       updatedTempWirePath: newPath
-    })
+    });
   }
 }
