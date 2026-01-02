@@ -47,7 +47,7 @@ export interface TempWireRenderBuffer extends RenderBuffer {
 }
 
 type RenderPayloadBooleanMap = {
-  [K in keyof RenderPayload]?: boolean;
+  [K in keyof RenderPayload]: boolean;
 };
 
 export type AnyRenderBuffer = GridRenderBuffer | GridElementRenderBuffer | TempWireRenderBuffer;
@@ -58,6 +58,7 @@ export const PayloadRequiresFullRender: RenderPayloadBooleanMap = {
   initialGrid: true,
   initialGridElements: false,
   gridElementsMovement: true,
+  updatedTempWirePath: true
 };
 
 export type InitialGridElementMap = { [id: string]: InitialGridElementPayload };

@@ -399,7 +399,7 @@ export class GridElement extends Renderable {
   private attachTempWire(outputIdx: number) {
     const outputPosIdx = this.getOutputPosIdx(outputIdx);
     const outputCell = this.pos.add(new Vector2(
-      this.dims.x,
+      this.dims.x + 1,
       outputPosIdx
     ))
 

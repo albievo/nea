@@ -68,6 +68,8 @@ export class TempWire extends Renderable {
   }
   
   protected renderObject(): void {
+    console.log('rendering path');
+
     const ctx = this.renderManager.ctx;
     const camera = this.renderManager.camera;
 
@@ -84,12 +86,15 @@ export class TempWire extends Renderable {
         0, 2 * Math.PI
       );
 
-      ctx.fillStyle = 'lightblue';
+      ctx.fillStyle = 'black';
       ctx.fill();
     }
   }
 
   protected getBoundingBox(): BoundingBox {
+    console.log('getting bounding box');
+    console.log(this.boundingBox);
+
     return this.boundingBox;
   }
 
