@@ -10,7 +10,7 @@ test("correctly identify the shortest path without obstacles", () => {
   let startCell = new Vector2(0, 0);
   let endCell = new Vector2(1, 1);
   let correctPath = [startCell, endCell];
-  let calculatedPath = pathfinder.pathFind(startCell, endCell);
+  let calculatedPath = pathfinder.pathfind(startCell, endCell);
 
   if (calculatedPath === null) {
     expect(calculatedPath).toBeTruthy();
@@ -24,7 +24,7 @@ test("correctly identify the shortest path without obstacles", () => {
   startCell = new Vector2(2, 2);
   endCell = new Vector2(5, 2);
   correctPath = [startCell, new Vector2(3, 2), new Vector2(4, 2), endCell];
-  calculatedPath = pathfinder.pathFind(startCell, endCell);
+  calculatedPath = pathfinder.pathfind(startCell, endCell);
 
   if (calculatedPath === null) {
     expect(calculatedPath).toBeTruthy();
@@ -39,7 +39,7 @@ test("correctly identify the shortest path without obstacles", () => {
   endCell = new Vector2(9, 9);
   let correctPath1 = [startCell, new Vector2(8, 9), endCell];
   let correctPath2 = [startCell, new Vector2(8, 8), endCell];
-  calculatedPath = pathfinder.pathFind(startCell, endCell);
+  calculatedPath = pathfinder.pathfind(startCell, endCell);
 
   if (calculatedPath === null) {
     expect(calculatedPath).toBeTruthy();
@@ -63,7 +63,7 @@ test("correctly identify the shortest path with obstacles", () => {
   let endCell = new Vector2(3, 3);
   let correctPath1 = [startCell, new Vector2(2, 1), new Vector2(3, 2), endCell];
   let correctPath2 = [startCell, new Vector2(1, 2), new Vector2(2, 3), endCell];
-  let calculatedPath = pathfinder.pathFind(startCell, endCell);
+  let calculatedPath = pathfinder.pathfind(startCell, endCell);
 
   if (calculatedPath === null) {
     expect(calculatedPath).toBeTruthy();

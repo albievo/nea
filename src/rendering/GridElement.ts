@@ -9,6 +9,7 @@ import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import { GridElementRenderBuffer, InitialGridElementPayload } from "./RenderPayloads";
 import $ from 'jquery';
+import { TempWire } from "./TempWire";
 
 export class GridElement extends Renderable {
   protected _kind: RenderableKind = 'grid-element';
@@ -255,7 +256,6 @@ export class GridElement extends Renderable {
 
     // add listener for clicking
     $(document).on('mousedown.mousedownOnElement', (mousedown: JQuery.MouseDownEvent) => {
-      console.log('mousedown on element');
       // if we should be panning, dont do anything
       if (keyTracker.space) return; 
 
@@ -281,7 +281,6 @@ export class GridElement extends Renderable {
   }
 
   private handleMouseMovedOffElement() {
-    console.log('mouse moved off element')
     $(document).off('mousemove.mousemoveOnElement');
     $(document).off('mousedown.mousedownOnElement');
   }
@@ -307,8 +306,6 @@ export class GridElement extends Renderable {
   // offset is represents the vector from the top left of the element to the top left of the cell clicked in 
   // hence it is an integer vector
   private followMouse(offset: Vector2) {
-    console.log('following mouse');
-
     events.on('mouse-changed-cell', (event) => {
       let cell = event.to.subtract(offset);
 
@@ -400,7 +397,19 @@ export class GridElement extends Renderable {
   }
 
   private attachTempWire(outputIdx: number) {
-    console.log(`attaching to output ${outputIdx}`);
+    const outputPosIdx = this.getOutputPosIdx(outputIdx);
+    const outputCell = this.pos.add(new Vector2(
+      this.dims.x,
+      outputPosIdx
+    ))
+
+    this.renderManager.addRenderable(
+      new TempWire(
+        crypto.randomUUID(),
+        this.renderManager,
+        outputCell
+      )
+    )
   }
 }
 

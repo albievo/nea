@@ -20,6 +20,7 @@ export interface RenderPayload {
   initialGrid?: InitialGridRenderPayload;
   initialGridElements?: InitialGridElementMap; //  maps element ID to the payload
   gridElementsMovement?: GridElementMovementMap;
+  updatedTempWirePath?: Vector2[];
 }
 
 export interface RenderBuffer {
@@ -39,11 +40,17 @@ export interface GridRenderBuffer extends RenderBuffer {
   initial?: InitialGridRenderPayload
 }
 
+export interface TempWireRenderBuffer extends RenderBuffer {
+  kind: 'temp-wire';
+  initial?: boolean;
+  updatedPath?: Vector2[];
+}
+
 type RenderPayloadBooleanMap = {
   [K in keyof RenderPayload]?: boolean;
 };
 
-export type AnyRenderBuffer = GridRenderBuffer | GridElementRenderBuffer;
+export type AnyRenderBuffer = GridRenderBuffer | GridElementRenderBuffer | TempWireRenderBuffer;
 
 export const PayloadRequiresFullRender: RenderPayloadBooleanMap = {
   camera: true,
@@ -84,6 +91,10 @@ export class RenderPayloadUtils {
         const discriminatedToAdd = toAdd as GridElementRenderBuffer;
         return this.mergeGridElementRenderBuffers(original, discriminatedToAdd);
       }
+      case 'temp-wire': {
+        const discriminatedToAdd = toAdd as TempWireRenderBuffer;
+        return this.mergeTempWireRenderBuffers(original, discriminatedToAdd);
+      }
     }
   }
 
@@ -118,6 +129,19 @@ export class RenderPayloadUtils {
         ? original.movement.add(toAdd.movement)
         : original.movement ?? toAdd.movement;
 
+
+    return newPayload;
+  }
+
+  private static mergeTempWireRenderBuffers(
+    original: TempWireRenderBuffer, toAdd: TempWireRenderBuffer
+  ): TempWireRenderBuffer {
+    const newPayload: TempWireRenderBuffer = { kind: 'temp-wire' };
+
+    // update to most recent path
+    newPayload.updatedPath = toAdd.updatedPath ?? original.updatedPath;
+
+    newPayload.initial = toAdd.initial || original.initial;
 
     return newPayload;
   }

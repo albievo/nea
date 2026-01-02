@@ -28,7 +28,7 @@ export class AStarPathfinder {
     this.availabilityGrid = availibilyGrid;
   }
 
-  public pathFind(startCell: Vector2, endCell: Vector2): Vector2[] | null {
+  public pathfind(startCell: Vector2, endCell: Vector2): Vector2[] | null {
     if (
       !this.cellIsAvailable(startCell) ||
       !this.cellIsAvailable(endCell)

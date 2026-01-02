@@ -70,7 +70,7 @@ export abstract class Renderable {
   }
 }
 
-export type RenderableKind = "grid" | "grid-element";
+export type RenderableKind = "grid" | "grid-element" | "temp-wire";
 
 export interface BoundingBox {
   top: number,
