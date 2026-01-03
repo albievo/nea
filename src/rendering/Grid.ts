@@ -47,8 +47,6 @@ export class Grid extends Renderable<'grid'> {
   }
 
   protected renderObject() {
-    console.log('rendering grid');
-
     const camera = this.renderManager.camera
 
     const ctx = this.ctx;

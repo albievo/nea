@@ -29,7 +29,6 @@ export class RenderManager {
   private renderIdToNodeId = new Map<string, string>();
 
   private scheduled: boolean = false;
-  private fullRenderRequired: boolean = false;
 
   private gridId?: string;
 
@@ -120,10 +119,7 @@ export class RenderManager {
     const windowDims = this.camera.getWindowDims();
 
     //clear the canvas
-    if (this.fullRenderRequired) {
-      ctx.clearRect(0, 0, windowDims.x, windowDims.y);
-      this.fullRenderRequired = false;
-    }
+    ctx.clearRect(0, 0, windowDims.x, windowDims.y);
 
     for (const renderable of this.renderablesById.values()) {
       console.log(`rendering renderable of kind ${renderable.kind} and id ${renderable.id}`);
