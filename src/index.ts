@@ -2,7 +2,6 @@ import { RenderManager } from "./rendering/RenderManager";
 import { WorkingChip } from "./application/WorkingChip";
 import { Netlist } from "./netlist/Netlist";
 import { Grid } from "./rendering/Grid";
-import { InitialGridRenderPayload, InitialGridElementMap } from "./rendering/RenderPayloads";
 import { Vector2 } from "./utils/Vector2";
 import { GridElement } from "./rendering/GridElement";
 import events from "./event/events"; 

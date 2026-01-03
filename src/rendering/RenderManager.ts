@@ -1,6 +1,5 @@
 import { Renderable, RenderableKind } from "./Renderable";
 import { WorkingChip } from "../application/WorkingChip"
-import { PayloadRequiresFullRender, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
@@ -122,7 +121,7 @@ export class RenderManager {
     ctx.clearRect(0, 0, windowDims.x, windowDims.y);
 
     for (const renderable of this.renderablesById.values()) {
-      console.log(`rendering renderable of kind ${renderable.kind} and id ${renderable.id}`);
+      // console.log(`rendering renderable of kind ${renderable.kind} and id ${renderable.id}`);
       renderable.render();
     }
 

@@ -72,6 +72,8 @@ export class GridElement extends Renderable<'grid-element'> {
   };
 
   protected updateFromBuffer(): void {
+    console.log(this.renderBuffer)
+
     if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
   }
 
@@ -435,14 +437,16 @@ export class GridElement extends Renderable<'grid-element'> {
       console.error('cannot merge 2 initial renders');
       mergedOriginal.initial = original.initial;
     }
+    else {
+      mergedOriginal.initial = original.initial || toAdd.initial;
+    }
 
     // add if they both haVE a movement value, otherwise just use one (or neither)
     mergedOriginal.movement =
       original.movement && toAdd.movement
         ? original.movement.add(toAdd.movement)
         : original.movement ?? toAdd.movement;
-
-
+    
     return mergedOriginal;
   }
 }

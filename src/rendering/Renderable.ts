@@ -3,7 +3,7 @@ import { EventHandlerMap, EventTypes, Handler } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
-import { AnyRenderBuffer, RenderBuffer, RenderBufferByKind, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
+import { AnyRenderBuffer, RenderBuffer, RenderBufferByKind, RenderPayloadUtils } from "./RenderPayloads";
 import $ from 'jquery';
 
 export abstract class Renderable<K extends RenderableKind> {
