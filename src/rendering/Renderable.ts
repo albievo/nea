@@ -3,20 +3,25 @@ import { EventHandlerMap, EventTypes, Handler } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
-import { AnyRenderBuffer, RenderBuffer, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
+import { AnyRenderBuffer, RenderBuffer, RenderBufferByKind, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
 import $ from 'jquery';
 
-export abstract class Renderable {
+export abstract class Renderable<K extends RenderableKind> {
   protected _id: string;
   protected renderManager: RenderManager;
 
   protected $canvas: JQuery<HTMLElement> = $('#canvas');
 
-  protected abstract renderBuffer: RenderBuffer;
+  protected abstract _kind: K;
 
-  protected abstract _kind: RenderableKind;
+  protected abstract renderBuffer: RenderBufferByKind[K];
 
   protected abstract getEventHandlers(): EventHandlerMap;
+  protected readonly baseEventHandlers = {
+    resize: () => this.appendRenderBuffer({ resize: true }),
+    pan: () => this.appendRenderBuffer({ camera: true }),
+    zoom: () => this.appendRenderBuffer({ camera: true }),
+  };
 
   constructor(id: string, renderManager: RenderManager) {
     this._id = id;
@@ -47,27 +52,51 @@ export abstract class Renderable {
     }
 
     this.renderObject();
-    this.renderBuffer = { kind: this.kind };
+    this.resetRenderBuffer();
   }
 
   protected abstract updateFromBuffer(): void;
   protected abstract renderObject(): void;
   protected abstract getBoundingBox(): BoundingBox;
+  protected abstract resetRenderBuffer(): void;
 
-  public get kind() {
+  public get kind(): K {
     return this._kind;
   }
 
+  public appendRenderBuffer(payload: SharedRenderBufferFlags): void;
+  public appendRenderBuffer(
+    payload: Partial<Omit<RenderBufferByKind[K], 'kind'>>
+  ): void;
+
   /**
    * merges new information into the current render buffer
-   * @param newPayload should be of the same type as the class
    */
-  public appendRenderBuffer(newPayload: AnyRenderBuffer) {
-    const newRenderBuffer = RenderPayloadUtils.mergeRenderBuffers(this.renderBuffer, newPayload);
-    if (newRenderBuffer) {
-      this.renderBuffer = newPayload
+  public appendRenderBuffer(
+    payload:
+      | SharedRenderBufferFlags
+      | Partial<Omit<RenderBufferByKind[K], 'kind'>>
+  ) {
+    const fullPayloadToAdd = {
+      ...payload,
+      kind: this.kind,
+    } as RenderBufferByKind[K];
+
+    const merged = this.mergeRenderBuffers(
+      this.renderBuffer,
+      fullPayloadToAdd
+    );
+
+    if (merged) {
+      this.renderBuffer = merged;
+      events.emit('render-buffer-updated');
     }
   }
+
+  protected abstract mergeRenderBuffers(
+    original: RenderBufferByKind[K],
+    toAdd: RenderBufferByKind[K]
+  ): RenderBufferByKind[K];
 }
 
 export type RenderableKind = "grid" | "grid-element" | "temp-wire";
@@ -78,3 +107,7 @@ export interface BoundingBox {
   right: number,
   bottom: number
 }
+
+type SharedRenderBufferFlags = Partial<
+  Omit<RenderBuffer, 'kind'>
+>;

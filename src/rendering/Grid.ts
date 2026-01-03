@@ -2,16 +2,16 @@ import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridRenderBuffer, InitialGridRenderPayload } from "./RenderPayloads";
+import { GridRenderBuffer, InitialGridRenderPayload, RenderPayloadUtils } from "./RenderPayloads";
 import $ from 'jquery';
 
-export class Grid extends Renderable {
+export class Grid extends Renderable<'grid'> {
   private ctx: CanvasRenderingContext2D;
 
   private height!: number;
   private width!: number;
 
-  protected _kind: RenderableKind = 'grid';
+  protected _kind = 'grid' as const;
   protected renderBuffer: GridRenderBuffer = { kind: 'grid' };
   
   constructor(id: string, renderManager: RenderManager) {
@@ -40,9 +40,10 @@ export class Grid extends Renderable {
     this.width = payload.size.x;
   }
 
-  // COULD DELETE THIS IF NO LONGER NEEDED?
   protected getEventHandlers(): EventHandlerMap {
-    return {}
+    return {
+      ...this.baseEventHandlers
+    }
   }
 
   protected renderObject() {
@@ -79,5 +80,27 @@ export class Grid extends Renderable {
     }
     
     ctx.stroke();
+  }
+
+  protected mergeRenderBuffers(
+    original: GridRenderBuffer,
+    toAdd: GridRenderBuffer
+  ): GridRenderBuffer {
+
+    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+      original, toAdd
+    )
+
+    // don't merge initials
+    if (original.initial && toAdd.initial) {
+      console.error('cannot merge 2 initial renders');
+      mergedOriginal.initial = original.initial;
+    }
+
+    return mergedOriginal;
+  }
+
+  protected resetRenderBuffer(): void {
+    this.renderBuffer = { kind: 'grid' }
   }
 }

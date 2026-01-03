@@ -1,12 +1,13 @@
 import { EventHandlerMap } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
-import { TempWireRenderBuffer } from "./RenderPayloads";
+import { AnyRenderBuffer, RenderPayloadUtils, TempWireRenderBuffer } from "./RenderPayloads";
 import { RenderManager } from "./RenderManager";
 import { AStarPathfinder } from "./pathfinding/AStarPathfinder";
+import { merge } from "jquery";
 
-export class TempWire extends Renderable {
-  protected _kind: RenderableKind = 'temp-wire';
+export class TempWire extends Renderable<'temp-wire'> {
+  protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
   protected renderBuffer: TempWireRenderBuffer = { kind: 'temp-wire' };
 
   private path: Vector2[];
@@ -34,14 +35,13 @@ export class TempWire extends Renderable {
 
   protected getEventHandlers(): EventHandlerMap {
     return {
+      ...this.baseEventHandlers,
       'mouse-changed-cell': this.handleMouseChangedCell.bind(this)
     }
   }
 
   protected updateFromBuffer(): void {
     const newPath = this.renderBuffer.updatedPath;
-
-    console.log(`new path: ${newPath}`);
 
     if (newPath) {
       this.path = [];
@@ -70,8 +70,6 @@ export class TempWire extends Renderable {
   }
   
   protected renderObject(): void {
-    console.log('rendering path');
-
     const ctx = this.renderManager.ctx;
     const camera = this.renderManager.camera;
 
@@ -94,9 +92,7 @@ export class TempWire extends Renderable {
   }
 
   protected getBoundingBox(): BoundingBox {
-    console.log('getting bounding box');
     console.log(this.boundingBox);
-
     return this.boundingBox;
   }
 
@@ -106,9 +102,32 @@ export class TempWire extends Renderable {
       console.error(`couldn't pathfind from ${this.startingPos} to ${movement.to}`);
       return;
     }
-    
-    this.renderManager.requestRender({
-      updatedTempWirePath: newPath
-    });
+  }
+
+  protected resetRenderBuffer(): void {
+    this.renderBuffer = { kind: 'temp-wire' };
+  }
+
+  protected mergeRenderBuffers(
+    original: TempWireRenderBuffer,
+    toAdd: TempWireRenderBuffer
+  ): TempWireRenderBuffer {
+
+    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+      original, toAdd
+    )
+
+    // const newPayload: TempWireRenderBuffer = { kind: 'temp-wire' };
+
+    console.log(`path to add: ${toAdd.updatedPath}`);
+
+    // update to most recent path
+    mergedOriginal.updatedPath = toAdd.updatedPath ?? original.updatedPath;
+
+    console.log(`new payload path: ${mergedOriginal.updatedPath}`);
+
+    mergedOriginal.initial = toAdd.initial || original.initial;
+
+    return mergedOriginal;
   }
 }

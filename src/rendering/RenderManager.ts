@@ -1,4 +1,4 @@
-import { Renderable } from "./Renderable";
+import { Renderable, RenderableKind } from "./Renderable";
 import { WorkingChip } from "../application/WorkingChip"
 import { PayloadRequiresFullRender, RenderPayload, RenderPayloadUtils } from "./RenderPayloads";
 import { WebpageUtils } from "../utils/WebpageUtils";
@@ -23,7 +23,7 @@ export class RenderManager {
 
   private worldSize: Vector2;
 
-  private renderablesById = new Map<string, Renderable>();
+  private renderablesById = new Map<string, Renderable<RenderableKind>>();
   
   private nodeIdToRenderId = new Map<string, string>();
   private renderIdToNodeId = new Map<string, string>();
@@ -54,56 +54,59 @@ export class RenderManager {
       this.fitCanvasToPage();
     });
 
-    // send out render requests whenever camera changes or resize occcurs
-    events.on('resize', () => this.requestRender({ resize: true }));
-    events.on('pan', () => this.requestRender({ camera: true }));
-    events.on('zoom', () => this.requestRender({ camera: true }));
-
     requestAnimationFrame(() => this.frame());
   }
 
-  public requestRender(payload: RenderPayload) {
-    this.scheduled = true;
+  // public requestRender(payload: RenderPayload) {
+  //   this.scheduled = true;
 
-    // check if any part of the payload requires a full render
-    this.fullRenderRequired ||= RenderPayloadUtils.payloadRequiresFullRender(payload);
+  //   // check if any part of the payload requires a full render
+  //   this.fullRenderRequired ||= RenderPayloadUtils.payloadRequiresFullRender(payload);
 
-    // iterate through renderables
-    for (const renderable of Object.values(this.renderablesById)) {
-      renderable.appendRenderBuffer({ camera: payload.camera, resize: payload.resize });
-    }
+  //   // iterate through renderables
+  //   for (const renderable of Object.values(this.renderablesById)) {
+  //     renderable.appendRenderBuffer({ camera: payload.camera, resize: payload.resize });
+  //   }
 
-    // add grid's inital render
-    if (payload.initialGrid) {
-      // ensure there is a grid
-      if (!this.gridId) {
-        console.error('please add a grid');
-        return;
-      }
-      const grid = this.renderablesById.get(this.gridId);
+  //   // add grid's inital render
+  //   if (payload.initialGrid) {
+  //     // ensure there is a grid
+  //     if (!this.gridId) {
+  //       console.error('please add a grid');
+  //       return;
+  //     }
+  //     const grid = this.renderablesById.get(this.gridId);
 
-      grid?.appendRenderBuffer({
-        kind: 'grid',
-        initial: payload.initialGrid
-      });
-    }
+  //     grid?.appendRenderBuffer({
+  //       kind: 'grid',
+  //       initial: payload.initialGrid
+  //     });
+  //   }
     
-    // add each grid element's initital renders
-    if (payload.initialGridElements) {
-      for (const [id, initialPayload] of Object.entries(payload.initialGridElements)) {
-        const gridElement = this.renderablesById.get(id);
-        gridElement?.appendRenderBuffer({ kind: 'grid-element', initial: initialPayload })
-      }
-    }
+  //   // add each grid element's initital renders
+  //   if (payload.initialGridElements) {
+  //     for (const [id, initialPayload] of Object.entries(payload.initialGridElements)) {
+  //       const gridElement = this.renderablesById.get(id);
+  //       gridElement?.appendRenderBuffer({ kind: 'grid-element', initial: initialPayload })
+  //     }
+  //   }
 
-    // add each grid element's movements
-    if (payload.gridElementsMovement) {
-      for (const [id, movementPayload] of Object.entries(payload.gridElementsMovement)) {
-        const gridElement = this.renderablesById.get(id);
-        gridElement?.appendRenderBuffer({ kind: 'grid-element', movement: movementPayload.delta })
-      }
-    }
-  }
+  //   // add each grid element's movements
+  //   if (payload.gridElementsMovement) {
+  //     for (const [id, movementPayload] of Object.entries(payload.gridElementsMovement)) {
+  //       const gridElement = this.renderablesById.get(id);
+  //       gridElement?.appendRenderBuffer({ kind: 'grid-element', movement: movementPayload.delta })
+  //     }
+  //   }
+
+  //   // add each temp wire's initial renders
+  //   if (payload.initialTempWire) {
+  //     for (const [id, initialPayload] of Object.entries(payload.initialGridElements)) {
+  //       const gridElement = this.renderablesById.get(id);
+  //       gridElement?.appendRenderBuffer({ kind: 'grid-element', initial: initialPayload })
+  //     }
+  //   }
+  // }
 
   private frame() {
     if (!this.scheduled) {
@@ -128,7 +131,7 @@ export class RenderManager {
     requestAnimationFrame(() => this.frame());
   }
 
-  public addRenderable(renderable: Renderable) {
+  public addRenderable(renderable: Renderable<RenderableKind>) {
     const id = renderable.id;
 
     if (renderable.kind === 'grid') {

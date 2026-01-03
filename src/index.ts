@@ -16,17 +16,18 @@ const renderManager = new RenderManager(workingChip, worldSize);
 
 const gridId = crypto.randomUUID();
 
-renderManager.addRenderable(new Grid(gridId, renderManager));
+const grid = new Grid(gridId, renderManager)
 
-renderManager.requestRender({initialGrid: {
-  gridId: gridId,
-  size: worldSize,
-}});
+renderManager.addRenderable(grid);
+
+grid.appendRenderBuffer({
+  initial: {
+    size: worldSize
+  }
+});
 
 const gridElement1Id = crypto.randomUUID();
-
-renderManager.addRenderable(
-  new GridElement({
+const gridElement1 = new GridElement({
     id: gridElement1Id,
     renderManager,
     startingPos: new Vector2(23, 23),
@@ -34,20 +35,17 @@ renderManager.addRenderable(
     outputs: 3 ,
     width: 3 
   })
-);
 
-const gridElement1InitalPayload: InitialGridElementMap = {
-  [gridElement1Id]: {
+renderManager.addRenderable(gridElement1);
+
+gridElement1.appendRenderBuffer({
+  initial: {
     color: 'red'
-  } 
-}
-
-renderManager.requestRender({initialGridElements: gridElement1InitalPayload});
+  }
+})
 
 const gridElement2Id = crypto.randomUUID();
-
-renderManager.addRenderable(
-  new GridElement({
+const gridElement2 = new GridElement({
     id: gridElement2Id,
     renderManager,
     startingPos: new Vector2(20, 20),
@@ -55,20 +53,17 @@ renderManager.addRenderable(
     outputs: 1,
     width: 2
   })
-);
 
-const gridElement2InitalPayload: InitialGridElementMap = {
-  [gridElement2Id]: {
+renderManager.addRenderable(gridElement2);
+
+gridElement2.appendRenderBuffer({
+  initial: {
     color: 'blue'
-  } 
-}
-
-renderManager.requestRender({initialGridElements: gridElement2InitalPayload});
+  }
+})
 
 const gridElement3Id = crypto.randomUUID();
-
-renderManager.addRenderable(
-  new GridElement({
+const gridElement3 = new GridElement({
     id: gridElement3Id,
     renderManager,
     startingPos: new Vector2(28, 20),
@@ -76,12 +71,11 @@ renderManager.addRenderable(
     outputs: 1,
     width: 2
   })
-);
 
-const gridElement3InitalPayload: InitialGridElementMap = {
-  [gridElement3Id]: {
+renderManager.addRenderable(gridElement3);
+
+gridElement3.appendRenderBuffer({
+  initial: {
     color: 'green'
-  } 
-}
-
-renderManager.requestRender({initialGridElements: gridElement3InitalPayload});
+  }
+})

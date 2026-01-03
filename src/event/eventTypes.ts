@@ -12,7 +12,8 @@ export type EventPayloads = {
   "space-up": void;
   "mouse-moved-into-element": { elementId: string };
   "mouse-moved-off-element": void;
-  "mouse-changed-cell": { from: Vector2, to: Vector2 }
+  "mouse-changed-cell": { from: Vector2, to: Vector2 };
+  "render-buffer-updated": void;
 };
 
 export type EventTypes = keyof EventPayloads;

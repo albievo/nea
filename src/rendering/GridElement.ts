@@ -7,12 +7,12 @@ import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridElementRenderBuffer, InitialGridElementPayload } from "./RenderPayloads";
+import { GridElementRenderBuffer, InitialGridElementPayload, RenderPayloadUtils } from "./RenderPayloads";
 import $ from 'jquery';
 import { TempWire } from "./TempWire";
 
-export class GridElement extends Renderable {
-  protected _kind: RenderableKind = 'grid-element';
+export class GridElement extends Renderable<'grid-element'> {
+  protected _kind = 'grid-element' as const;
   protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
 
   // in world units
@@ -65,6 +65,7 @@ export class GridElement extends Renderable {
 
   protected getEventHandlers(): EventHandlerMap {
     return {
+      ...this.baseEventHandlers,
       'mouse-moved-into-element': this.handleMouseMovedOntoElement.bind(this),
       'mouse-moved-off-element': this.handleMouseMovedOffElement.bind(this)
     }
@@ -331,11 +332,7 @@ export class GridElement extends Renderable {
       const delta = cell.subtract(this.pos);
 
       // send render request
-      this.renderManager.requestRender({
-        gridElementsMovement: {
-          [this.id]: { delta }
-        }
-      })
+      this.appendRenderBuffer({ movement: delta });
 
       // add new cell positions
       for (let x = 0; x < this.dims.x; x++) {
@@ -397,19 +394,56 @@ export class GridElement extends Renderable {
   }
 
   private attachTempWire(outputIdx: number) {
-    const outputPosIdx = this.getOutputPosIdx(outputIdx);
-    const outputCell = this.pos.add(new Vector2(
-      this.dims.x + 1,
-      outputPosIdx
-    ))
+    console.log('implement attaching temp wire');
 
-    this.renderManager.addRenderable(
-      new TempWire(
-        crypto.randomUUID(),
-        this.renderManager,
-        outputCell
-      )
+    // const outputPosIdx = this.getOutputPosIdx(outputIdx);
+    // const outputCell = this.pos.add(new Vector2(
+    //   this.dims.x + 1,
+    //   outputPosIdx
+    // ));
+
+    // const tempWireId = crypto.randomUUID();
+
+    // this.renderManager.addRenderable(
+    //   new TempWire(
+    //     tempWireId,
+    //     this.renderManager,
+    //     outputCell
+    //   )
+    // );
+
+    // this.renderManager.requestRender({
+    //   initialTempWire: { `${tempWireId}`: {} }
+    // })
+  }
+
+  protected resetRenderBuffer(): void {
+    this.renderBuffer = { kind: 'grid-element' }
+  }
+
+  protected mergeRenderBuffers(
+    original: GridElementRenderBuffer,
+    toAdd: GridElementRenderBuffer
+  ): GridElementRenderBuffer {
+
+    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+      original, toAdd
     )
+
+    // don't merge initials
+    if (original.initial && toAdd.initial) {
+      console.error('cannot merge 2 initial renders');
+      mergedOriginal.initial = original.initial;
+    }
+
+    // add if they both haVE a movement value, otherwise just use one (or neither)
+    mergedOriginal.movement =
+      original.movement && toAdd.movement
+        ? original.movement.add(toAdd.movement)
+        : original.movement ?? toAdd.movement;
+
+
+    return mergedOriginal;
   }
 }
 
