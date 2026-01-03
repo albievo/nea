@@ -48,6 +48,8 @@ export class RenderManager {
 
     this._mouseTracker = new MouseTracker(this, this.worldSize);
     this._cursorHandler = new CursorHandler(this);
+
+    events.on('render-buffer-updated', () => this.scheduled = true);
  
     $(window).on('resize', () => {
       events.emit('resize');
@@ -124,6 +126,7 @@ export class RenderManager {
     }
 
     for (const renderable of this.renderablesById.values()) {
+      console.log(`rendering renderable of kind ${renderable.kind} and id ${renderable.id}`);
       renderable.render();
     }
 
