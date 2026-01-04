@@ -5,6 +5,7 @@ import { AnyRenderBuffer, RenderPayloadUtils, TempWireRenderBuffer } from "./Ren
 import { RenderManager } from "./RenderManager";
 import { AStarPathfinder } from "./pathfinding/AStarPathfinder";
 import { merge } from "jquery";
+import { MathUtils } from "../utils/MathUtils";
 
 export class TempWire extends Renderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -78,31 +79,70 @@ export class TempWire extends Renderable<'temp-wire'> {
   }
   
   protected renderObject(): void {
-    console.log('rendering temp wire')
-
     const ctx = this.renderManager.ctx;
     const camera = this.renderManager.camera;
     const widthScreen = camera.worldUnitsToScreenPixels(this.WIDTH);
 
+    const firstSegmentIntersections: [Vector2, Vector2] = [
+      this.startingPos.add(0, 0.5 - this.WIDTH / 2),
+      this.startingPos.add(0, 0.5 + this.WIDTH / 2)
+    ];
 
-    for (let cellIdx = 0; cellIdx < this.path.length; cellIdx++) {
+    const zerothCell = this.startingPos.subtract(1, 0);
+
+    const secondSegmentIntersections: [Vector2, Vector2] = 
+      this.calculateSegmentIntersections(zerothCell, this.path[0], this.path[1]);
+
+    this.drawSegment(firstSegmentIntersections, secondSegmentIntersections);
+
+    let lastSegmentIntersections = secondSegmentIntersections;
+
+    for (let cellIdx = 1; cellIdx < this.path.length - 1; cellIdx++) {
+      const lastCell = this.path[cellIdx - 1]
       const cell = this.path[cellIdx];
+      const nextCell = this.path[cellIdx + 1]
 
-      console.log(cell.x, cell.y)
-
-      const centre = cell.add(new Vector2(0.5, 0.5));
-      const centreScreen = camera.worldPosToScreen(centre);
-
-      ctx.beginPath();
-      ctx.arc(
-        centreScreen.x, centreScreen.y,
-        widthScreen,
-        0, 2 * Math.PI
+      const currentSegmentIntersections = this.calculateSegmentIntersections(
+        lastCell, cell, nextCell
       );
 
-      ctx.fillStyle = 'black';
-      ctx.fill();
+      this.drawSegment(lastSegmentIntersections, currentSegmentIntersections);
+
+      lastSegmentIntersections = currentSegmentIntersections;
     }
+
+    const finalCell = this.path[this.path.length - 1];
+    const secondFinalCell = this.path[this.path.length - 2];
+
+    const finalCellTransition = finalCell.subtract(secondFinalCell);
+
+    const ghostFinalCell = finalCell.add(finalCellTransition);
+
+    const finalCellIntersections = this.calculateSegmentIntersections(
+      secondFinalCell, finalCell, ghostFinalCell
+    );
+
+    this.drawSegment(lastSegmentIntersections, finalCellIntersections);
+  }
+
+  private drawSegment(a: [Vector2, Vector2], b: [Vector2, Vector2]) {
+    const ctx = this.renderManager.ctx;
+    const camera = this.renderManager.camera;
+
+    const points = [a[0], a[1], b[0], b[1]];
+    const clockWisePoints = MathUtils.sortPointsClockwise(points);
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (const point of clockWisePoints) {
+      const pointScreen = camera.worldPosToScreen(point);
+      ctx.lineTo(pointScreen.x, pointScreen.y);
+    }
+
+    // connect last point back to first
+    ctx.closePath();
+    ctx.fill();
   }
 
   protected getBoundingBox(): BoundingBox {
@@ -140,5 +180,24 @@ export class TempWire extends Renderable<'temp-wire'> {
     mergedOriginal.updatedPath = toAdd.updatedPath ?? original.updatedPath;
 
     return mergedOriginal;
+  }
+
+  private calculateSegmentIntersections(
+    a: Vector2, b: Vector2, c: Vector2
+  ): [Vector2, Vector2] {
+
+    // vector from a to c
+    const aToC = c.subtract(a);
+
+    // vector perpendicular to the vector from a to c with length half of the width we need
+    const perpVector = MathUtils.getPerpVectorWithLength(
+      aToC,
+      this.WIDTH / 2
+    );
+
+    return [
+      b.add(perpVector),
+      b.subtract(perpVector)
+    ]
   }
 }

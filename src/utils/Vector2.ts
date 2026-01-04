@@ -34,13 +34,12 @@ export class Vector2 {
 
   public add(a: number): Vector2;
   public add(a: Vector2): Vector2;
+  public add(a: number, b: number): Vector2;
 
-  public add(a: number | Vector2): Vector2 {
-    // for scalar addition
+  public add(a: number | Vector2, b?: number): Vector2 {
     if (typeof(a) === "number") {
-      return new Vector2(this.x + a, this.y + a);
+      return new Vector2(this.x + a, this.y + (b ?? a));
     }
-    //for vector addition
     else {
       return new Vector2(this.x + a.x, this.y + a.y)
     }
@@ -48,11 +47,12 @@ export class Vector2 {
 
   public subtract(a: number): Vector2;
   public subtract(a: Vector2): Vector2;
+  public subtract(a: number, b: number): Vector2;
 
-  public subtract(a: number | Vector2): Vector2 {
+  public subtract(a: number | Vector2, b?: number): Vector2 {
     // for scalar subtractition
     if (typeof(a) === "number") {
-      return new Vector2(this.x - a, this.y - a);
+      return new Vector2(this.x - a, this.y - (b ?? a));
     }
     //for vector subtractition
     else {
@@ -102,5 +102,12 @@ export class Vector2 {
 
   public fixedCopy() {
     return new Vector2(this.x, this.y, true);
+  }
+
+  public neg() {
+    return new Vector2(
+      -this.x,
+      -this.y
+    )
   }
 }
