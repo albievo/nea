@@ -53,9 +53,9 @@ export class TempWire extends Renderable<'temp-wire'> {
       this.boundingBox.top = firstCell.y;
       this.boundingBox.right = firstCell.x
       this.boundingBox.bottom = firstCell.y;
-      this.boundingBox.left = firstCell.x
+      this.boundingBox.left = firstCell.x;
 
-      for (let cellIdx = 0; cellIdx < newPath.length; cellIdx++) {
+      for (let cellIdx = 1; cellIdx < newPath.length; cellIdx++) {
         const cell = newPath[cellIdx];
 
         // add cell to path
@@ -124,6 +124,8 @@ export class TempWire extends Renderable<'temp-wire'> {
   // }
 
   protected renderObject(): void {
+    console.log(this.path);
+
     const firstSegmentPoints: [Vector2, Vector2] = [
       this.startingPos.add(0, 0.5 - this.WIDTH / 2),
       this.startingPos.add(0, 0.5 + this.WIDTH / 2)
@@ -134,65 +136,37 @@ export class TempWire extends Renderable<'temp-wire'> {
       firstSegmentPoints[1].add(0.5, 0)
     ];
 
-    this.drawSegment(firstSegmentPoints, recentEndSegmentPoints);
+    // draw first segment
+    this.renderManager.drawPolygon([
+      firstSegmentPoints[0],
+      firstSegmentPoints[1],
+      recentEndSegmentPoints[0],
+      recentEndSegmentPoints[1]
+    ], 'black');
 
     for (let cellIdx = 1; cellIdx < this.path.length; cellIdx++) {
       const lastCell = this.path[cellIdx - 1];
       const cell = this.path[cellIdx];
 
-      const segmentVertices = this.calculateSegmentVertices(lastCell, cell);
+      console.log(`cell: ${cell.toString()}`);
+      console.log(`last cell: ${lastCell.toString()}`);
+
+      const [a, b, c, d] = this.calculateSegmentVertices(lastCell, cell);
+      const [e, f] = recentEndSegmentPoints;
+
+      console.log(`a: ${a.toString()}`);
+      console.log(`b: ${b.toString()}`);
+      console.log(`c: ${c.toString()}`);
+      console.log(`d: ${d.toString()}`);
+      console.log(`e: ${e.toString()}`);
+      console.log(`f: ${f.toString()}`);
 
       // draw segment
-      this.renderManager.drawPolygon(segmentVertices, 'black');
+      this.renderManager.drawPolygon([a, b, c, d], 'black');
       // draw segment connector
-      this.renderManager.drawPolygon([
-        recentEndSegmentPoints[0],
-        recentEndSegmentPoints[1],
-        segmentVertices[0],
-        segmentVertices[1]
-      ], 'lightblue');
+      this.renderManager.drawPolygon([e, f, a, b], 'lightblue');
 
-      recentEndSegmentPoints = [
-        segmentVertices [2],
-        segmentVertices[3]
-      ]
-    }
-  }
-  
-  
-
-  private drawSegment(a: [Vector2, Vector2], b: [Vector2, Vector2]) {
-    const ctx = this.renderManager.ctx;
-    const camera = this.renderManager.camera;
-
-    const points = [a[0], a[1], b[0], b[1]];
-
-    const clockwisePoints = MathUtils.sortPointsClockwise(points);
-
-    ctx.beginPath();
-
-    const firstScreen = camera.worldPosToScreen(clockwisePoints[0])
-    ctx.moveTo(firstScreen.x, firstScreen.y);
-
-    for (let pointIdx = 1; pointIdx < 4; pointIdx++) {
-      const point = clockwisePoints[pointIdx]
-      const pointScreen = camera.worldPosToScreen(point);
-      ctx.lineTo(pointScreen.x, pointScreen.y);
-    }
-
-    // connect last point back to first
-    ctx.closePath();    
-    const red = Math.floor(Math.random() * 256);
-    const green = Math.floor(Math.random() * 256);
-    const blue = Math.floor(Math.random() * 256);
-    ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
-    ctx.fill();
-
-    for (const point of clockwisePoints) {
-      ctx.beginPath();
-      const pointScreen = camera.worldPosToScreen(point);
-      ctx.arc(pointScreen.x, pointScreen.y, 10, 0, Math.PI * 2);
-      ctx.fill();
+      recentEndSegmentPoints = [c, d];
     }
   }
 
@@ -231,27 +205,6 @@ export class TempWire extends Renderable<'temp-wire'> {
     mergedOriginal.updatedPath = toAdd.updatedPath ?? original.updatedPath;
 
     return mergedOriginal;
-  }
-
-  private calculateSegmentIntersections(
-    a: Vector2, b: Vector2, c: Vector2
-  ): [Vector2, Vector2] {
-
-    // vector from a to c
-    const aToC = c.subtract(a);
-
-    // vector perpendicular to the vector from a to c with length half of the width we need
-    const perpVector = MathUtils.getPerpVectorWithLength(
-      aToC,
-      this.WIDTH / 2
-    );
-
-    const bCentre = b.add(0.5, 0.5)
-
-    return [
-      bCentre.add(perpVector),
-      bCentre.subtract(perpVector)
-    ]
   }
 
   private calculateSegmentVertices(
