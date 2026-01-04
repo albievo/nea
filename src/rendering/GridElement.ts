@@ -180,6 +180,8 @@ export class GridElement extends Renderable<'grid-element'> {
       // draw the inputs
       if (inputIdx !== -1) { // if we should render a pin here\
         const active = inputIdx === this.activeInput;
+        console.log(inputIdx, this.activeInput);
+        console.log(`${inputIdx} is ${active} active`)
 
         const centreWorld = new Vector2(this.pos.x, yPos)
         const centreScreen = camera.worldPosToScreen(centreWorld);
@@ -297,7 +299,7 @@ export class GridElement extends Renderable<'grid-element'> {
     for (let inputPosIdx = 0; inputPosIdx < this.inputPositions.length; inputPosIdx++) {
       const inputIdx = this.inputPositions[inputPosIdx];
       if (inputIdx === -1) {
-        return;
+        continue;
       }
 
       const inputPos = this.pos.add(0, inputPosIdx);
@@ -307,6 +309,7 @@ export class GridElement extends Renderable<'grid-element'> {
         details.endCell.add(1, 0).equals(inputPos)
       ) {
         this.activateInputPos(inputIdx);
+        return;
       }
     }
 
