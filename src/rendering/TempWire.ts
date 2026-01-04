@@ -23,7 +23,8 @@ export class TempWire extends Renderable<'temp-wire'> {
     left: 0
   } 
 
-  private WIDTH = 0.3; // width in world units
+  private INNER_WIDTH = 0.3; // width in world units
+  private OUTER_WIDTH = 0.4;
 
   constructor(id: string, renderManager: RenderManager, startingPos: Vector2) {
     super(id, renderManager);
@@ -77,97 +78,10 @@ export class TempWire extends Renderable<'temp-wire'> {
       }
     }
   }
-  
-  // protected renderObject(): void {
-
-  //   const firstSegmentIntersections: [Vector2, Vector2] = [
-  //     this.startingPos.add(0, 0.5 - this.WIDTH / 2),
-  //     this.startingPos.add(0, 0.5 + this.WIDTH / 2)
-  //   ];
-
-  //   const zerothCell = this.startingPos.subtract(1, 0);
-
-  //   const secondSegmentIntersections: [Vector2, Vector2] = 
-  //     this.calculateSegmentIntersections(zerothCell, this.path[0], this.path[1]);
-
-  //   this.drawSegment(firstSegmentIntersections, secondSegmentIntersections);
-
-  //   let lastSegmentIntersections = secondSegmentIntersections;
-
-  //   for (let cellIdx = 1; cellIdx < this.path.length - 1; cellIdx++) {
-  //     const lastCell = this.path[cellIdx - 1]
-  //     const cell = this.path[cellIdx];
-  //     const nextCell = this.path[cellIdx + 1]
-
-  //     const currentSegmentIntersections = this.calculateSegmentIntersections(
-  //       lastCell, cell, nextCell
-  //     );
-  //     // console.log(`${lastSegmentIntersections[0].toString()}, ${lastSegmentIntersections[1].toString()}, ${currentSegmentIntersections[0].toString()}, ${currentSegmentIntersections[1].toString()}`)
-
-  //     this.drawSegment(lastSegmentIntersections, currentSegmentIntersections);
-
-  //     lastSegmentIntersections = currentSegmentIntersections;
-  //   }
-
-  //   const finalCell = this.path[this.path.length - 1];
-  //   const secondFinalCell = this.path[this.path.length - 2];
-
-  //   const finalCellTransition = finalCell.subtract(secondFinalCell);
-
-  //   const ghostFinalCell = finalCell.add(finalCellTransition);
-
-  //   const finalCellIntersections = this.calculateSegmentIntersections(
-  //     secondFinalCell, finalCell, ghostFinalCell
-  //   );
-
-  //   this.drawSegment(lastSegmentIntersections, finalCellIntersections);
-  // }
 
   protected renderObject(): void {
-    console.log(this.path);
-
-    const firstSegmentPoints: [Vector2, Vector2] = [
-      this.startingPos.add(0, 0.5 - this.WIDTH / 2),
-      this.startingPos.add(0, 0.5 + this.WIDTH / 2)
-    ];
-
-    let recentEndSegmentPoints: [Vector2, Vector2] = [
-      firstSegmentPoints[0].add(0.5, 0),
-      firstSegmentPoints[1].add(0.5, 0)
-    ];
-
-    // draw first segment
-    this.renderManager.drawPolygon([
-      firstSegmentPoints[0],
-      firstSegmentPoints[1],
-      recentEndSegmentPoints[0],
-      recentEndSegmentPoints[1]
-    ], 'black');
-
-    for (let cellIdx = 1; cellIdx < this.path.length; cellIdx++) {
-      const lastCell = this.path[cellIdx - 1];
-      const cell = this.path[cellIdx];
-
-      console.log(`cell: ${cell.toString()}`);
-      console.log(`last cell: ${lastCell.toString()}`);
-
-      const [a, b, c, d] = this.calculateSegmentVertices(lastCell, cell);
-      const [e, f] = recentEndSegmentPoints;
-
-      console.log(`a: ${a.toString()}`);
-      console.log(`b: ${b.toString()}`);
-      console.log(`c: ${c.toString()}`);
-      console.log(`d: ${d.toString()}`);
-      console.log(`e: ${e.toString()}`);
-      console.log(`f: ${f.toString()}`);
-
-      // draw segment
-      this.renderManager.drawPolygon([a, b, c, d], 'black');
-      // draw segment connector
-      this.renderManager.drawPolygon([e, f, a, b], 'lightblue');
-
-      recentEndSegmentPoints = [c, d];
-    }
+    this.drawPath(this.OUTER_WIDTH, 'black');
+    this.drawPath(this.INNER_WIDTH, 'lightblue');
   }
 
   protected getBoundingBox(): BoundingBox {
@@ -208,19 +122,67 @@ export class TempWire extends Renderable<'temp-wire'> {
   }
 
   private calculateSegmentVertices(
-    startCell: Vector2, endCell: Vector2
+    startCell: Vector2, endCell: Vector2,
+    width: number
   ): [Vector2, Vector2, Vector2, Vector2] {
     const relation = endCell.subtract(startCell);
-    const perp = MathUtils.getPerpVectorWithLength(relation, this.WIDTH / 2);
+    const perp = MathUtils.getPerpVectorWithLength(relation, width / 2);
     
     const startCellCentre = startCell.add(0.5, 0.5);
     const endCellCentre = endCell.add(0.5, 0.5);
 
+    const startCellExtra = relation.mult(- 0.01); // to stop tiny gaps between segments
+
     return [
-      startCellCentre.add(perp),
-      startCellCentre.subtract(perp),
+      startCellCentre.add(perp).add(startCellExtra),
+      startCellCentre.subtract(perp).add(startCellExtra),
       endCellCentre.add(perp),
       endCellCentre.subtract(perp)
     ];
+  }
+
+  private drawPath(width: number, color: string) {
+    const firstSegmentPoints: [Vector2, Vector2] = [
+      this.startingPos.add(0, 0.5 - width / 2),
+      this.startingPos.add(0, 0.5 + width / 2)
+    ];
+
+    let recentEndSegmentPoints: [Vector2, Vector2] = [
+      firstSegmentPoints[0].add(0.5, 0),
+      firstSegmentPoints[1].add(0.5, 0)
+    ];
+
+    // draw first segment
+    this.renderManager.drawPolygon([
+      firstSegmentPoints[0],
+      firstSegmentPoints[1],
+      recentEndSegmentPoints[0],
+      recentEndSegmentPoints[1]
+    ], color);
+
+    for (let cellIdx = 1; cellIdx < this.path.length; cellIdx++) {
+      const lastCell = this.path[cellIdx - 1];
+      const cell = this.path[cellIdx];
+
+      console.log(`cell: ${cell.toString()}`);
+      console.log(`last cell: ${lastCell.toString()}`);
+
+      const [a, b, c, d] = this.calculateSegmentVertices(lastCell, cell, width);
+      const [e, f] = recentEndSegmentPoints;
+
+      console.log(`a: ${a.toString()}`);
+      console.log(`b: ${b.toString()}`);
+      console.log(`c: ${c.toString()}`);
+      console.log(`d: ${d.toString()}`);
+      console.log(`e: ${e.toString()}`);
+      console.log(`f: ${f.toString()}`);
+
+      // draw segment
+      this.renderManager.drawPolygon([a, b, c, d], color);
+      // draw segment connector
+      this.renderManager.drawPolygon([e, f, a, b], color);
+
+      recentEndSegmentPoints = [c, d];
+    }
   }
 }
