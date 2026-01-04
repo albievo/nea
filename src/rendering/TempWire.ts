@@ -15,12 +15,12 @@ export class TempWire extends Renderable<'temp-wire'> {
 
   private pathfinder: AStarPathfinder;
 
-  private boundingBox: BoundingBox = {
+  private boundingBox: BoundingBox = { // initialised as 0s
     top: 0,
     right: 0,
     bottom: 0,
     left: 0
-  } // initialised as 0s
+  } 
 
   private WIDTH = 0.3; // width in world units
 
@@ -45,6 +45,14 @@ export class TempWire extends Renderable<'temp-wire'> {
 
     if (newPath) {
       this.path = [];
+
+      const firstCell = newPath[0];
+      this.path.push(firstCell);
+
+      this.boundingBox.top = firstCell.y;
+      this.boundingBox.right = firstCell.x
+      this.boundingBox.bottom = firstCell.y;
+      this.boundingBox.left = firstCell.x
 
       for (let cellIdx = 0; cellIdx < newPath.length; cellIdx++) {
         const cell = newPath[cellIdx];
@@ -102,6 +110,10 @@ export class TempWire extends Renderable<'temp-wire'> {
       console.error(`couldn't pathfind from ${this.startingPos} to ${movement.to}`);
       return;
     }
+
+    this.appendRenderBuffer({
+      updatedPath: newPath
+    });
   }
 
   protected resetRenderBuffer(): void {

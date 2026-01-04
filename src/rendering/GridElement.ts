@@ -72,8 +72,6 @@ export class GridElement extends Renderable<'grid-element'> {
   };
 
   protected updateFromBuffer(): void {
-    console.log(this.renderBuffer)
-
     if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
   }
 
@@ -396,27 +394,22 @@ export class GridElement extends Renderable<'grid-element'> {
   }
 
   private attachTempWire(outputIdx: number) {
-    console.log('implement attaching temp wire');
+    const outputPosIdx = this.getOutputPosIdx(outputIdx);
+    const outputCell = this.pos.add(new Vector2(
+      this.dims.x + 1,
+      outputPosIdx
+    ));
 
-    // const outputPosIdx = this.getOutputPosIdx(outputIdx);
-    // const outputCell = this.pos.add(new Vector2(
-    //   this.dims.x + 1,
-    //   outputPosIdx
-    // ));
+    const tempWireId = crypto.randomUUID();
+    const tempWire = new TempWire(
+      tempWireId,
+      this.renderManager,
+      outputCell
+    );
 
-    // const tempWireId = crypto.randomUUID();
+    this.renderManager.addRenderable(tempWire);
 
-    // this.renderManager.addRenderable(
-    //   new TempWire(
-    //     tempWireId,
-    //     this.renderManager,
-    //     outputCell
-    //   )
-    // );
-
-    // this.renderManager.requestRender({
-    //   initialTempWire: { `${tempWireId}`: {} }
-    // })
+    tempWire.appendRenderBuffer({ initial: true });
   }
 
   protected resetRenderBuffer(): void {
