@@ -6,6 +6,7 @@ import { RenderManager } from "./RenderManager";
 import { AStarPathfinder } from "./pathfinding/AStarPathfinder";
 import { merge } from "jquery";
 import { MathUtils } from "../utils/MathUtils";
+import keyTracker from "./KeyTracker";
 
 export class TempWire extends Renderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -89,6 +90,12 @@ export class TempWire extends Renderable<'temp-wire'> {
   }
 
   private handleMouseChangedCell(movement: {from: Vector2, to: Vector2}) {
+    const takenBy = this.renderManager.availabilityGrid[movement.to.y][movement.to.x];
+
+    if (takenBy.type === 'element') {
+      return;
+    }
+
     const newPath = this.pathfinder.pathfind(this.startingPos, movement.to);
     if (!newPath) {
       console.error(`couldn't pathfind from ${this.startingPos} to ${movement.to}`);
@@ -164,18 +171,8 @@ export class TempWire extends Renderable<'temp-wire'> {
       const lastCell = this.path[cellIdx - 1];
       const cell = this.path[cellIdx];
 
-      console.log(`cell: ${cell.toString()}`);
-      console.log(`last cell: ${lastCell.toString()}`);
-
       const [a, b, c, d] = this.calculateSegmentVertices(lastCell, cell, width);
       const [e, f] = recentEndSegmentPoints;
-
-      console.log(`a: ${a.toString()}`);
-      console.log(`b: ${b.toString()}`);
-      console.log(`c: ${c.toString()}`);
-      console.log(`d: ${d.toString()}`);
-      console.log(`e: ${e.toString()}`);
-      console.log(`f: ${f.toString()}`);
 
       // draw segment
       this.renderManager.drawPolygon([a, b, c, d], color);
