@@ -1,12 +1,11 @@
 import { EventHandlerMap } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
-import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
-import { AnyRenderBuffer, RenderPayloadUtils, TempWireRenderBuffer } from "./RenderPayloads";
+import { BoundingBox, Renderable } from "./Renderable";
+import { RenderPayloadUtils, TempWireRenderBuffer } from "./RenderPayloads";
 import { RenderManager } from "./RenderManager";
 import { AStarPathfinder } from "./pathfinding/AStarPathfinder";
-import { merge } from "jquery";
 import { MathUtils } from "../utils/MathUtils";
-import keyTracker from "./KeyTracker";
+import events from "../event/events";
 
 export class TempWire extends Renderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -105,6 +104,9 @@ export class TempWire extends Renderable<'temp-wire'> {
     this.appendRenderBuffer({
       updatedPath: newPath
     });
+
+    const endCell = newPath[newPath.length - 1]
+    events.emit('temp-wire-path-updated', { endCell });
   }
 
   protected resetRenderBuffer(): void {

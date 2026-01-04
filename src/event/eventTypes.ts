@@ -14,6 +14,7 @@ export type EventPayloads = {
   "mouse-moved-off-element": void;
   "mouse-changed-cell": { from: Vector2, to: Vector2 };
   "render-buffer-updated": void;
+  "temp-wire-path-updated": { endCell: Vector2 };
 };
 
 export type EventTypes = keyof EventPayloads;

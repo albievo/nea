@@ -29,6 +29,7 @@ export class GridElement extends Renderable<'grid-element'> {
   private readonly PIN_RADIUS = 0.3;
 
   private mouseOnPin: number = -1;
+  private activeInput: number = -1;
 
   private lastValidPosition: Vector2;
 
@@ -67,12 +68,14 @@ export class GridElement extends Renderable<'grid-element'> {
     return {
       ...this.baseEventHandlers,
       'mouse-moved-into-element': this.handleMouseMovedOntoElement.bind(this),
-      'mouse-moved-off-element': this.handleMouseMovedOffElement.bind(this)
+      'mouse-moved-off-element': this.handleMouseMovedOffElement.bind(this),
+      'temp-wire-path-updated': this.handleTempWirePathUpdated.bind(this),
     }
   };
 
   protected updateFromBuffer(): void {
     if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
+    this.activeInput = this.renderBuffer.activation ?? -1;
   }
 
   protected getBoundingBox(): BoundingBox {
@@ -171,17 +174,21 @@ export class GridElement extends Renderable<'grid-element'> {
     const radiusScreen = camera.worldUnitsToScreenPixels(this.PIN_RADIUS);
 
     for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
-      const yPos = this.pos.y + pinIdx + 0.5
+      const yPos = this.pos.y + pinIdx + 0.5;
 
+      const inputIdx = this.inputPositions[pinIdx]
       // draw the inputs
-      if (this.inputPositions[pinIdx] !== -1) { // if we should render a pin here
+      if (inputIdx !== -1) { // if we should render a pin here\
+        const active = inputIdx === this.activeInput;
+
         const centreWorld = new Vector2(this.pos.x, yPos)
         const centreScreen = camera.worldPosToScreen(centreWorld);
-        this.renderInputPin(centreScreen, radiusScreen);
+        this.renderInputPin(centreScreen, radiusScreen, active);
       }
 
+      const outputIdx = this.outputPositions[pinIdx]
       // draw trhe ouputs 
-      if (this.outputPositions[pinIdx] !== -1) { // if we should render a pin here
+      if (outputIdx !== -1) { // if we should render a pin here
         const xPos = this.pos.x + this.dims.x
         const centreWorld = new Vector2(xPos, yPos);
         const centreScreen = camera.worldPosToScreen(centreWorld);
@@ -190,7 +197,7 @@ export class GridElement extends Renderable<'grid-element'> {
     }
   }
 
-  private renderInputPin(centre: Vector2, radius: number) {
+  private renderInputPin(centre: Vector2, radius: number, active: boolean) {
     const ctx = this.renderManager.ctx;
 
     ctx.beginPath();
@@ -200,7 +207,7 @@ export class GridElement extends Renderable<'grid-element'> {
       -Math.PI / 2, Math.PI / 2
     )
 
-    ctx.fillStyle = 'lightblue';
+    ctx.fillStyle = active ? 'lightgreen' : 'lightblue';
     ctx.fill();
   }
 
@@ -284,6 +291,26 @@ export class GridElement extends Renderable<'grid-element'> {
   private handleMouseMovedOffElement() {
     $(document).off('mousemove.mousemoveOnElement');
     $(document).off('mousedown.mousedownOnElement');
+  }
+
+  protected handleTempWirePathUpdated(details: { endCell: Vector2 }) {
+    for (let inputPosIdx = 0; inputPosIdx < this.inputPositions.length; inputPosIdx++) {
+      const inputIdx = this.inputPositions[inputPosIdx];
+      if (inputIdx === -1) {
+        return;
+      }
+
+      const inputPos = this.pos.add(0, inputPosIdx);
+
+      if (
+        details.endCell.equals(inputPos) ||
+        details.endCell.add(1, 0).equals(inputPos)
+      ) {
+        this.activateInputPos(inputIdx);
+      }
+    }
+
+    this.deactivateInputs();
   }
 
   /**
@@ -412,6 +439,14 @@ export class GridElement extends Renderable<'grid-element'> {
     tempWire.appendRenderBuffer({ initial: true });
   }
 
+  private activateInputPos(inputIdx: number) {
+    this.appendRenderBuffer({ activation: inputIdx });
+  }
+
+  private deactivateInputs() {
+    this.activeInput = -1;
+  }
+
   protected resetRenderBuffer(): void {
     this.renderBuffer = { kind: 'grid-element' }
   }
@@ -439,6 +474,9 @@ export class GridElement extends Renderable<'grid-element'> {
       original.movement && toAdd.movement
         ? original.movement.add(toAdd.movement)
         : original.movement ?? toAdd.movement;
+
+    mergedOriginal.activation =
+      toAdd.activation ?? original.activation;
     
     return mergedOriginal;
   }
