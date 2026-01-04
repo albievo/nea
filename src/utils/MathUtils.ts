@@ -35,9 +35,9 @@ export class MathUtils {
   }
 
   private static centroid(points: Vector2[]) {
-    const c = Vector2.zeroes;
+    let c = Vector2.zeroes;
     for (const p of points) {
-      c.add(p)
+      c = c.add(p)
     }
     return c.divide(points.length);
   }

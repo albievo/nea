@@ -48,7 +48,6 @@ export class Grid extends Renderable<'grid'> {
 
   protected renderObject() {
     const camera = this.renderManager.camera
-
     const ctx = this.ctx;
 
     const windowDims = camera.getWindowDims();

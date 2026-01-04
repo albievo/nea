@@ -78,71 +78,122 @@ export class TempWire extends Renderable<'temp-wire'> {
     }
   }
   
-  protected renderObject(): void {
-    const ctx = this.renderManager.ctx;
-    const camera = this.renderManager.camera;
-    const widthScreen = camera.worldUnitsToScreenPixels(this.WIDTH);
+  // protected renderObject(): void {
 
-    const firstSegmentIntersections: [Vector2, Vector2] = [
+  //   const firstSegmentIntersections: [Vector2, Vector2] = [
+  //     this.startingPos.add(0, 0.5 - this.WIDTH / 2),
+  //     this.startingPos.add(0, 0.5 + this.WIDTH / 2)
+  //   ];
+
+  //   const zerothCell = this.startingPos.subtract(1, 0);
+
+  //   const secondSegmentIntersections: [Vector2, Vector2] = 
+  //     this.calculateSegmentIntersections(zerothCell, this.path[0], this.path[1]);
+
+  //   this.drawSegment(firstSegmentIntersections, secondSegmentIntersections);
+
+  //   let lastSegmentIntersections = secondSegmentIntersections;
+
+  //   for (let cellIdx = 1; cellIdx < this.path.length - 1; cellIdx++) {
+  //     const lastCell = this.path[cellIdx - 1]
+  //     const cell = this.path[cellIdx];
+  //     const nextCell = this.path[cellIdx + 1]
+
+  //     const currentSegmentIntersections = this.calculateSegmentIntersections(
+  //       lastCell, cell, nextCell
+  //     );
+  //     // console.log(`${lastSegmentIntersections[0].toString()}, ${lastSegmentIntersections[1].toString()}, ${currentSegmentIntersections[0].toString()}, ${currentSegmentIntersections[1].toString()}`)
+
+  //     this.drawSegment(lastSegmentIntersections, currentSegmentIntersections);
+
+  //     lastSegmentIntersections = currentSegmentIntersections;
+  //   }
+
+  //   const finalCell = this.path[this.path.length - 1];
+  //   const secondFinalCell = this.path[this.path.length - 2];
+
+  //   const finalCellTransition = finalCell.subtract(secondFinalCell);
+
+  //   const ghostFinalCell = finalCell.add(finalCellTransition);
+
+  //   const finalCellIntersections = this.calculateSegmentIntersections(
+  //     secondFinalCell, finalCell, ghostFinalCell
+  //   );
+
+  //   this.drawSegment(lastSegmentIntersections, finalCellIntersections);
+  // }
+
+  protected renderObject(): void {
+    const firstSegmentPoints: [Vector2, Vector2] = [
       this.startingPos.add(0, 0.5 - this.WIDTH / 2),
       this.startingPos.add(0, 0.5 + this.WIDTH / 2)
     ];
 
-    const zerothCell = this.startingPos.subtract(1, 0);
+    let recentEndSegmentPoints: [Vector2, Vector2] = [
+      firstSegmentPoints[0].add(0.5, 0),
+      firstSegmentPoints[1].add(0.5, 0)
+    ];
 
-    const secondSegmentIntersections: [Vector2, Vector2] = 
-      this.calculateSegmentIntersections(zerothCell, this.path[0], this.path[1]);
+    this.drawSegment(firstSegmentPoints, recentEndSegmentPoints);
 
-    this.drawSegment(firstSegmentIntersections, secondSegmentIntersections);
-
-    let lastSegmentIntersections = secondSegmentIntersections;
-
-    for (let cellIdx = 1; cellIdx < this.path.length - 1; cellIdx++) {
-      const lastCell = this.path[cellIdx - 1]
+    for (let cellIdx = 1; cellIdx < this.path.length; cellIdx++) {
+      const lastCell = this.path[cellIdx - 1];
       const cell = this.path[cellIdx];
-      const nextCell = this.path[cellIdx + 1]
 
-      const currentSegmentIntersections = this.calculateSegmentIntersections(
-        lastCell, cell, nextCell
-      );
+      const segmentVertices = this.calculateSegmentVertices(lastCell, cell);
 
-      this.drawSegment(lastSegmentIntersections, currentSegmentIntersections);
+      // draw segment
+      this.renderManager.drawPolygon(segmentVertices, 'black');
+      // draw segment connector
+      this.renderManager.drawPolygon([
+        recentEndSegmentPoints[0],
+        recentEndSegmentPoints[1],
+        segmentVertices[0],
+        segmentVertices[1]
+      ], 'lightblue');
 
-      lastSegmentIntersections = currentSegmentIntersections;
+      recentEndSegmentPoints = [
+        segmentVertices [2],
+        segmentVertices[3]
+      ]
     }
-
-    const finalCell = this.path[this.path.length - 1];
-    const secondFinalCell = this.path[this.path.length - 2];
-
-    const finalCellTransition = finalCell.subtract(secondFinalCell);
-
-    const ghostFinalCell = finalCell.add(finalCellTransition);
-
-    const finalCellIntersections = this.calculateSegmentIntersections(
-      secondFinalCell, finalCell, ghostFinalCell
-    );
-
-    this.drawSegment(lastSegmentIntersections, finalCellIntersections);
   }
+  
+  
 
   private drawSegment(a: [Vector2, Vector2], b: [Vector2, Vector2]) {
     const ctx = this.renderManager.ctx;
     const camera = this.renderManager.camera;
 
     const points = [a[0], a[1], b[0], b[1]];
-    const clockWisePoints = MathUtils.sortPointsClockwise(points);
+
+    const clockwisePoints = MathUtils.sortPointsClockwise(points);
 
     ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
 
-    for (const point of clockWisePoints) {
+    const firstScreen = camera.worldPosToScreen(clockwisePoints[0])
+    ctx.moveTo(firstScreen.x, firstScreen.y);
+
+    for (let pointIdx = 1; pointIdx < 4; pointIdx++) {
+      const point = clockwisePoints[pointIdx]
       const pointScreen = camera.worldPosToScreen(point);
       ctx.lineTo(pointScreen.x, pointScreen.y);
     }
 
     // connect last point back to first
-    ctx.closePath();
+    ctx.closePath();    
+    const red = Math.floor(Math.random() * 256);
+    const green = Math.floor(Math.random() * 256);
+    const blue = Math.floor(Math.random() * 256);
+    ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
     ctx.fill();
+
+    for (const point of clockwisePoints) {
+      ctx.beginPath();
+      const pointScreen = camera.worldPosToScreen(point);
+      ctx.arc(pointScreen.x, pointScreen.y, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   protected getBoundingBox(): BoundingBox {
@@ -195,9 +246,28 @@ export class TempWire extends Renderable<'temp-wire'> {
       this.WIDTH / 2
     );
 
+    const bCentre = b.add(0.5, 0.5)
+
     return [
-      b.add(perpVector),
-      b.subtract(perpVector)
+      bCentre.add(perpVector),
+      bCentre.subtract(perpVector)
     ]
+  }
+
+  private calculateSegmentVertices(
+    startCell: Vector2, endCell: Vector2
+  ): [Vector2, Vector2, Vector2, Vector2] {
+    const relation = endCell.subtract(startCell);
+    const perp = MathUtils.getPerpVectorWithLength(relation, this.WIDTH / 2);
+    
+    const startCellCentre = startCell.add(0.5, 0.5);
+    const endCellCentre = endCell.add(0.5, 0.5);
+
+    return [
+      startCellCentre.add(perp),
+      startCellCentre.subtract(perp),
+      endCellCentre.add(perp),
+      endCellCentre.subtract(perp)
+    ];
   }
 }

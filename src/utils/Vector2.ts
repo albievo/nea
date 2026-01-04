@@ -110,4 +110,8 @@ export class Vector2 {
       -this.y
     )
   }
+
+  public toString() {
+    return `(${this.x}, ${this.y})`;
+  }
 }

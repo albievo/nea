@@ -9,6 +9,7 @@ import { GeneralUtils } from "../utils/GeneralUtils";
 import keyTracker from "./KeyTracker";
 import { CursorHandler } from "./CursorHandler";
 import { MouseTracker } from "./MouseTracker";
+import { MathUtils } from "../utils/MathUtils";
 
 export class RenderManager {
   private workingChip: WorkingChip;
@@ -208,6 +209,25 @@ export class RenderManager {
 
   public getWorldSize() {
     return this.worldSize;
+  }
+
+  public drawPolygon(points: Vector2[], color: string) {
+    const clockwisePoints = MathUtils.sortPointsClockwise(points);
+
+    this.ctx.beginPath();
+
+    const firstScreen = this.camera.worldPosToScreen(clockwisePoints[0])
+    this.ctx.moveTo(firstScreen.x, firstScreen.y);
+
+    for (let pointIdx = 1; pointIdx < 4; pointIdx++) {
+      const point = clockwisePoints[pointIdx]
+      const pointScreen = this.camera.worldPosToScreen(point);
+      this.ctx.lineTo(pointScreen.x, pointScreen.y);
+    }
+
+    this.ctx.closePath();
+    this.ctx.fillStyle = color;
+    this.ctx.fill();
   }
 
   public get camera() {
