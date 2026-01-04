@@ -78,11 +78,17 @@ export class TempWire extends Renderable<'temp-wire'> {
   }
   
   protected renderObject(): void {
+    console.log('rendering temp wire')
+
     const ctx = this.renderManager.ctx;
     const camera = this.renderManager.camera;
+    const widthScreen = camera.worldUnitsToScreenPixels(this.WIDTH);
+
 
     for (let cellIdx = 0; cellIdx < this.path.length; cellIdx++) {
-      const cell = this.path[cellIdx]
+      const cell = this.path[cellIdx];
+
+      console.log(cell.x, cell.y)
 
       const centre = cell.add(new Vector2(0.5, 0.5));
       const centreScreen = camera.worldPosToScreen(centre);
@@ -90,7 +96,7 @@ export class TempWire extends Renderable<'temp-wire'> {
       ctx.beginPath();
       ctx.arc(
         centreScreen.x, centreScreen.y,
-        this.WIDTH,
+        widthScreen,
         0, 2 * Math.PI
       );
 
@@ -100,7 +106,6 @@ export class TempWire extends Renderable<'temp-wire'> {
   }
 
   protected getBoundingBox(): BoundingBox {
-    console.log(this.boundingBox);
     return this.boundingBox;
   }
 
@@ -129,16 +134,10 @@ export class TempWire extends Renderable<'temp-wire'> {
       original, toAdd
     )
 
-    // const newPayload: TempWireRenderBuffer = { kind: 'temp-wire' };
-
-    console.log(`path to add: ${toAdd.updatedPath}`);
+    mergedOriginal.initial = toAdd.initial || original.initial;
 
     // update to most recent path
     mergedOriginal.updatedPath = toAdd.updatedPath ?? original.updatedPath;
-
-    console.log(`new payload path: ${mergedOriginal.updatedPath}`);
-
-    mergedOriginal.initial = toAdd.initial || original.initial;
 
     return mergedOriginal;
   }
