@@ -58,57 +58,6 @@ export class RenderManager {
     requestAnimationFrame(() => this.frame());
   }
 
-  // public requestRender(payload: RenderPayload) {
-  //   this.scheduled = true;
-
-  //   // check if any part of the payload requires a full render
-  //   this.fullRenderRequired ||= RenderPayloadUtils.payloadRequiresFullRender(payload);
-
-  //   // iterate through renderables
-  //   for (const renderable of Object.values(this.renderablesById)) {
-  //     renderable.appendRenderBuffer({ camera: payload.camera, resize: payload.resize });
-  //   }
-
-  //   // add grid's inital render
-  //   if (payload.initialGrid) {
-  //     // ensure there is a grid
-  //     if (!this.gridId) {
-  //       console.error('please add a grid');
-  //       return;
-  //     }
-  //     const grid = this.renderablesById.get(this.gridId);
-
-  //     grid?.appendRenderBuffer({
-  //       kind: 'grid',
-  //       initial: payload.initialGrid
-  //     });
-  //   }
-    
-  //   // add each grid element's initital renders
-  //   if (payload.initialGridElements) {
-  //     for (const [id, initialPayload] of Object.entries(payload.initialGridElements)) {
-  //       const gridElement = this.renderablesById.get(id);
-  //       gridElement?.appendRenderBuffer({ kind: 'grid-element', initial: initialPayload })
-  //     }
-  //   }
-
-  //   // add each grid element's movements
-  //   if (payload.gridElementsMovement) {
-  //     for (const [id, movementPayload] of Object.entries(payload.gridElementsMovement)) {
-  //       const gridElement = this.renderablesById.get(id);
-  //       gridElement?.appendRenderBuffer({ kind: 'grid-element', movement: movementPayload.delta })
-  //     }
-  //   }
-
-  //   // add each temp wire's initial renders
-  //   if (payload.initialTempWire) {
-  //     for (const [id, initialPayload] of Object.entries(payload.initialGridElements)) {
-  //       const gridElement = this.renderablesById.get(id);
-  //       gridElement?.appendRenderBuffer({ kind: 'grid-element', initial: initialPayload })
-  //     }
-  //   }
-  // }
-
   private frame() {
     if (!this.scheduled) {
       requestAnimationFrame(() => this.frame());
@@ -143,6 +92,19 @@ export class RenderManager {
     }
     
     this.renderablesById.set(id, renderable);
+  }
+
+  public rmvRenderable(id: string) {
+    const renderable = this.renderablesById.get(id);
+    if (!renderable) {
+      return
+    }
+
+    if (renderable.kind === 'grid') {
+      this.gridId = undefined;
+    }
+    
+    this.renderablesById.delete(id);
   }
 
   public getDevicePixelRatio(): number {

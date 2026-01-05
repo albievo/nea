@@ -434,7 +434,8 @@ export class GridElement extends Renderable<'grid-element'> {
     const tempWire = new TempWire(
       tempWireId,
       this.renderManager,
-      outputCell
+      outputCell,
+      outputIdx, this.id
     );
 
     this.renderManager.addRenderable(tempWire);

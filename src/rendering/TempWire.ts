@@ -6,6 +6,7 @@ import { RenderManager } from "./RenderManager";
 import { AStarPathfinder } from "./pathfinding/AStarPathfinder";
 import { MathUtils } from "../utils/MathUtils";
 import events from "../event/events";
+import $ from 'jquery';
 
 export class TempWire extends Renderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -13,6 +14,9 @@ export class TempWire extends Renderable<'temp-wire'> {
 
   private path: Vector2[];
   private startingPos: Vector2;
+
+  private outputIdx: number;
+  private outputFromElement: string;
 
   private pathfinder: AStarPathfinder;
 
@@ -26,13 +30,21 @@ export class TempWire extends Renderable<'temp-wire'> {
   private INNER_WIDTH = 0.3; // width in world units
   private OUTER_WIDTH = 0.4;
 
-  constructor(id: string, renderManager: RenderManager, startingPos: Vector2) {
+  constructor(
+    id: string, renderManager: RenderManager,
+    startingPos: Vector2,
+    outputIdx: number, outputFrom: string
+  ) {
     super(id, renderManager);
     
     this.startingPos = startingPos;
     this.path = [startingPos];
+    this.outputIdx = outputIdx;
+    this.outputFromElement = outputFrom;
 
     this.pathfinder = new AStarPathfinder(renderManager.availabilityGrid);
+
+    $(document).on('mouseup', () => this.handleMouseUp());
   }
 
   protected getEventHandlers(): EventHandlerMap {
@@ -109,6 +121,14 @@ export class TempWire extends Renderable<'temp-wire'> {
     events.emit('temp-wire-path-updated', { endCell });
   }
 
+  private handleMouseUp() {
+    this.delete();
+    events.emit('temp-wire-released', {
+      fromElement: this.outputFromElement,
+      fromOutput: this.outputIdx
+    });
+  }
+
   protected resetRenderBuffer(): void {
     this.renderBuffer = { kind: 'temp-wire' };
   }
@@ -183,5 +203,9 @@ export class TempWire extends Renderable<'temp-wire'> {
 
       recentEndSegmentPoints = [c, d];
     }
+  }
+
+  private delete() {
+    this.renderManager.rmvRenderable(this.id);
   }
 }
