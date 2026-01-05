@@ -110,7 +110,8 @@ export abstract class Renderable<K extends RenderableKind> {
   }
 }
 
-export type RenderableKind = "grid" | "grid-element" | "temp-wire";
+export type RenderableKind = "grid" | "grid-element" | WireKind;
+export type WireKind = "temp-wire" | "perm-wire";
 
 export interface BoundingBox {
   top: number,

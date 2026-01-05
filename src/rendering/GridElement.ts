@@ -9,7 +9,7 @@ import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import { GridElementRenderBuffer, InitialGridElementPayload, RenderPayloadUtils } from "./RenderPayloads";
 import $ from 'jquery';
-import { TempWire } from "./TempWire";
+import { TempWire } from "./wires/TempWire";
 
 export class GridElement extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
@@ -421,19 +421,24 @@ export class GridElement extends Renderable<'grid-element'> {
     return -1;
   }
 
-  private attachTempWire(outputIdx: number) {
-    const outputPosIdx = this.getOutputPosIdx(outputIdx);
+  public getOutputPos(pinIdx: number): Vector2 {
+    const outputPosIdx = this.getOutputPosIdx(pinIdx);
+
     const outputCell = this.pos.add(new Vector2(
-      this.dims.x,
+      this.dims.x - 1,
       outputPosIdx
     ));
 
+    return outputCell;
+  }
+
+  private attachTempWire(outputIdx: number) {
+    const outputPosIdx = this.getOutputPosIdx(outputIdx);
+
     const tempWireId = crypto.randomUUID();
     const tempWire = new TempWire(
-      tempWireId,
-      this.renderManager,
-      outputCell,
-      outputIdx, this.id
+      tempWireId, this.renderManager,
+      this.id, this, outputIdx
     );
 
     this.renderManager.addRenderable(tempWire);

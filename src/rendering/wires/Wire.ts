@@ -1,0 +1,105 @@
+import { Renderable, WireKind, BoundingBox } from "../Renderable";
+import { Vector2 } from "../../utils/Vector2";
+import { RenderManager } from "../RenderManager";
+import { GridElement } from "../GridElement";
+import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
+import { MathUtils } from "../../utils/MathUtils";
+
+export abstract class Wire<K extends WireKind> extends Renderable<K>{
+  protected path: Vector2[] = [];
+  protected startingPos: Vector2;
+
+  protected readonly fromIdx: number;
+  protected readonly fromId: string
+  protected readonly fromElem: GridElement;
+
+  protected pathfinder: AStarPathfinder;
+
+  protected boundingBox: BoundingBox = { // initialised as 0s
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  } 
+
+  protected readonly INNER_WIDTH = 0.3; // width in world units
+  protected readonly OUTER_WIDTH = 0.4;
+
+  constructor(
+    id: string, renderManager: RenderManager,
+    fromId: string, fromElem: GridElement, fromIdx: number
+  ) {
+    super(id, renderManager)
+
+    this.fromId = fromId;
+    this.fromElem = fromElem;
+    this.fromIdx = fromIdx;
+
+    this.startingPos = this.calcStartingPos();
+
+    this.pathfinder = new AStarPathfinder(renderManager.availabilityGrid);
+  }
+
+  protected calcStartingPos() {
+    return this.fromElem.getOutputPos(this.fromIdx).add(1, 0);
+  }
+  
+  protected drawPathToEndPoint(width: number, color: string) {
+    const firstSegmentPoints: [Vector2, Vector2] = [
+      this.startingPos.add(0, 0.5 - width / 2),
+      this.startingPos.add(0, 0.5 + width / 2)
+    ];
+
+    let recentEndSegmentPoints: [Vector2, Vector2] = [
+      firstSegmentPoints[0].add(0.5, 0),
+      firstSegmentPoints[1].add(0.5, 0)
+    ];
+
+    // draw first segment
+    this.renderManager.drawPolygon([
+      firstSegmentPoints[0],
+      firstSegmentPoints[1],
+      recentEndSegmentPoints[0],
+      recentEndSegmentPoints[1]
+    ], color);
+
+    for (let cellIdx = 1; cellIdx < this.path.length; cellIdx++) {
+      const lastCell = this.path[cellIdx - 1];
+      const cell = this.path[cellIdx];
+
+      const [a, b, c, d] = this.calculateSegmentVertices(lastCell, cell, width);
+      const [e, f] = recentEndSegmentPoints;
+
+      // draw segment
+      this.renderManager.drawPolygon([a, b, c, d], color);
+      // draw segment connector
+      this.renderManager.drawPolygon([e, f, a, b], color);
+
+      recentEndSegmentPoints = [c, d];
+    }
+  }
+
+  protected calculateSegmentVertices(
+    startCell: Vector2, endCell: Vector2,
+    width: number
+  ): [Vector2, Vector2, Vector2, Vector2] {
+    const relation = endCell.subtract(startCell);
+    const perp = MathUtils.getPerpVectorWithLength(relation, width / 2);
+    
+    const startCellCentre = startCell.add(0.5, 0.5);
+    const endCellCentre = endCell.add(0.5, 0.5);
+
+    const startCellExtra = relation.mult(- 0.01); // to stop tiny gaps between segments
+
+    return [
+      startCellCentre.add(perp).add(startCellExtra),
+      startCellCentre.subtract(perp).add(startCellExtra),
+      endCellCentre.add(perp),
+      endCellCentre.subtract(perp)
+    ];
+  }
+   
+  protected getBoundingBox(): BoundingBox {
+    return this.boundingBox;
+  }
+}
