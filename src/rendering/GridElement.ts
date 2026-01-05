@@ -180,8 +180,6 @@ export class GridElement extends Renderable<'grid-element'> {
       // draw the inputs
       if (inputIdx !== -1) { // if we should render a pin here\
         const active = inputIdx === this.activeInput;
-        console.log(inputIdx, this.activeInput);
-        console.log(`${inputIdx} is ${active} active`)
 
         const centreWorld = new Vector2(this.pos.x, yPos)
         const centreScreen = camera.worldPosToScreen(centreWorld);
@@ -443,12 +441,29 @@ export class GridElement extends Renderable<'grid-element'> {
     tempWire.appendRenderBuffer({ initial: true });
   }
 
+  private attachPermWire(
+    fromElem: string, fromPin: number,
+    toPin: number
+  ) {
+    console.log(`attatching perm wire from ${fromElem}, ${fromPin} to ${this.id}, ${toPin}`);
+  }
+
   private activateInputPos(inputIdx: number) {
     this.appendRenderBuffer({ activation: inputIdx });
+
+    events.on('temp-wire-released', (
+      details: { fromElement: string, fromOutput: number }
+    ) => {
+      this.attachPermWire(
+        details.fromElement, details.fromOutput,
+        inputIdx
+      )
+    }, 'make-perm-wire');
   }
 
   private deactivateInputs() {
     this.activeInput = -1;
+    events.off('temp-wire-released', 'make-perm-wire');
   }
 
   protected resetRenderBuffer(): void {

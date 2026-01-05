@@ -48,7 +48,7 @@ export class RenderManager {
     this._mouseTracker = new MouseTracker(this, this.worldSize);
     this._cursorHandler = new CursorHandler(this);
 
-    events.on('render-buffer-updated', () => this.scheduled = true);
+    events.on('render-required', () => this.scheduled = true);
  
     $(window).on('resize', () => {
       events.emit('resize');

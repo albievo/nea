@@ -13,12 +13,28 @@ export type EventPayloads = {
   "mouse-moved-into-element": { elementId: string };
   "mouse-moved-off-element": void;
   "mouse-changed-cell": { from: Vector2, to: Vector2 };
-  "render-buffer-updated": void;
+  "render-required": void;
   "temp-wire-path-updated": { endCell: Vector2 };
   "temp-wire-released": { fromElement: string, fromOutput: number };
 };
 
 export type EventTypes = keyof EventPayloads;
+
+export const eventTypes = [
+  "pan",
+  "begin-pan",
+  "end-pan",
+  "zoom",
+  "resize",
+  "space-down",
+  "space-up",
+  "mouse-moved-into-element",
+  "mouse-moved-off-element",
+  "mouse-changed-cell",
+  "render-required",
+  "temp-wire-path-updated",
+  "temp-wire-released",
+] as const satisfies readonly EventTypes[];
 
 export type EventHandlerMap = {
   [K in EventTypes]?: Handler<EventPayloads[K]>;

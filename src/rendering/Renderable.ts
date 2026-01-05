@@ -1,9 +1,8 @@
 import events from "../event/events";
-import { EventHandlerMap, EventTypes, Handler } from "../event/eventTypes";
+import { EventHandlerMap, eventTypes, EventTypes, Handler } from "../event/eventTypes";
 import { Vector2 } from "../utils/Vector2";
 import { Camera } from "./Camera";
-import { RenderManager } from "./RenderManager";
-import { AnyRenderBuffer, RenderBuffer, RenderBufferByKind, RenderPayloadUtils } from "./RenderPayloads";
+import { RenderManager } from "./RenderManager";import { AnyRenderBuffer, RenderBuffer, RenderBufferByKind, RenderPayloadUtils } from "./RenderPayloads";
 import $ from 'jquery';
 
 export abstract class Renderable<K extends RenderableKind> {
@@ -23,6 +22,16 @@ export abstract class Renderable<K extends RenderableKind> {
     zoom: () => this.appendRenderBuffer({ camera: true }),
   };
 
+  protected abstract updateFromBuffer(): void;
+  protected abstract renderObject(): void;
+  protected abstract getBoundingBox(): BoundingBox;
+  protected abstract resetRenderBuffer(): void;
+
+  protected abstract mergeRenderBuffers(
+    original: RenderBufferByKind[K],
+    toAdd: RenderBufferByKind[K]
+  ): RenderBufferByKind[K];
+
   constructor(id: string, renderManager: RenderManager) {
     this._id = id;
     this.renderManager = renderManager;
@@ -32,7 +41,8 @@ export abstract class Renderable<K extends RenderableKind> {
       Handler<any>
     ][]) {
       if (handler) {
-        events.on(type, handler);
+        const id = this.generateIdForDefaultListener(type)
+        events.on(type, handler, id);
       }
     }
   }
@@ -54,11 +64,6 @@ export abstract class Renderable<K extends RenderableKind> {
     this.renderObject();
     this.resetRenderBuffer();
   }
-
-  protected abstract updateFromBuffer(): void;
-  protected abstract renderObject(): void;
-  protected abstract getBoundingBox(): BoundingBox;
-  protected abstract resetRenderBuffer(): void;
 
   public get kind(): K {
     return this._kind;
@@ -89,14 +94,20 @@ export abstract class Renderable<K extends RenderableKind> {
 
     if (merged) {
       this.renderBuffer = merged;
-      events.emit('render-buffer-updated');
+      events.emit('render-required');
     }
   }
 
-  protected abstract mergeRenderBuffers(
-    original: RenderBufferByKind[K],
-    toAdd: RenderBufferByKind[K]
-  ): RenderBufferByKind[K];
+  protected rmvDefaultListeners() {
+    for (const type of eventTypes) {
+      const id = this.generateIdForDefaultListener(type)
+      events.off(type, id);
+    }
+  }
+
+  private generateIdForDefaultListener(type: EventTypes) {
+    return `default-${type}-listener`;
+  }
 }
 
 export type RenderableKind = "grid" | "grid-element" | "temp-wire";

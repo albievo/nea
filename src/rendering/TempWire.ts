@@ -15,8 +15,8 @@ export class TempWire extends Renderable<'temp-wire'> {
   private path: Vector2[];
   private startingPos: Vector2;
 
-  private outputIdx: number;
-  private outputFromElement: string;
+  private readonly outputIdx: number;
+  private readonly outputFromElement: string;
 
   private pathfinder: AStarPathfinder;
 
@@ -27,8 +27,8 @@ export class TempWire extends Renderable<'temp-wire'> {
     left: 0
   } 
 
-  private INNER_WIDTH = 0.3; // width in world units
-  private OUTER_WIDTH = 0.4;
+  private readonly INNER_WIDTH = 0.3; // width in world units
+  private readonly OUTER_WIDTH = 0.4;
 
   constructor(
     id: string, renderManager: RenderManager,
@@ -207,5 +207,7 @@ export class TempWire extends Renderable<'temp-wire'> {
 
   private delete() {
     this.renderManager.rmvRenderable(this.id);
+    this.rmvDefaultListeners();
+    events.emit('render-required');
   }
 }
