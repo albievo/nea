@@ -106,7 +106,7 @@ export abstract class Renderable<K extends RenderableKind> {
   }
 
   private generateIdForDefaultListener(type: EventTypes) {
-    return `default-${type}-listener`;
+    return `default-${type}-listener-${this.id}`;
   }
 }
 

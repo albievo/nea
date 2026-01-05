@@ -264,6 +264,8 @@ export class GridElement extends Renderable<'grid-element'> {
 
     // add listener for clicking
     $(document).on('mousedown.mousedownOnElement', (mousedown: JQuery.MouseDownEvent) => {
+      console.log(`mousedown on element ${this.id}`);
+
       // if we should be panning, dont do anything
       if (keyTracker.space) return; 
 
@@ -433,7 +435,7 @@ export class GridElement extends Renderable<'grid-element'> {
   }
 
   private attachTempWire(outputIdx: number) {
-    const outputPosIdx = this.getOutputPosIdx(outputIdx);
+    console.log('attaching temp wire')
 
     const tempWireId = crypto.randomUUID();
     const tempWire = new TempWire(
