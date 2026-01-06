@@ -16,6 +16,7 @@ export type EventPayloads = {
   "render-required": void;
   "temp-wire-path-updated": { endCell: Vector2 };
   "temp-wire-released": { fromElement: string, fromOutput: number };
+  "grid-element-moved": { id: string }
 };
 
 export type EventTypes = keyof EventPayloads;

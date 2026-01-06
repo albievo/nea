@@ -71,7 +71,6 @@ export class RenderManager {
     ctx.clearRect(0, 0, windowDims.x, windowDims.y);
 
     for (const renderable of this.renderablesById.values()) {
-      // console.log(`rendering renderable of kind ${renderable.kind} and id ${renderable.id}`);
       renderable.render();
     }
 
@@ -200,6 +199,10 @@ export class RenderManager {
   }
   public get availabilityGrid() {
     return this._availabilityGrid
+  }
+
+  public getRenderableWithId(id: string) {
+    return this.renderablesById.get(id);
   }
 }
 

@@ -1,7 +1,7 @@
 import { EventHandlerMap } from "../../event/eventTypes";
 import { Vector2 } from "../../utils/Vector2";
 import { BoundingBox, Renderable } from "../Renderable";
-import { RenderPayloadUtils, TempWireRenderBuffer } from "../RenderPayloads";
+import { RenderBufferUtils, TempWireRenderBuffer } from "../RenderBuffers";
 import { RenderManager } from "../RenderManager";
 import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
 import { MathUtils } from "../../utils/MathUtils";
@@ -23,7 +23,7 @@ export class TempWire extends Wire<'temp-wire'> {
       fromId, fromElem, fromIdx,
     );
 
-    $(document).on('mouseup', () => this.handleMouseUp());
+    $(document).on('mouseup.tempWireMouseUp', () => this.handleMouseUp());
   }
 
   protected getEventHandlers(): EventHandlerMap {
@@ -113,7 +113,7 @@ export class TempWire extends Wire<'temp-wire'> {
     toAdd: TempWireRenderBuffer
   ): TempWireRenderBuffer {
 
-    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+    const mergedOriginal = RenderBufferUtils.mergeGenericProperties(
       original, toAdd
     )
 
@@ -129,5 +129,6 @@ export class TempWire extends Wire<'temp-wire'> {
     this.renderManager.rmvRenderable(this.id);
     this.rmvDefaultListeners();
     events.emit('render-required');
+    $(document).off('mouseup.tempWireMouseUp');
   }
 }

@@ -7,9 +7,11 @@ import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridElementRenderBuffer, InitialGridElementPayload, RenderPayloadUtils } from "./RenderPayloads";
+import { GridElementRenderBuffer, InitialGridElementPayload, RenderBufferUtils } from "./RenderBuffers";
 import $ from 'jquery';
 import { TempWire } from "./wires/TempWire";
+import { PermWire } from "./wires/PermWire";
+import { isGridElement } from "./RenderableTypeGuards";
 
 export class GridElement extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
@@ -361,8 +363,10 @@ export class GridElement extends Renderable<'grid-element'> {
       // calculate movement
       const delta = cell.subtract(this.pos);
 
+      this.pos = cell.copy();
+
       // send render request
-      this.appendRenderBuffer({ movement: delta });
+      this.appendRenderBuffer({ movement: true });
 
       // add new cell positions
       for (let x = 0; x < this.dims.x; x++) {
@@ -373,6 +377,10 @@ export class GridElement extends Renderable<'grid-element'> {
         }
       }
       this.pos = cell.copy();
+
+      if (!delta.equals(Vector2.zeroes)) {
+        events.emit('grid-element-moved', { id: this.id });
+      }
     }, 'draggingListener');
   }
 
@@ -423,6 +431,15 @@ export class GridElement extends Renderable<'grid-element'> {
     return -1;
   }
 
+  private getInputPosIdx(pinIdx: number): number {
+    for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
+      if (this.inputPositions[posIdx] === pinIdx) {
+        return posIdx
+      }
+    }
+    return -1;
+  }
+
   public getOutputPos(pinIdx: number): Vector2 {
     const outputPosIdx = this.getOutputPosIdx(pinIdx);
 
@@ -434,9 +451,18 @@ export class GridElement extends Renderable<'grid-element'> {
     return outputCell;
   }
 
-  private attachTempWire(outputIdx: number) {
-    console.log('attaching temp wire')
+  public getInputPos(pinIdx: number): Vector2 {
+    const inputPosIdx = this.getInputPosIdx(pinIdx);
 
+    const inputCell = this.pos.add(new Vector2(
+      0,
+      inputPosIdx
+    ));
+
+    return inputCell;
+  }
+
+  private attachTempWire(outputIdx: number) {
     const tempWireId = crypto.randomUUID();
     const tempWire = new TempWire(
       tempWireId, this.renderManager,
@@ -449,10 +475,23 @@ export class GridElement extends Renderable<'grid-element'> {
   }
 
   private attachPermWire(
-    fromElem: string, fromPin: number,
+    fromId: string, fromPin: number,
     toPin: number
   ) {
-    console.log(`attatching perm wire from ${fromElem}, ${fromPin} to ${this.id}, ${toPin}`);
+    console.log(`attatching perm wire from ${fromId}, ${fromPin} to ${this.id}, ${toPin}`);
+
+    const fromElement = this.renderManager.getRenderableWithId(fromId);
+    if (!fromElement || !isGridElement(fromElement)) {
+      return;
+    }
+
+    const wire = new PermWire(
+      crypto.randomUUID(), this.renderManager,
+      fromId, fromElement, fromPin,
+      this.id, this, toPin
+    )
+
+    this.renderManager.addRenderable(wire);
   }
 
   private activateInputPos(inputIdx: number) {
@@ -464,13 +503,15 @@ export class GridElement extends Renderable<'grid-element'> {
       this.attachPermWire(
         details.fromElement, details.fromOutput,
         inputIdx
-      )
-    }, 'make-perm-wire');
+      );
+
+      this.deactivateInputs();
+    }, `make-perm-wire-to-${this.id}`);
   }
 
   private deactivateInputs() {
     this.activeInput = -1;
-    events.off('temp-wire-released', 'make-perm-wire');
+    events.off('temp-wire-released', `make-perm-wire-to-${this.id}`);
   }
 
   protected resetRenderBuffer(): void {
@@ -482,7 +523,7 @@ export class GridElement extends Renderable<'grid-element'> {
     toAdd: GridElementRenderBuffer
   ): GridElementRenderBuffer {
 
-    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+    const mergedOriginal = RenderBufferUtils.mergeGenericProperties(
       original, toAdd
     )
 
@@ -495,11 +536,8 @@ export class GridElement extends Renderable<'grid-element'> {
       mergedOriginal.initial = original.initial || toAdd.initial;
     }
 
-    // add if they both haVE a movement value, otherwise just use one (or neither)
-    mergedOriginal.movement =
-      original.movement && toAdd.movement
-        ? original.movement.add(toAdd.movement)
-        : original.movement ?? toAdd.movement;
+    // if either move, there has been movement
+    mergedOriginal.movement = original.movement || toAdd.movement
 
     mergedOriginal.activation =
       toAdd.activation ?? original.activation;
