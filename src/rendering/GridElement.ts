@@ -455,8 +455,6 @@ export class GridElement extends Renderable<'grid-element'> {
   }
 
   private attachTempWire(outputIdx: number) {
-    const outputPosIdx = this.getOutputPosIdx(outputIdx);
-
     const tempWireId = crypto.randomUUID();
     const tempWire = new TempWire(
       tempWireId, this.renderManager,
@@ -497,7 +495,9 @@ export class GridElement extends Renderable<'grid-element'> {
       this.attachPermWire(
         details.fromElement, details.fromOutput,
         inputIdx
-      )
+      );
+
+      this.deactivateInputs();
     }, 'make-perm-wire');
   }
 

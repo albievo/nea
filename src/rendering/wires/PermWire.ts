@@ -31,6 +31,9 @@ export class PermWire extends Wire<'perm-wire'> {
     this.endingPos = this.calcEndingPos();
 
     this.updateAndRenderPath();
+
+    console.log(`wire attached from ${this.fromId}, pin ${this.fromIdx} to ${this.toId}, pin ${this.toIdx}`)
+    console.log(`start cell: ${this.startingPos.toString()}, end cell: ${this.endingPos.toString()}`)
   }
 
   public getEventHandlers(): EventHandlerMap {
@@ -63,7 +66,7 @@ export class PermWire extends Wire<'perm-wire'> {
   }
 
   private calcEndingPos() {
-    return this.fromElem.getInputPos(this.toIdx).subtract(1, 0);
+    return this.toElem.getInputPos(this.toIdx).subtract(1, 0);
   }
 
   // maybe could be put into wire class but low key sounds long
