@@ -43,6 +43,8 @@ export class PermWire extends Wire<'perm-wire'> {
   }
 
   private handleGridElementMoved(details: {id: string}) {
+    console.log('grid element moved');
+
     if (details.id === this.fromId) {
       this.startingPos = this.calcStartingPos();
     }

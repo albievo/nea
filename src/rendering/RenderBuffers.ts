@@ -22,7 +22,7 @@ export interface RenderBuffer {
 export interface GridElementRenderBuffer extends RenderBuffer {
   kind: 'grid-element',
   initial?: InitialGridElementPayload,
-  movement?: Vector2,
+  movement?: boolean,
   activation?: number
 }
 

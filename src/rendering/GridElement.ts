@@ -361,12 +361,14 @@ export class GridElement extends Renderable<'grid-element'> {
       // calculate movement
       const delta = cell.subtract(this.pos);
 
+      this.pos = cell.copy();
+
       if (!delta.equals(Vector2.zeroes)) {
         events.emit('grid-element-moved', { id: this.id });
       }
 
       // send render request
-      this.appendRenderBuffer({ movement: delta });
+      this.appendRenderBuffer({ movement: true });
 
       // add new cell positions
       for (let x = 0; x < this.dims.x; x++) {
@@ -532,11 +534,8 @@ export class GridElement extends Renderable<'grid-element'> {
       mergedOriginal.initial = original.initial || toAdd.initial;
     }
 
-    // add if they both haVE a movement value, otherwise just use one (or neither)
-    mergedOriginal.movement =
-      original.movement && toAdd.movement
-        ? original.movement.add(toAdd.movement)
-        : original.movement ?? toAdd.movement;
+    // if either move, there has been movement
+    mergedOriginal.movement = original.movement || toAdd.movement
 
     mergedOriginal.activation =
       toAdd.activation ?? original.activation;
