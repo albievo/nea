@@ -361,6 +361,10 @@ export class GridElement extends Renderable<'grid-element'> {
       // calculate movement
       const delta = cell.subtract(this.pos);
 
+      if (!delta.equals(Vector2.zeroes)) {
+        events.emit('grid-element-moved', { id: this.id });
+      }
+
       // send render request
       this.appendRenderBuffer({ movement: delta });
 
