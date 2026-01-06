@@ -119,8 +119,8 @@ export class PermWire extends Wire<'perm-wire'> {
     ];
     
     const finalSegmentEndPoints = [
-      finalSegmentStartPoints[0].add(0.5),
-      finalSegmentStartPoints[1].add(0.5)
+      finalSegmentStartPoints[0].add(0.5, 0),
+      finalSegmentStartPoints[1].add(0.5, 0)
     ];
 
     // draw segment
