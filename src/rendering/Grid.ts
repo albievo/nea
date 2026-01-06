@@ -2,7 +2,7 @@ import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridRenderBuffer, InitialGridRenderPayload, RenderPayloadUtils } from "./RenderPayloads";
+import { GridRenderBuffer, InitialGridRenderPayload, RenderBufferUtils } from "./RenderBuffers";
 import $ from 'jquery';
 
 export class Grid extends Renderable<'grid'> {
@@ -86,7 +86,7 @@ export class Grid extends Renderable<'grid'> {
     toAdd: GridRenderBuffer
   ): GridRenderBuffer {
 
-    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+    const mergedOriginal = RenderBufferUtils.mergeGenericProperties(
       original, toAdd
     )
 

@@ -201,6 +201,10 @@ export class RenderManager {
   public get availabilityGrid() {
     return this._availabilityGrid
   }
+
+  public getRenderableWithId(id: string) {
+    return this.renderablesById.get(id);
+  }
 }
 
 export interface CellTakenBy {

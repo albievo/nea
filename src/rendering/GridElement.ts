@@ -7,9 +7,11 @@ import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridElementRenderBuffer, InitialGridElementPayload, RenderPayloadUtils } from "./RenderPayloads";
+import { GridElementRenderBuffer, InitialGridElementPayload, RenderBufferUtils } from "./RenderBuffers";
 import $ from 'jquery';
 import { TempWire } from "./wires/TempWire";
+import { PermWire } from "./wires/PermWire";
+import { isGridElement } from "./RenderableTypeGuards";
 
 export class GridElement extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
@@ -421,6 +423,15 @@ export class GridElement extends Renderable<'grid-element'> {
     return -1;
   }
 
+  private getInputPosIdx(pinIdx: number): number {
+    for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
+      if (this.inputPositions[posIdx] === pinIdx) {
+        return posIdx
+      }
+    }
+    return -1;
+  }
+
   public getOutputPos(pinIdx: number): Vector2 {
     const outputPosIdx = this.getOutputPosIdx(pinIdx);
 
@@ -430,6 +441,17 @@ export class GridElement extends Renderable<'grid-element'> {
     ));
 
     return outputCell;
+  }
+
+  public getInputPos(pinIdx: number): Vector2 {
+    const inputPosIdx = this.getInputPosIdx(pinIdx);
+
+    const inputCell = this.pos.add(new Vector2(
+      0,
+      inputPosIdx
+    ));
+
+    return inputCell;
   }
 
   private attachTempWire(outputIdx: number) {
@@ -447,10 +469,23 @@ export class GridElement extends Renderable<'grid-element'> {
   }
 
   private attachPermWire(
-    fromElem: string, fromPin: number,
+    fromId: string, fromPin: number,
     toPin: number
   ) {
-    console.log(`attatching perm wire from ${fromElem}, ${fromPin} to ${this.id}, ${toPin}`);
+    console.log(`attatching perm wire from ${fromId}, ${fromPin} to ${this.id}, ${toPin}`);
+
+    const fromElement = this.renderManager.getRenderableWithId(fromId);
+    if (!fromElement || !isGridElement(fromElement)) {
+      return;
+    }
+
+    const wire = new PermWire(
+      crypto.randomUUID(), this.renderManager,
+      fromId, fromElement, fromPin,
+      this.id, this, toPin
+    )
+
+    this.renderManager.addRenderable(wire);
   }
 
   private activateInputPos(inputIdx: number) {
@@ -480,7 +515,7 @@ export class GridElement extends Renderable<'grid-element'> {
     toAdd: GridElementRenderBuffer
   ): GridElementRenderBuffer {
 
-    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+    const mergedOriginal = RenderBufferUtils.mergeGenericProperties(
       original, toAdd
     )
 

@@ -38,7 +38,8 @@ export interface TempWireRenderBuffer extends RenderBuffer {
 }
 
 export interface PermWireRenderBuffer extends RenderBuffer {
-  kind: 'perm-wire'
+  kind: 'perm-wire';
+  updatedPath?: Vector2[];
 }
 
 export type RenderBufferByKind = {
@@ -50,7 +51,7 @@ export type RenderBufferByKind = {
 
 export type AnyRenderBuffer = GridRenderBuffer | GridElementRenderBuffer | TempWireRenderBuffer | PermWireRenderBuffer;
 
-export class RenderPayloadUtils {
+export class RenderBufferUtils {
   public static mergeGenericProperties<T extends RenderBuffer>(
     original: T,
     toAdd: T

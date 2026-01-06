@@ -1,7 +1,7 @@
 import { EventHandlerMap } from "../../event/eventTypes";
 import { Vector2 } from "../../utils/Vector2";
 import { BoundingBox, Renderable } from "../Renderable";
-import { RenderPayloadUtils, TempWireRenderBuffer } from "../RenderPayloads";
+import { RenderBufferUtils, TempWireRenderBuffer } from "../RenderBuffers";
 import { RenderManager } from "../RenderManager";
 import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
 import { MathUtils } from "../../utils/MathUtils";
@@ -113,7 +113,7 @@ export class TempWire extends Wire<'temp-wire'> {
     toAdd: TempWireRenderBuffer
   ): TempWireRenderBuffer {
 
-    const mergedOriginal = RenderPayloadUtils.mergeGenericProperties(
+    const mergedOriginal = RenderBufferUtils.mergeGenericProperties(
       original, toAdd
     )
 

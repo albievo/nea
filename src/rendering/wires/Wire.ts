@@ -4,6 +4,7 @@ import { RenderManager } from "../RenderManager";
 import { GridElement } from "../GridElement";
 import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
 import { MathUtils } from "../../utils/MathUtils";
+import { RenderBufferByKind } from "../RenderBuffers";
 
 export abstract class Wire<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
