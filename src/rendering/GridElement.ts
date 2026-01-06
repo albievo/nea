@@ -495,21 +495,27 @@ export class GridElement extends Renderable<'grid-element'> {
   private activateInputPos(inputIdx: number) {
     this.appendRenderBuffer({ activation: inputIdx });
 
+    console.log(`activating input ${inputIdx} of ${this.id}`);
+
     events.on('temp-wire-released', (
       details: { fromElement: string, fromOutput: number }
     ) => {
+      console.log('temp wire released');
+
       this.attachPermWire(
         details.fromElement, details.fromOutput,
         inputIdx
       );
 
       this.deactivateInputs();
-    }, 'make-perm-wire');
+    }, `make-perm-wire-to-${this.id}`);
   }
 
   private deactivateInputs() {
+    console.log(`deactivating inputs of element with id ${this.id}`);
+
     this.activeInput = -1;
-    events.off('temp-wire-released', 'make-perm-wire');
+    events.off('temp-wire-released', `make-perm-wire-to-${this.id}`);
   }
 
   protected resetRenderBuffer(): void {

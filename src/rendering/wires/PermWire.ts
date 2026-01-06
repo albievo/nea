@@ -33,7 +33,6 @@ export class PermWire extends Wire<'perm-wire'> {
     this.updateAndRenderPath();
 
     console.log(`wire attached from ${this.fromId}, pin ${this.fromIdx} to ${this.toId}, pin ${this.toIdx}`)
-    console.log(`start cell: ${this.startingPos.toString()}, end cell: ${this.endingPos.toString()}`)
   }
 
   public getEventHandlers(): EventHandlerMap {
@@ -43,8 +42,6 @@ export class PermWire extends Wire<'perm-wire'> {
   }
 
   private handleGridElementMoved(details: {id: string}) {
-    console.log('grid element moved');
-
     if (details.id === this.fromId) {
       this.startingPos = this.calcStartingPos();
     }

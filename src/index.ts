@@ -77,4 +77,4 @@ gridElement3.appendRenderBuffer({
   initial: {
     color: 'green'
   }
-})
+});
