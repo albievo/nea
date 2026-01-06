@@ -31,8 +31,6 @@ export class PermWire extends Wire<'perm-wire'> {
     this.endingPos = this.calcEndingPos();
 
     this.updateAndRenderPath();
-
-    console.log(`wire attached from ${this.fromId}, pin ${this.fromIdx} to ${this.toId}, pin ${this.toIdx}`)
   }
 
   public getEventHandlers(): EventHandlerMap {
@@ -45,7 +43,7 @@ export class PermWire extends Wire<'perm-wire'> {
     if (details.id === this.fromId) {
       this.startingPos = this.calcStartingPos();
     }
-    else if (details.id === this.toId) {
+    if (details.id === this.toId) { // could be both if it leads to itself
       this.endingPos = this.calcEndingPos();
     }
 

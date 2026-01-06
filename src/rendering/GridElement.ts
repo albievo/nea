@@ -363,10 +363,6 @@ export class GridElement extends Renderable<'grid-element'> {
 
       this.pos = cell.copy();
 
-      if (!delta.equals(Vector2.zeroes)) {
-        events.emit('grid-element-moved', { id: this.id });
-      }
-
       // send render request
       this.appendRenderBuffer({ movement: true });
 
@@ -379,6 +375,10 @@ export class GridElement extends Renderable<'grid-element'> {
         }
       }
       this.pos = cell.copy();
+
+      if (!delta.equals(Vector2.zeroes)) {
+        events.emit('grid-element-moved', { id: this.id });
+      }
     }, 'draggingListener');
   }
 
@@ -495,13 +495,9 @@ export class GridElement extends Renderable<'grid-element'> {
   private activateInputPos(inputIdx: number) {
     this.appendRenderBuffer({ activation: inputIdx });
 
-    console.log(`activating input ${inputIdx} of ${this.id}`);
-
     events.on('temp-wire-released', (
       details: { fromElement: string, fromOutput: number }
     ) => {
-      console.log('temp wire released');
-
       this.attachPermWire(
         details.fromElement, details.fromOutput,
         inputIdx
@@ -512,8 +508,6 @@ export class GridElement extends Renderable<'grid-element'> {
   }
 
   private deactivateInputs() {
-    console.log(`deactivating inputs of element with id ${this.id}`);
-
     this.activeInput = -1;
     events.off('temp-wire-released', `make-perm-wire-to-${this.id}`);
   }
