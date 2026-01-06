@@ -78,6 +78,8 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
 
       recentEndSegmentPoints = [c, d];
     }
+
+    return recentEndSegmentPoints;
   }
 
   protected calculateSegmentVertices(

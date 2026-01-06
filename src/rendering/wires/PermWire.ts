@@ -105,8 +105,39 @@ export class PermWire extends Wire<'perm-wire'> {
   }
 
   protected renderObject(): void {
-    this.drawPathToEndPoint(this.OUTER_WIDTH, 'black');
-    this.drawPathToEndPoint(this.INNER_WIDTH, 'lightblue');
+    const lastSegmentEndOuter = this.drawPathToEndPoint(this.OUTER_WIDTH, 'black');
+    this.drawEndPointConnector(this.OUTER_WIDTH, 'black', lastSegmentEndOuter);
+    const lastSegmentEndInner = this.drawPathToEndPoint(this.INNER_WIDTH, 'lightblue');
+    this.drawEndPointConnector(this.INNER_WIDTH, 'lightblue', lastSegmentEndInner);
+
+  }
+
+  private drawEndPointConnector(width: number, color: string, lastSegmentEnd: [Vector2, Vector2]) {
+    const finalSegmentStartPoints = [
+      this.endingPos.add(0.5, 0.5 - width / 2),
+      this.endingPos.add(0.5, 0.5 + width / 2)
+    ];
+    
+    const finalSegmentEndPoints = [
+      finalSegmentStartPoints[0].add(0.5),
+      finalSegmentStartPoints[1].add(0.5)
+    ];
+
+    // draw segment
+    this.renderManager.drawPolygon([
+      finalSegmentStartPoints[0],
+      finalSegmentStartPoints[1],
+      finalSegmentEndPoints[0],
+      finalSegmentEndPoints[1]
+    ], color);
+    
+    // draw connector
+    this.renderManager.drawPolygon([
+      lastSegmentEnd[0],
+      lastSegmentEnd[1],
+      finalSegmentStartPoints[0],
+      finalSegmentStartPoints[1]
+    ], color);
   }
 
   protected resetRenderBuffer(): void {
