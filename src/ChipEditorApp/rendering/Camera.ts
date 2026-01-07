@@ -39,19 +39,15 @@ export class Camera {
         .divide(2)
     );
 
-    $(document).on('wheel', e => this.handleWheel(e));
+    events.on('wheel', e => this.handleWheel(e));
     events.on('mouse-down', e => this.handleMouseDown(e));
     events.on('resize', () => this.handleResize());
   }
 
-  private handleWheel(event: JQuery.TriggeredEvent) {
-    const DOMEvent = event.originalEvent as WheelEvent;
-
+  private handleWheel(event: { delta: Vector2, worldPos: Vector2 }) {
     // mouse position in screen pixels
-    const mouseScreen = new Vector2(
-      DOMEvent.clientX * this.dppr,
-      DOMEvent.clientY * this.dppr
-    );
+    const mouseScreen = this.worldPosToScreen(event.worldPos);
+
     const mouseWorld = this.screenToWorld(mouseScreen);
 
     // just used to check whether there has been a change
@@ -59,7 +55,7 @@ export class Camera {
 
     // compute new zoom
     // zoom direction could be a setting later?
-    const rawZoomFactor = 1 + (-DOMEvent.deltaY * this.zoomCoeff);
+    const rawZoomFactor = 1 + (-event.delta.y * this.zoomCoeff);
     this.setZoom(this.zoom * rawZoomFactor);
 
     // adjust pan to keep mouseWorld under cursor
@@ -238,6 +234,15 @@ export class Camera {
       event.clientX * this.dppr,
       event.clientY * this.dppr
     );
+    return this.screenToWorld(screenPos);
+  }
+
+  public getWorldPosFromDOMWheelEvent(event: WheelEvent) {
+    const screenPos = new Vector2(
+      event.clientX * this.dppr,
+      event.clientY * this.dppr
+    );
+
     return this.screenToWorld(screenPos);
   }
 

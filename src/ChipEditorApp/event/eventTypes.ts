@@ -20,6 +20,7 @@ export type EventPayloads = {
   "mouse-down": { worldPos: Vector2 };
   "mouse-up": { worldPos: Vector2 };
   "mouse-move": { worldPos: Vector2 };
+  "wheel": { delta: Vector2, worldPos: Vector2 };
 };
 
 export type EventTypes = keyof EventPayloads;
