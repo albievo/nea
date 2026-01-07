@@ -57,3 +57,5 @@ const gridElement3 = new GridElement({
   })
 
 renderManager.addRenderable(gridElement3);
+
+events.emit('render-required');

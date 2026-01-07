@@ -41,6 +41,8 @@ export class GridElement extends Renderable<'grid-element'> {
     this.inputs = details.inputs;
     this.outputs = details.outputs;
     this.color = details.color;
+    this.pos = details.startingPos.copy();
+    this.lastValidPosition = this.pos.copy();
 
     let yDim: number;
     if ( // hard coded to mske common configurations look nicer
@@ -60,9 +62,8 @@ export class GridElement extends Renderable<'grid-element'> {
 
     // make position arrays
     this.calcPinPositions();
-
-    this.pos = details.startingPos.copy();
-    this.lastValidPosition = this.pos.copy();
+    
+    this.makeTakenCellsUnavailable();
   }
 
   protected getEventHandlers(): EventHandlerMap {
@@ -325,13 +326,7 @@ export class GridElement extends Renderable<'grid-element'> {
       //updating taken cells is done seperately in case new cells overlap with old ones
       //might be able to be done more efficiently but we arent gonna have to do much iteration
       // free up old cells
-      for (let x = 0; x < this.dims.x; x++) {
-        for (let y = 0; y < this.dims.y; y++) {
-          this.renderManager.rmvElementFromCell(
-            this.pos.add(new Vector2(x, y))
-          ); 
-        }
-      }
+      this.makeTakenCellsAvailable();
 
       // ensure not moving to a taken cell
       if (!this.isValidPosition(cell)) {
@@ -348,20 +343,36 @@ export class GridElement extends Renderable<'grid-element'> {
       // send render request
       events.emit('render-required');
 
-      // add new cell positions
-      for (let x = 0; x < this.dims.x; x++) {
-        for (let y = 0; y < this.dims.y; y++) {
-          this.renderManager.addElementToCell(
-            cell.add(new Vector2(x, y)), this.id
-          );
-        }
-      }
       this.pos = cell.copy();
+
+      // add new cell positions
+      this.makeTakenCellsUnavailable();
 
       if (!delta.equals(Vector2.zeroes)) {
         events.emit('grid-element-moved', { id: this.id });
       }
     }, 'draggingListener');
+  }
+
+  private makeTakenCellsUnavailable() {
+    for (let x = 0; x < this.dims.x; x++) {
+      for (let y = 0; y < this.dims.y; y++) {
+        this.renderManager.addElementToCell(
+          this.pos.add(new Vector2(x, y)),
+          this.id
+        ); 
+      }
+    }
+  }
+
+  private makeTakenCellsAvailable() {
+    for (let x = 0; x < this.dims.x; x++) {
+      for (let y = 0; y < this.dims.y; y++) {
+        this.renderManager.rmvElementFromCell(
+          this.pos.add(new Vector2(x, y)),
+        ); 
+      }
+    }
   }
 
   private isValidPosition(pos: Vector2): boolean {
