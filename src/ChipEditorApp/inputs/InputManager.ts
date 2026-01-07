@@ -1,5 +1,6 @@
 import events from "../event/events";
 import { Camera } from "../rendering/Camera";
+import $ from 'jquery';
 
 export class InputManager {
   constructor(

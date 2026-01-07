@@ -55,3 +55,5 @@ const gridElement3 = new GridElement({
 renderManager.addRenderable(gridElement3);
 
 events.emit('render-required');
+
+// events.on('mouse-down', () => console.log('mouse down'));

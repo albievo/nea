@@ -6,13 +6,13 @@ import keyTracker from "./KeyTracker";
 import { BoundingBox } from "./Renderable";
 
 export class Camera {
-  private zoom = 8;
+  private zoom = 3;
   private pan!: Vector2; // top-left of screen in world units
   private dppr: number;
 
   private minZoom = 1;
   private maxZoom = 15;
-  private zoomCoeff = 0.01;
+  private zoomCoeff = 0.0005;
 
   private worldSize: Vector2;
   private windowDims!: Vector2;
