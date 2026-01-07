@@ -15,15 +15,9 @@ const renderManager = new RenderManager(workingChip, worldSize);
 
 const gridId = crypto.randomUUID();
 
-const grid = new Grid(gridId, renderManager)
+const grid = new Grid(gridId, renderManager, worldSize)
 
 renderManager.addRenderable(grid);
-
-grid.appendRenderBuffer({
-  initial: {
-    size: worldSize
-  }
-});
 
 const gridElement1Id = crypto.randomUUID();
 const gridElement1 = new GridElement({
@@ -32,16 +26,11 @@ const gridElement1 = new GridElement({
     startingPos: new Vector2(23, 23),
     inputs: 1,
     outputs: 3 ,
-    width: 3 
+    width: 3,
+    color: 'red'
   })
 
 renderManager.addRenderable(gridElement1);
-
-gridElement1.appendRenderBuffer({
-  initial: {
-    color: 'red'
-  }
-})
 
 const gridElement2Id = crypto.randomUUID();
 const gridElement2 = new GridElement({
@@ -50,16 +39,11 @@ const gridElement2 = new GridElement({
     startingPos: new Vector2(20, 20),
     inputs: 1,
     outputs: 1,
-    width: 2
+    width: 2,
+    color: 'blue'
   })
 
 renderManager.addRenderable(gridElement2);
-
-gridElement2.appendRenderBuffer({
-  initial: {
-    color: 'blue'
-  }
-})
 
 const gridElement3Id = crypto.randomUUID();
 const gridElement3 = new GridElement({
@@ -68,13 +52,8 @@ const gridElement3 = new GridElement({
     startingPos: new Vector2(28, 20),
     inputs: 2,
     outputs: 1,
-    width: 2
+    width: 2,
+    color: 'green'
   })
 
 renderManager.addRenderable(gridElement3);
-
-gridElement3.appendRenderBuffer({
-  initial: {
-    color: 'green'
-  }
-});

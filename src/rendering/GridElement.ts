@@ -7,7 +7,6 @@ import { Vector2 } from "../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
-import { GridElementRenderBuffer, InitialGridElementPayload, RenderBufferUtils } from "./RenderBuffers";
 import $ from 'jquery';
 import { TempWire } from "./wires/TempWire";
 import { PermWire } from "./wires/PermWire";
@@ -15,7 +14,6 @@ import { isGridElement } from "./RenderableTypeGuards";
 
 export class GridElement extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
-  protected renderBuffer: GridElementRenderBuffer = { kind: 'grid-element' };
 
   // in world units
   private dims: Vector2;
@@ -35,13 +33,14 @@ export class GridElement extends Renderable<'grid-element'> {
 
   private lastValidPosition: Vector2;
 
-  private colour?: string;
+  private color: string;
 
   constructor(details: GridElementDetails) {
     super(details.id, details.renderManager);
     
     this.inputs = details.inputs;
     this.outputs = details.outputs;
+    this.color = details.color;
 
     let yDim: number;
     if ( // hard coded to mske common configurations look nicer
@@ -75,31 +74,12 @@ export class GridElement extends Renderable<'grid-element'> {
     }
   };
 
-  protected updateFromBuffer(): void {
-    if (this.renderBuffer.initial) this.initialRender(this.renderBuffer.initial);
-    this.activeInput = this.renderBuffer.activation ?? -1;
-  }
-
   protected getBoundingBox(): BoundingBox {
     return {
       top: this.pos.y,
       left: this.pos.x,
       right: this.pos.x + this.dims.x,
       bottom: this.pos.y + this.dims.y
-    }
-  }
-
-  private initialRender(payload: InitialGridElementPayload) {
-    this.colour = payload.color;
-
-    //add availability
-    for (let x = 0; x < this.dims.x; x++) {
-      for (let y = 0; y < this.dims.y; y++) {
-        this.renderManager.addElementToCell(
-          this.pos.add(new Vector2(x, y)),
-          this.id
-        ); 
-      }
     }
   }
 
@@ -164,7 +144,7 @@ export class GridElement extends Renderable<'grid-element'> {
     const screenDims = this.dims.applyFunction((n) => camera.worldUnitsToScreenPixels(n));
 
     // draw the element
-    ctx.fillStyle = this.colour || 'grey';
+    ctx.fillStyle = this.color || 'grey';
     ctx.fillRect(
       screenPos.x,
       screenPos.y,
@@ -366,7 +346,7 @@ export class GridElement extends Renderable<'grid-element'> {
       this.pos = cell.copy();
 
       // send render request
-      this.appendRenderBuffer({ movement: true });
+      events.emit('render-required');
 
       // add new cell positions
       for (let x = 0; x < this.dims.x; x++) {
@@ -470,8 +450,6 @@ export class GridElement extends Renderable<'grid-element'> {
     );
 
     this.renderManager.addRenderable(tempWire);
-
-    tempWire.appendRenderBuffer({ initial: true });
   }
 
   private attachPermWire(
@@ -495,7 +473,8 @@ export class GridElement extends Renderable<'grid-element'> {
   }
 
   private activateInputPos(inputIdx: number) {
-    this.appendRenderBuffer({ activation: inputIdx });
+    this.activeInput = inputIdx;
+    events.emit('render-required');
 
     events.on('temp-wire-released', (
       details: { fromElement: string, fromOutput: number }
@@ -513,37 +492,6 @@ export class GridElement extends Renderable<'grid-element'> {
     this.activeInput = -1;
     events.off('temp-wire-released', `make-perm-wire-to-${this.id}`);
   }
-
-  protected resetRenderBuffer(): void {
-    this.renderBuffer = { kind: 'grid-element' }
-  }
-
-  protected mergeRenderBuffers(
-    original: GridElementRenderBuffer,
-    toAdd: GridElementRenderBuffer
-  ): GridElementRenderBuffer {
-
-    const mergedOriginal = RenderBufferUtils.mergeGenericProperties(
-      original, toAdd
-    )
-
-    // don't merge initials
-    if (original.initial && toAdd.initial) {
-      console.error('cannot merge 2 initial renders');
-      mergedOriginal.initial = original.initial;
-    }
-    else {
-      mergedOriginal.initial = original.initial || toAdd.initial;
-    }
-
-    // if either move, there has been movement
-    mergedOriginal.movement = original.movement || toAdd.movement
-
-    mergedOriginal.activation =
-      toAdd.activation ?? original.activation;
-    
-    return mergedOriginal;
-  }
 }
 
 interface GridElementDetails {
@@ -552,5 +500,6 @@ interface GridElementDetails {
   startingPos: Vector2,
   inputs: number,
   outputs: number,
-  width: number // measured in world units
+  width: number, // measured in world units
+  color: string
 }

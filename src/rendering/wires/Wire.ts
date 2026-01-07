@@ -4,7 +4,7 @@ import { RenderManager } from "../RenderManager";
 import { GridElement } from "../GridElement";
 import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
 import { MathUtils } from "../../utils/MathUtils";
-import { RenderBufferByKind } from "../RenderBuffers";
+import events from "../../event/events";
 
 export abstract class Wire<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
@@ -104,5 +104,40 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
    
   protected getBoundingBox(): BoundingBox {
     return this.boundingBox;
+  }
+
+  protected setPath(newPath: Vector2[]) {
+    this.path = [];
+
+    const firstCell = newPath[0];
+    this.path.push(firstCell);
+
+    this.boundingBox.top = firstCell.y;
+    this.boundingBox.right = firstCell.x
+    this.boundingBox.bottom = firstCell.y;
+    this.boundingBox.left = firstCell.x;
+
+    for (let cellIdx = 1; cellIdx < newPath.length; cellIdx++) {
+      const cell = newPath[cellIdx];
+
+      // add cell to path
+      this.path.push(cell);
+
+      // update bounding box given new cell
+      if (cell.x < this.boundingBox.left) {
+        this.boundingBox.left = cell.x;
+      }
+      else if (cell.x > this.boundingBox.right) {
+        this.boundingBox.right = cell.x;
+      }
+      if (cell.y < this.boundingBox.top) {
+        this.boundingBox.top = cell.y;
+      }
+      else if (cell.y > this.boundingBox.bottom) {
+        this.boundingBox.bottom = cell.y;
+      }
+    }
+
+    events.emit('render-required')
   }
 }
