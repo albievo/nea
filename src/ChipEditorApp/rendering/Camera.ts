@@ -17,7 +17,7 @@ export class Camera {
   private worldSize: Vector2;
   private windowDims!: Vector2;
 
-  private lastMousePos = new Vector2(0, 0);
+  private mouseDownAt = new Vector2(0, 0);
 
   readonly baseCellPixels = 48;
 
@@ -79,7 +79,7 @@ export class Camera {
       return;
     }
 
-    this.lastMousePos = event.worldPos.fixedCopy();
+    this.mouseDownAt = event.worldPos.fixedCopy();
     this.followMouse();
 
     events.emit('begin-pan');
@@ -90,23 +90,17 @@ export class Camera {
   private followMouse() {
     this._isPanning = true;
 
-    events.on('mouse-move', e => {      
+    events.on('mouse-move', e => {  
       // get the new mouse pos
       const newPos = e.worldPos;
       const oldPan = this.pan.fixedCopy();
 
       // get the vector from the last mouse position to the new one
-      const delta = newPos.subtract(this.lastMousePos);
-      const worldUnitDelta = delta.applyFunction(
-        n => this.screenPixelsToWorldUnits(n)
-      );
+      const delta = newPos.subtract(this.mouseDownAt);
 
       this.setPan(
-        this.pan.subtract(worldUnitDelta)
+        this.pan.subtract(delta)
       );
-
-      // update the last mouse position
-      this.lastMousePos = newPos;
 
       const trueDelta = this.pan.subtract(oldPan)
 
@@ -115,7 +109,6 @@ export class Camera {
         events.emit('pan', { delta: trueDelta });
       }
     }, 'cameraFollowMouse')
-
   }
 
   private stopFollowingMouse() {
