@@ -1,5 +1,5 @@
-import events from "../event/events";
-import { Vector2 } from "../utils/Vector2";
+import events from "../../event/events";
+import { Vector2 } from "../../utils/Vector2";
 import $ from 'jquery';
 import { RenderManager } from "./RenderManager";
 import keyTracker from "./KeyTracker";

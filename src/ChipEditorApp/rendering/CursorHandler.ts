@@ -1,4 +1,4 @@
-import events from "../event/events";
+import events from "../../event/events";
 import keyTracker from "./KeyTracker"
 import { MouseTracker } from "./MouseTracker";
 import { RenderManager } from "./RenderManager"

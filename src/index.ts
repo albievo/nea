@@ -1,9 +1,9 @@
-import { RenderManager } from "./rendering/RenderManager";
+import { RenderManager } from "./ChipEditorApp/rendering/RenderManager";
 import { WorkingChip } from "./application/WorkingChip";
 import { Netlist } from "./netlist/Netlist";
-import { Grid } from "./rendering/Grid";
+import { Grid } from "./ChipEditorApp/rendering/Grid";
 import { Vector2 } from "./utils/Vector2";
-import { GridElement } from "./rendering/GridElement";
+import { GridElement } from "./ChipEditorApp/rendering/GridElement";
 import events from "./event/events"; 
 import './index.scss';
 

@@ -1,11 +1,11 @@
 import { EventHandlerMap } from "../../event/eventTypes";
-import { Vector2 } from "../../utils/Vector2";
+import { Vector2 } from "../../../utils/Vector2";
 import { BoundingBox, Renderable } from "../Renderable";
 import { RenderManager } from "../RenderManager";
 import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
-import { MathUtils } from "../../utils/MathUtils";
+import { MathUtils } from "../../../utils/MathUtils";
 import { Wire } from "./Wire";
-import { GridElement } from "../GridElement";
+import { GridElement } from "../../rendering/GridElement";
 import events from "../../event/events";
 import $ from 'jquery';
 

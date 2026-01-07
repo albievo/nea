@@ -1,15 +1,15 @@
 import { Renderable, RenderableKind } from "./Renderable";
-import { WorkingChip } from "../application/WorkingChip"
-import { WebpageUtils } from "../utils/WebpageUtils";
-import { Vector2 } from "../utils/Vector2";
+import { WorkingChip } from "../../application/WorkingChip"
+import { WebpageUtils } from "../../utils/WebpageUtils";
+import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
 import events from "../event/events";
 import $ from 'jquery';
-import { GeneralUtils } from "../utils/GeneralUtils";
+import { GeneralUtils } from "../../utils/GeneralUtils";
 import keyTracker from "./KeyTracker";
 import { CursorHandler } from "./CursorHandler";
 import { MouseTracker } from "./MouseTracker";
-import { MathUtils } from "../utils/MathUtils";
+import { MathUtils } from "../../utils/MathUtils";
 
 export class RenderManager {
   private workingChip: WorkingChip;

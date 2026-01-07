@@ -3,7 +3,7 @@ import { EventHandlerMap } from "../event/eventTypes";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import $ from 'jquery';
-import { Vector2 } from "../utils/Vector2";
+import { Vector2 } from "../../utils/Vector2";
 
 export class Grid extends Renderable<'grid'> {
   protected _kind = 'grid' as const;

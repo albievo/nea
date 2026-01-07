@@ -1,9 +1,9 @@
 import { Renderable, WireKind, BoundingBox } from "../Renderable";
-import { Vector2 } from "../../utils/Vector2";
+import { Vector2 } from "../../../utils/Vector2";
 import { RenderManager } from "../RenderManager";
-import { GridElement } from "../GridElement";
+import { GridElement } from "../../rendering/GridElement";
 import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
-import { MathUtils } from "../../utils/MathUtils";
+import { MathUtils } from "../../../utils/MathUtils";
 import events from "../../event/events";
 
 export abstract class Wire<K extends WireKind> extends Renderable<K>{

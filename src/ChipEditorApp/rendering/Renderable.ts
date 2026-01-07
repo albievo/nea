@@ -1,6 +1,6 @@
 import events from "../event/events";
 import { EventHandlerMap, eventTypes, EventTypes, Handler } from "../event/eventTypes";
-import { Vector2 } from "../utils/Vector2";
+import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
 import { RenderManager } from "./RenderManager";
 import $ from 'jquery';

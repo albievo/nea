@@ -1,0 +1,13 @@
+DOM Events
+   ↓
+InputManager
+   ↓
+Controller / Tools (with hit-testing)
+   ↓
+Actions (intent)
+   ↓
+UndoManager.execute(action)
+   ↓
+WorkingChip (state mutation)
+   ↓
+RenderManager (draw state)

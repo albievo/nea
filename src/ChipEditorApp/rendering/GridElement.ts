@@ -1,9 +1,8 @@
 import events from "../event/events";
 import { EventHandlerMap } from "../event/eventTypes";
-import { TruthtableBehaviour } from "../netlist/ChipBehaviour";
-import { GeneralUtils } from "../utils/GeneralUtils";
-import { MathUtils } from "../utils/MathUtils";
-import { Vector2 } from "../utils/Vector2";
+import { GeneralUtils } from "../../utils/GeneralUtils";
+import { MathUtils } from "../../utils/MathUtils";
+import { Vector2 } from "../../utils/Vector2";
 import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";

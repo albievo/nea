@@ -1,8 +1,8 @@
-import { GridElement } from "../GridElement";
+import { GridElement } from "../../rendering/GridElement";
 import { Wire } from "./Wire";
 import { RenderManager } from "../RenderManager";
 import { EventHandlerMap } from "../../event/eventTypes";
-import { Vector2 } from "../../utils/Vector2";
+import { Vector2 } from "../../../utils/Vector2";
 
 export class PermWire extends Wire<'perm-wire'> {
   protected _kind = 'perm-wire' as const;
