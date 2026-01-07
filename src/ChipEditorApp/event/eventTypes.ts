@@ -1,4 +1,4 @@
-import { Vector2 } from "../utils/Vector2";
+import { Vector2 } from "../../utils/Vector2";
 
 export type Handler<Payload = any> = (payload: Payload) => void;
 
@@ -16,7 +16,10 @@ export type EventPayloads = {
   "render-required": void;
   "temp-wire-path-updated": { endCell: Vector2 };
   "temp-wire-released": { fromElement: string, fromOutput: number };
-  "grid-element-moved": { id: string }
+  "grid-element-moved": { id: string };
+  "mouse-down": { worldPos: Vector2 };
+  "mouse-up": { worldPos: Vector2 };
+  "mouse-move": { worldPos: Vector2 };
 };
 
 export type EventTypes = keyof EventPayloads;

@@ -1,17 +1,13 @@
-import { RenderManager } from "./ChipEditorApp/rendering/RenderManager";
-import { WorkingChip } from "./application/WorkingChip";
-import { Netlist } from "./netlist/Netlist";
+import { EditorApp } from './ChipEditorApp/EditorApp';
 import { Grid } from "./ChipEditorApp/rendering/Grid";
 import { Vector2 } from "./utils/Vector2";
 import { GridElement } from "./ChipEditorApp/rendering/GridElement";
-import events from "./event/events"; 
+import events from "./ChipEditorApp/event/events"; 
 import './index.scss';
 
 const worldSize = new Vector2(50, 50);
-
-const netlist = new Netlist([], [])
-const workingChip = new WorkingChip(netlist)
-const renderManager = new RenderManager(workingChip, worldSize);
+const chipEditorApp = new EditorApp(worldSize);
+const renderManager = chipEditorApp.renderer;
 
 const gridId = crypto.randomUUID();
 

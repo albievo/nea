@@ -1,4 +1,4 @@
-import events from "../../event/events";
+import events from "../event/events";
 import keyTracker from "./KeyTracker";
 import $ from 'jquery';
 import { RenderManager } from "./RenderManager";
@@ -15,14 +15,14 @@ export class MouseTracker {
     this.renderManager = renderManager;
     this.worldSize = worldSize;
 
-    $(document).on('mousemove', e => this.handleMouseMove(e));
+    events.on('mouse-move', e => this.handleMouseMove(e));
   }
 
-  private handleMouseMove(event: JQuery.MouseMoveEvent) {
+  private handleMouseMove(event: { worldPos: Vector2 }) {
     const camera = this.renderManager.camera;
     const availabilityGrid = this.renderManager.availabilityGrid;
 
-    const worldPos = camera.getWorldPosFromJqueryMouseEvent(event);
+    const worldPos = event.worldPos;
     const cell = worldPos.applyFunction(Math.floor);
     if ( // if out of bounds
       cell.x < 0 ||

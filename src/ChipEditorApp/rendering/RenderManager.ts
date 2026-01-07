@@ -1,5 +1,4 @@
 import { Renderable, RenderableKind } from "./Renderable";
-import { WorkingChip } from "../../application/WorkingChip"
 import { WebpageUtils } from "../../utils/WebpageUtils";
 import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
@@ -12,8 +11,6 @@ import { MouseTracker } from "./MouseTracker";
 import { MathUtils } from "../../utils/MathUtils";
 
 export class RenderManager {
-  private workingChip: WorkingChip;
-
   private _camera: Camera;
 
   private _cursorHandler: CursorHandler;
@@ -37,16 +34,15 @@ export class RenderManager {
 
   private _availabilityGrid: CellTakenBy[][];
 
-  constructor(workingChip: WorkingChip, worldSize: Vector2) {
-    this.workingChip = workingChip;
-    this.worldSize = worldSize
-    this._camera = new Camera(2, 15, 0.001, this.devicePixelRatio, worldSize, this);
-    this.setCtx();
-
-    this._availabilityGrid = GeneralUtils.createMatrixOfVals(() => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x);
-
+  constructor(worldSize: Vector2, camera: Camera) {
+    this.worldSize = worldSize;
+    this._camera = camera;
+    this._availabilityGrid = GeneralUtils.createMatrixOfVals(
+      () => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x
+    );
     this._mouseTracker = new MouseTracker(this, this.worldSize);
     this._cursorHandler = new CursorHandler(this);
+    this.setCtx();
 
     events.on('render-required', () => this.scheduled = true);
  

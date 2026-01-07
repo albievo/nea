@@ -2,7 +2,7 @@ import { Connection } from "./Connection";
 import { ChipBehaviour } from "./ChipBehaviour";
 import { OutputPin, InputPin } from "./Pins";
 import { Value } from "./Value";
-import { Queue } from "../utils/Queue";
+import { Queue } from "../../utils/Queue";
 
 export class Netlist {
   private nodes: NetlistNode[];

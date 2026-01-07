@@ -21,7 +21,7 @@ export class TempWire extends Wire<'temp-wire'> {
       fromId, fromElem, fromIdx,
     );
 
-    $(document).on('mouseup.tempWireMouseUp', () => this.handleMouseUp());
+    events.on('mouse-up', () => this.handleMouseUp(), 'tempWireMouseUp');
   }
 
   protected getEventHandlers(): EventHandlerMap {
@@ -67,6 +67,6 @@ export class TempWire extends Wire<'temp-wire'> {
     this.renderManager.rmvRenderable(this.id);
     this.rmvDefaultListeners();
     events.emit('render-required');
-    $(document).off('mouseup.tempWireMouseUp');
+    events.off('mouse-up', 'tempWireMouseUp');
   }
 }

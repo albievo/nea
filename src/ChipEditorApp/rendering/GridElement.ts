@@ -215,8 +215,8 @@ export class GridElement extends Renderable<'grid-element'> {
     }
 
     // add listener for mouse moving
-    $(document).on('mousemove.mousemoveOnElement', (mouseMove: JQuery.MouseMoveEvent) => {
-      const mousePos = this.renderManager.camera.getWorldPosFromJqueryMouseEvent(mouseMove);
+    events.on('mouse-move', (mouseMove) => {
+      const mousePos = mouseMove.worldPos;
 
       if (this.mouseOnPin === -1) { // if we arent currently on a pin, check if we are now
 
@@ -242,12 +242,10 @@ export class GridElement extends Renderable<'grid-element'> {
         // if not, make mouse on pin correct
         if (!onOutputPin) this.mouseOnPin = -1;
       }
-    });
+    }, 'mousemoveOnElement');
 
     // add listener for clicking
-    $(document).on('mousedown.mousedownOnElement', (mousedown: JQuery.MouseDownEvent) => {
-      console.log(`mousedown on element ${this.id}`);
-
+    events.on('mouse-down', (mousedown) => {
       // if we should be panning, dont do anything
       if (keyTracker.space) return; 
 
@@ -258,7 +256,7 @@ export class GridElement extends Renderable<'grid-element'> {
       // otherwise, drag the element
       else {
         // get mouse positions
-        const worldPos = this.renderManager.camera.getWorldPosFromJqueryMouseEvent(mousedown);
+        const worldPos = mousedown.worldPos;
         const cell = worldPos.applyFunction(Math.floor); 
 
         // calculate offset
@@ -267,14 +265,14 @@ export class GridElement extends Renderable<'grid-element'> {
         // follow mouse
         this.followMouse(offset);
 
-        $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
+        events.on('mouse-up', () => this.stopFollowingMouse(), 'stopFollowingMouse');
       } 
-    })
+    }, 'mousedownOnElement')
   }
 
   private handleMouseMovedOffElement() {
-    $(document).off('mousemove.mousemoveOnElement');
-    $(document).off('mousedown.mousedownOnElement');
+    events.off('mouse-move', 'mousemoveOnElement');
+    events.off('mouse-down', 'mousedownOnElement');
   }
 
   protected handleTempWirePathUpdated(details: { endCell: Vector2 }) {
@@ -313,7 +311,7 @@ export class GridElement extends Renderable<'grid-element'> {
 
   private stopFollowingMouse() {
     events.off('mouse-changed-cell', 'draggingListener');
-    $(document).off('mouseup.stopFollowingMouse');
+    events.off('mouse-up', 'stopFollowingMouse');
   }
 
   // offset is represents the vector from the top left of the element to the top left of the cell clicked in 

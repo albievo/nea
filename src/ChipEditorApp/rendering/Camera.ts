@@ -1,4 +1,4 @@
-import events from "../../event/events";
+import events from "../event/events";
 import { Vector2 } from "../../utils/Vector2";
 import $ from 'jquery';
 import { RenderManager } from "./RenderManager";
@@ -6,16 +6,15 @@ import keyTracker from "./KeyTracker";
 import { BoundingBox } from "./Renderable";
 
 export class Camera {
-  private zoom: number;
+  private zoom = 8;
   private pan!: Vector2; // top-left of screen in world units
   private dppr: number;
 
   private minZoom = 1;
-  private maxZoom: number;
-  private zoomCoeff: number;
+  private maxZoom = 15;
+  private zoomCoeff = 0.01;
 
   private worldSize: Vector2;
-  private renderManager: RenderManager;
   private windowDims!: Vector2;
 
   private lastMousePos = new Vector2(0, 0);
@@ -25,18 +24,13 @@ export class Camera {
   private _isPanning: boolean = false;
 
   constructor(
-    zoom: number, maxZoom: number, zoomCoeff: number,
-    dppr: number, worldSize: Vector2,
-    renderManager: RenderManager
+    worldSize: Vector2, dppr: number
   ) {
     this.dppr = dppr;
-    this.maxZoom = maxZoom;
-    this.zoomCoeff = zoomCoeff;
     this.worldSize = worldSize;
     // does min zoom
     this.fitToScreen();
-    this.zoom = this.boundZoom(zoom);
-    this.renderManager = renderManager;
+    this.zoom = this.boundZoom(this.zoom);
     
     //centre camera
     const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
@@ -46,7 +40,7 @@ export class Camera {
     );
 
     $(document).on('wheel', e => this.handleWheel(e));
-    $(document).on('mousedown', e => this.handleMouseDown(e));
+    events.on('mouse-down', e => this.handleMouseDown(e));
     events.on('resize', () => this.handleResize());
   }
 
@@ -80,37 +74,25 @@ export class Camera {
     }
   }
 
-  private handleMouseDown(event: JQuery.MouseDownEvent) {
+  private handleMouseDown(event: { worldPos: Vector2 }) {
     if (keyTracker.space === false) {
       return;
     }
 
-    this.lastMousePos = new Vector2(
-      event.clientX * this.dppr,
-      event.clientY * this.dppr
-    );
-
+    this.lastMousePos = event.worldPos.fixedCopy();
     this.followMouse();
 
     events.emit('begin-pan');
 
-    $(document).on('mouseup.stopFollowingMouse', () => this.stopFollowingMouse());
+    events.on('mouse-up', () => this.stopFollowingMouse(), 'stopCameraFollowingMouse');
   }
 
   private followMouse() {
     this._isPanning = true;
 
-    $(document).on('mousemove.followMouse', e => {
-      if (!(e.clientX && e.clientY)) {
-        return;
-      }
-      
+    events.on('mouse-move', e => {      
       // get the new mouse pos
-      const newPos = new Vector2 (
-        e.clientX * this.dppr,
-        e.clientY * this.dppr
-      )
-
+      const newPos = e.worldPos;
       const oldPan = this.pan.fixedCopy();
 
       // get the vector from the last mouse position to the new one
@@ -132,15 +114,15 @@ export class Camera {
       if (!trueDelta.equals(Vector2.zeroes)) {
         events.emit('pan', { delta: trueDelta });
       }
-    })
+    }, 'cameraFollowMouse')
 
   }
 
   private stopFollowingMouse() {
     this._isPanning = false;
 
-    $(document).off('mousemove.followMouse');
-    $(document).off('mouseup.stopFollowingMouse');
+    events.off('mouse-move', 'cameraFollowMouse');
+    events.off('mouse-up', 'stopCameraFollowingMouse');
     events.emit('end-pan');
   }
 
