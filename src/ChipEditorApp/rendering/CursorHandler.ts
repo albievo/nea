@@ -1,5 +1,5 @@
 import events from "../event/events";
-import keyTracker from "./KeyTracker"
+import inputState from "../inputs/InputState";
 import { MouseTracker } from "./MouseTracker";
 import { RenderManager } from "./RenderManager"
 import $ from 'jquery';
@@ -24,7 +24,7 @@ export class CursorHandler {
   }
   private updateCursor() {
     const panning = this.renderManager.camera.isPanning;
-    const space = keyTracker.space;
+    const space = inputState.space;
     const mouseOnElement = this.renderManager.mouseTracker.isOnElement;
 
     if (panning) {

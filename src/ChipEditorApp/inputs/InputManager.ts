@@ -4,6 +4,8 @@ import { Vector2 } from "../../utils/Vector2";
 import $ from 'jquery';
 
 export class InputManager {
+  private _space: boolean = false;
+  
   constructor(
     private camera: Camera
   ) {
@@ -15,6 +17,9 @@ export class InputManager {
     $(document).on('mouseup', e => this.handleMouseUp(e))
     $(document).on('mousemove', e => this.handleMouseMove(e));
     $(document).on('wheel', e => this.handleWheel(e));
+    $(document).on('keydown.spaceKeyTracker', e => {
+      if (e.key === ' ') this.handleSpaceKeyDown();
+    });
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
@@ -40,5 +45,36 @@ export class InputManager {
       worldPos,
       delta: new Vector2(DOMEvent.deltaX, DOMEvent.deltaY)
     });
+  }
+
+  private handleSpaceKeyDown() {
+    this.space = true;
+    $(document).off('keydown.spaceKeyTracker');
+    $(document).on('keyup.spaceKeyTracker', e => {
+      if (e.key === ' ') {
+        this.handleSpaceKeyUp();
+      }
+    });
+
+    events.emit('space-down');
+  }
+
+  private handleSpaceKeyUp() {
+    this.space = false;
+    $(document).off('keyup.spaceKeyTracker');
+    $(document).on('keydown.spaceKeyTracker', e => {
+      if (e.key === ' ') {
+        this.handleSpaceKeyDown();
+      }
+    });
+
+    events.emit('space-up');
+  }
+
+  private set space(val: boolean) {
+    this._space = val;
+  }
+  public get space() {
+    return this._space;
   }
 }

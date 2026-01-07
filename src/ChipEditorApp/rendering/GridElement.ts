@@ -3,13 +3,13 @@ import { EventHandlerMap } from "../event/eventTypes";
 import { GeneralUtils } from "../../utils/GeneralUtils";
 import { MathUtils } from "../../utils/MathUtils";
 import { Vector2 } from "../../utils/Vector2";
-import keyTracker from "./KeyTracker";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { RenderManager } from "./RenderManager";
 import $ from 'jquery';
 import { TempWire } from "./wires/TempWire";
 import { PermWire } from "./wires/PermWire";
 import { isGridElement } from "./RenderableTypeGuards";
+import inputState from "../inputs/InputState";
 
 export class GridElement extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
@@ -247,7 +247,7 @@ export class GridElement extends Renderable<'grid-element'> {
     // add listener for clicking
     events.on('mouse-down', (mousedown) => {
       // if we should be panning, dont do anything
-      if (keyTracker.space) return; 
+      if (inputState.space) return; 
 
       // if the mouse is on a pin, attach a wire
       if (this.mouseOnPin !== -1) {

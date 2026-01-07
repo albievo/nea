@@ -1,9 +1,9 @@
 import events from "../event/events";
 import { Vector2 } from "../../utils/Vector2";
 import $ from 'jquery';
-import { RenderManager } from "./RenderManager";
-import keyTracker from "./KeyTracker";
 import { BoundingBox } from "./Renderable";
+import { InputManager } from "../inputs/InputManager";
+import inputState from "../inputs/InputState";
 
 export class Camera {
   private zoom = 3;
@@ -24,10 +24,11 @@ export class Camera {
   private _isPanning: boolean = false;
 
   constructor(
-    worldSize: Vector2, dppr: number
+    worldSize: Vector2, dppr: number,
   ) {
     this.dppr = dppr;
     this.worldSize = worldSize;
+
     // does min zoom
     this.fitToScreen();
     this.zoom = this.boundZoom(this.zoom);
@@ -71,7 +72,7 @@ export class Camera {
   }
 
   private handleMouseDown(event: { worldPos: Vector2 }) {
-    if (keyTracker.space === false) {
+    if (!inputState.space) {
       return;
     }
 

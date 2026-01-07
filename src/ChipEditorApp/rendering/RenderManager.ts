@@ -5,7 +5,6 @@ import { Camera } from "./Camera";
 import events from "../event/events";
 import $ from 'jquery';
 import { GeneralUtils } from "../../utils/GeneralUtils";
-import keyTracker from "./KeyTracker";
 import { CursorHandler } from "./CursorHandler";
 import { MouseTracker } from "./MouseTracker";
 import { MathUtils } from "../../utils/MathUtils";
