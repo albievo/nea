@@ -23,11 +23,11 @@ export class PrimitiveBehaviour extends ChipBehaviour {
 
   private evaluationFunction: (input: Value[]) => Value[];
 
-  constructor(primitiveId: string) {
+  constructor(primitiveId: PrimitiveType) {
     super();
     this.primitiveId = primitiveId;
 
-    const chipInfo = primitiveInformation.get(primitiveId);
+    const chipInfo = primitiveInformation[primitiveId];
     if (!chipInfo) {
       throw new Error(`primitive id ${this.primitiveId} does not have a built in behaviour`)
     }
@@ -181,43 +181,39 @@ export class NetlistBehaviour extends ChipBehaviour {
   }
 }
 
+type PrimitiveType = keyof typeof primitiveInformation;
 
-const primitiveInformation = new Map<string, {
-  evaluteFunction: (input: Value[]) => Value[],
-  inputs: number,
-  outputs: number
-}>()
-
-  .set("not", {
+const primitiveInformation = {
+  "not": {
     evaluteFunction: (input: Value[]) => {
-    if (input.length !== 1) {
-      throw new Error("not gate must have exactly 1 input");
-    };
-    return [Value.negate(input[0])];
+      if (input.length !== 1) {
+        throw new Error("not gate must have exactly 1 input");
+      };
+      return [Value.negate(input[0])];
+    },
+    inputs: 1,
+    outputs: 1
   },
-  inputs: 1,
-  outputs: 1
-  })
 
-  .set("and", {
+  "and": {
     // if any 0 => 0; if all 1 => 1; else X
     evaluteFunction: (input: Value[]) => {
-    if (input.length !== 2) {
-      throw new Error("and gate must have exactly 2 inputs");
-    };
+      if (input.length !== 2) {
+        throw new Error("and gate must have exactly 2 inputs");
+      };
 
-    const [a, b] = input;
-    
-    if (a === Value.ZERO || b === Value.ZERO) return [Value.ZERO];
-    if (a === Value.ONE && b === Value.ONE) return [Value.ONE];
+      const [a, b] = input;
+      
+      if (a === Value.ZERO || b === Value.ZERO) return [Value.ZERO];
+      if (a === Value.ONE && b === Value.ONE) return [Value.ONE];
 
-    return [Value.X];
+      return [Value.X];
+    },
+    inputs: 2,
+    outputs: 1
   },
-  inputs: 2,
-  outputs: 1
-  })
 
-  .set("nand", {
+  "nand": {
     // NAND: if any 0 => 1; if all 1 => 0; else X
     evaluteFunction: (input: Value[]): Value[] => {
       if (input.length !== 2) {
@@ -233,9 +229,9 @@ const primitiveInformation = new Map<string, {
     },
     inputs: 2,
     outputs: 1
-  })
+  },
 
-  .set("or", {
+  "or": {
     evaluteFunction: (input: Value[]): Value[] => {
       if (input.length !== 2) {
         throw new Error("or gate must have exactly 2 inputs");
@@ -250,4 +246,9 @@ const primitiveInformation = new Map<string, {
     },
     inputs: 2,
     outputs: 1
-  })
+  }
+} satisfies Record<string, {
+  evaluteFunction: (input: Value[]) => Value[],
+  inputs: number,
+  outputs: number
+}>
