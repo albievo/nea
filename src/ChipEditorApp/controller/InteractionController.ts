@@ -96,7 +96,6 @@ export class InteractionController {
       });
       this.lastMouseCell = cell;
     }
-    else return; // if we haven't changed cell, no reason to do anything else
 
     // null if nothing there, the elements id if there is an element
     const takenBy = this.chip.cellHasElement(cell);

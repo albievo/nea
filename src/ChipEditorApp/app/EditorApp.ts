@@ -90,7 +90,6 @@ export class EditorApp {
   }
 
   private addInputElement(pos: Vector2, id?: string) {
-    console.log('adding input element');
     this.actionDoer.do(new CreateInputElementAction(
       id || crypto.randomUUID(), pos
     ));

@@ -117,8 +117,6 @@ export class WorkingChip {
     id: string, pos: Vector2, dims: Vector2,
     type: NodeType, behaviour?: NetlistBehaviour
   ) {
-    console.log(`adding chip w/ id ${id}`)
-
     try {
       this.netlist.addNode(new NetlistNode(
         id, type, behaviour
