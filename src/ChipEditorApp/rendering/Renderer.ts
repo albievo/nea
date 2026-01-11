@@ -38,11 +38,21 @@ export class Renderer {
     return ctx;
   }
 
-
   private fitCanvasToPage() {
-    console.log('fitting canvas to page');
-    this.ctx.canvas.width = this.windowDims.x;
-    this.ctx.canvas.height = this.windowDims.y;
+    const canvas = this.ctx.canvas;
+
+    const cssWidth = window.innerWidth;
+    const cssHeight = window.innerHeight;
+    // CSS size (layout size — prevents scrollbars)
+    canvas.style.width = `${cssWidth}px`;
+    canvas.style.height = `${cssHeight}px`;
+
+    // Drawing buffer size (actual resolution)
+    canvas.width = Math.floor(cssWidth * this.dpr);
+    canvas.height = Math.floor(cssHeight * this.dpr);
+
+    // Reset transform after resize
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   }
 
   private calcWindowDims() {

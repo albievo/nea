@@ -24,7 +24,7 @@ export class Camera {
   private _isPanning: boolean = false;
 
   constructor(
-    worldSize: Vector2, dppr: number,
+    worldSize: Vector2, dppr: number
   ) {
     this.dppr = dppr;
     this.worldSize = worldSize;
@@ -40,23 +40,20 @@ export class Camera {
         .divide(2)
     );
 
-    events.on('wheel', e => this.handleWheel(e));
-    events.on('mouse-down', e => this.handleMouseDown(e));
     events.on('resize', () => this.handleResize());
   }
 
-  private handleWheel(event: { delta: Vector2, worldPos: Vector2 }) {
+  public zoomAt(worldPos: Vector2, wheelDelta: number) {
     // mouse position in screen pixels
-    const mouseScreen = this.worldPosToScreen(event.worldPos);
+    const mouseScreen = this.worldPosToScreen(worldPos);
 
     const mouseWorld = this.screenToWorld(mouseScreen);
 
     // just used to check whether there has been a change
-    const oldZoom = this.zoom;
+    // const oldZoom = this.zoom;
 
     // compute new zoom
-    // zoom direction could be a setting later?
-    const rawZoomFactor = 1 + (-event.delta.y * this.zoomCoeff);
+    const rawZoomFactor = 1 + (wheelDelta * this.zoomCoeff);
     this.setZoom(this.zoom * rawZoomFactor);
 
     // adjust pan to keep mouseWorld under cursor
@@ -64,56 +61,17 @@ export class Camera {
     const delta = newMouseWorld.subtract(mouseWorld);
     this.setPan(this.pan.subtract(delta));
 
-    const zoomFactor = this.zoom / oldZoom;
+    // const zoomFactor = this.zoom / oldZoom;
 
-    if (zoomFactor !== 1) {
-      events.emit('zoom', { factor: zoomFactor, screenPos: mouseScreen });
-    }
+    // if (zoomFactor !== 1) {
+    //   events.emit('zoom', { factor: zoomFactor, screenPos: mouseScreen });
+    // }
   }
 
-  private handleMouseDown(event: { worldPos: Vector2 }) {
-    if (!inputState.space) {
-      return;
-    }
-
-    this.mouseDownAt = event.worldPos.fixedCopy();
-    this.followMouse();
-
-    events.emit('begin-pan');
-
-    events.on('mouse-up', () => this.stopFollowingMouse(), 'stopCameraFollowingMouse');
-  }
-
-  private followMouse() {
-    this._isPanning = true;
-
-    events.on('mouse-move', e => {  
-      // get the new mouse pos
-      const newPos = e.worldPos;
-      const oldPan = this.pan.fixedCopy();
-
-      // get the vector from the last mouse position to the new one
-      const delta = newPos.subtract(this.mouseDownAt);
-
-      this.setPan(
-        this.pan.subtract(delta)
-      );
-
-      const trueDelta = this.pan.subtract(oldPan)
-
-      // emit pan event if it has moved
-      if (!trueDelta.equals(Vector2.zeroes)) {
-        events.emit('pan', { delta: trueDelta });
-      }
-    }, 'cameraFollowMouse')
-  }
-
-  private stopFollowingMouse() {
-    this._isPanning = false;
-
-    events.off('mouse-move', 'cameraFollowMouse');
-    events.off('mouse-up', 'stopCameraFollowingMouse');
-    events.emit('end-pan');
+  public panBy(delta: Vector2) {
+    this.setPan(
+      this.pan.subtract(delta)
+    );
   }
 
   /** Convert world coordinates to screen coordinates (pixels) */

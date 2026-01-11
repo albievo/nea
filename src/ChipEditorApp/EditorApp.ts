@@ -54,7 +54,8 @@ export class EditorApp {
       this.renderManager,
       this.actionDoer,
       this.chip,
-      this.interactionState
+      this.interactionState,
+      this.camera
     );
 
     this.input = new InputManager(

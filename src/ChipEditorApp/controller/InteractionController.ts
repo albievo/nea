@@ -9,28 +9,27 @@ import { TempWireRenderable } from "../rendering/renderables/wires/TempWireRende
 import { TempWire } from "./objectControllers.ts/TempWire";
 import { Chip } from "./objectControllers.ts/Chip";
 import { MoveElementAction } from "../actions/action-types/MoveElementAction";
+import { Camera } from "../rendering/Camera";
 
 export class InteractionController {
-  private pathfinder: AStarPathfinder;
-
   private lastMouseCell: Vector2 = Vector2.zeroes;
 
   private onElement: string | null = null;
   private onOutputPin: number = -1;
   
-  private draggingElementStartPos = Vector2.zeroes;
-
   constructor(
     private renderManager: RenderManager,
     private actions: ActionDoer,
     private chip: WorkingChip,
-    private interactionState: InteractionState
+    private interactionState: InteractionState,
+    private camera: Camera
   ) {
-    this.pathfinder = new AStarPathfinder(chip.availabilityGrid);
-
     events.on('mouse-down', e => this.handleMouseDown(e));
     events.on('mouse-move', e => this.handleMouseMove(e));
     events.on('mouse-up', e => this.handleMouseUp(e));
+    events.on('wheel', e => this.handleWheel(e));
+    events.on('space-down', e => interactionState.space = true);
+    events.on('space-up', e => interactionState.space = false);
   }
 
   /**
@@ -38,6 +37,11 @@ export class InteractionController {
   */
   private handleMouseDown(event: { worldPos: Vector2 }) {
     const cell = event.worldPos.applyFunction(Math.floor);
+
+    if (this.interactionState.space) {
+      this.interactionState.panning = { mouseDown: event.worldPos };
+      return;
+    }
     
     if (this.onOutputPin !== -1 && this.onElement) { // on a pin
       this.createTempWire(this.onElement, this.onOutputPin, cell.add(1, 0)); // create a temporary wire
@@ -75,6 +79,15 @@ export class InteractionController {
       return;
     }
 
+    const panning = this.interactionState.panning
+    if (panning) {
+      const newPos = event.worldPos;
+      const delta = newPos.subtract(panning.mouseDown);
+
+      this.camera.panBy(delta);
+      return;
+    }
+
     // if the new cell isn't the same as where we were before,
     // emit the signal and update the last cell
     if (!cell.equals(this.lastMouseCell)) {
@@ -84,7 +97,7 @@ export class InteractionController {
       });
       this.lastMouseCell = cell;
     }
-    else return; // if we haven't changed cell, no reason to do anythings
+    else return; // if we haven't changed cell, no reason to do anything else
 
     // null if nothing there, the elements id if there is an element
     const takenBy = this.chip.cellHasElement(cell);
@@ -164,6 +177,7 @@ export class InteractionController {
         )
       }
     }
+
     const draggingInfo = this.interactionState.draggingElement;
     if (draggingInfo) { // if an element is being dragged 
       const endPos = Chip.stopRenderableFollowsMouse(
@@ -175,6 +189,14 @@ export class InteractionController {
       ));
     }
 
+    const panningInfo = this.interactionState.panning;
+    if (panningInfo) {
+      this.interactionState.panning = undefined
+    }
+  }
+
+  private handleWheel(event: { delta: Vector2, worldPos: Vector2 }) {
+    this.camera.zoomAt(event.worldPos, event.delta.y);
   }
 
   private worldPosIsOnPin(worldPos: Vector2): number {
@@ -267,5 +289,9 @@ export interface InteractionState {
   draggingElement?: {
     startingPos: Vector2,
     renderableId: string
+  }
+  space?: boolean;
+  panning?: {
+    mouseDown: Vector2
   }
 }

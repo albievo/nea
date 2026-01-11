@@ -3,7 +3,7 @@
 // import { Vector2 } from "./utils/Vector2";
 // import { GridElement } from "./ChipEditorApp/rendering/renderables/GridElementRenderable";
 // import events from "./ChipEditorApp/event/events"; 
-// import './index.scss';
+import './index.scss';
 
 import { EditorApp } from "./ChipEditorApp/EditorApp";
 import { Vector2 } from "./utils/Vector2";
