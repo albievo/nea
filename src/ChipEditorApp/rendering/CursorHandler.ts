@@ -1,43 +1,44 @@
-// import events from "../event/events";
-// import inputState from "../inputs/InputState";
-// import { RenderManager } from "./RenderManager"
-// import $ from 'jquery';
+import { InteractionState } from "../controller/InteractionState";
+import $ from 'jquery';
 
-// export class CursorHandler {
+export class CursorHandler {
 
-//   private readonly renderManager: RenderManager;
+  constructor(
+    private state: InteractionState
+  ) { }
 
-//   constructor(renderManager: RenderManager) {
-//     this.renderManager = renderManager;
+  private setPointer(pointerStyle: string) {
+    $('#canvas').css('cursor', pointerStyle);
+  }
 
-//     events.on('begin-pan', () => this.updateCursor());
-//     events.on('end-pan', () =>  this.updateCursor());
-//     events.on('space-down', () => this.updateCursor());
-//     events.on('space-up', () => this.updateCursor());
-//     events.on('mouse-moved-into-element', () => this.updateCursor());
-//     events.on('mouse-moved-off-element', () => this.updateCursor());
-//   }
+  public updateCursor() {
+    const panning = this.state.panning !== undefined;
+    const tempWire = this.state.tempWire !== undefined;
+    const outputPin = this.state.onOutputPin !== undefined;
+    const space = this.state.space;
+    const mouseOnElement = this.state.onElement !== undefined;
+    const draggingElement = this.state.draggingElement !== undefined;
 
-//   private setPointer(pointerStyle: string) {
-//     $('#canvas').css('cursor', pointerStyle);
-//   }
-//   private updateCursor() {
-//     const panning = this.renderManager.camera.isPanning;
-//     const space = inputState.space;
-//     const mouseOnElement = this.renderManager.mouseTracker.isOnElement;
-
-//     if (panning) {
-//       this.setPointer('grabbing');
-//       return;
-//     }
-//     if (space) {
-//       this.setPointer('grab');
-//       return;
-//     }
-//     if (mouseOnElement) {
-//       this.setPointer('move');
-//       return;
-//     }
-//     this.setPointer('default');
-//   }
-// }
+    if (panning) {
+      this.setPointer('grabbing');
+      return;
+    }
+    if (tempWire) {
+      this.setPointer('ew-resize');
+      return;
+    }
+    if (space) {
+      this.setPointer('grab');
+      return;
+    }
+    if (outputPin) {
+      this.setPointer('ew-resize');
+      return;
+    }
+    if (mouseOnElement || draggingElement) {
+      this.setPointer('move');
+      return;
+    }
+    this.setPointer('default');
+  }
+}

@@ -11,6 +11,7 @@ import { ActionDoer } from "../actions/ActionDoer";
 import { GridRenderable } from "../rendering/renderables/GridRenderable";
 import { Command } from "./Command";
 import { CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
+import { CursorHandler } from "../rendering/CursorHandler";
 
 export class EditorApp {
   private camera: Camera;
@@ -21,6 +22,7 @@ export class EditorApp {
   private interactionState: InteractionState = { };
   private actionDoer: ActionDoer;
   private controller: InteractionController;
+  private cursorHandler: CursorHandler;
 
   private dppr: number = WebpageUtils.calculateDevicePixelRatio();
 
@@ -37,6 +39,10 @@ export class EditorApp {
     this.chip = new WorkingChip(
       worldSize
     )
+
+    this.cursorHandler = new CursorHandler(
+      this.interactionState
+    );
 
     this.renderManager = new RenderManager(
       worldSize,
@@ -57,7 +63,8 @@ export class EditorApp {
       this.actionDoer,
       this.chip,
       this.interactionState,
-      this.camera
+      this.camera,
+      this.cursorHandler
     );
 
     this.input = new InputManager(

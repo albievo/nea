@@ -10,6 +10,7 @@ import { Chip } from "./objectControllers.ts/Chip";
 import { MoveElementAction } from "../actions/action-types/MoveElementAction";
 import { Camera } from "../rendering/Camera";
 import { InteractionState } from "./InteractionState";
+import { CursorHandler } from "../rendering/CursorHandler";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -19,14 +20,21 @@ export class InteractionController {
     private actions: ActionDoer,
     private chip: WorkingChip,
     private interactionState: InteractionState,
-    private camera: Camera
+    private camera: Camera,
+    private cursorHandler: CursorHandler
   ) {
     events.on('mouse-down', e => this.handleMouseDown(e));
     events.on('mouse-move', e => this.handleMouseMove(e));
     events.on('mouse-up', e => this.handleMouseUp(e));
     events.on('wheel', e => this.handleWheel(e));
-    events.on('space-down', e => interactionState.space = true);
-    events.on('space-up', e => interactionState.space = false);
+    events.on('space-down', e => {
+      interactionState.space = true
+      this.cursorHandler.updateCursor();
+    });
+    events.on('space-up', e => {
+      interactionState.space = false
+      this.cursorHandler.updateCursor();
+    });
   }
 
   /**
@@ -37,6 +45,7 @@ export class InteractionController {
 
     if (this.interactionState.space) {
       this.interactionState.panning = { mouseDown: event.worldPos };
+      this.cursorHandler.updateCursor();
       return;
     }
     
@@ -51,6 +60,7 @@ export class InteractionController {
         onOutputPin,
         cell.add(1, 0)
       ); // create a temporary wire
+      this.cursorHandler.updateCursor();
     }
     else if (onElement) { // on an element but not a pin
       // position of the mouse relative to the element
@@ -104,19 +114,24 @@ export class InteractionController {
     if (!onElement && takenBy) {
       this.interactionState.onElement = takenBy;
       onElement = takenBy;
+      this.cursorHandler.updateCursor();
       events.emit('mouse-moved-into-element', { elementId: takenBy });
     }
     // if we arent on an element and havent yet said that we arent
     else if (onElement && !takenBy) {
       this.interactionState.onElement = undefined;
       this.interactionState.onOutputPin = undefined;
+      this.cursorHandler.updateCursor();
       events.emit('mouse-moved-off-element');
     }
 
+    // check if we are on a pin
     if (onElement) {
       this.interactionState.onOutputPin = this.worldPosIsOnPin(event.worldPos);
+      this.cursorHandler.updateCursor();
     }
 
+    // if we should be updating a temp wire path
     if (this.interactionState.tempWire && !onElement) {
       this.updateTempWirePath(this.interactionState.tempWire.renderable, cell);
     }
@@ -176,6 +191,8 @@ export class InteractionController {
           activeInputPin.elementId, activeInputPin.pinIdx
         )
       }
+
+      this.cursorHandler.updateCursor();
     }
 
     const draggingInfo = this.interactionState.draggingElement;
@@ -187,11 +204,14 @@ export class InteractionController {
         draggingInfo.renderableId,
         draggingInfo.startingPos, endPos
       ));
+      
+      this.interactionState.draggingElement = undefined;
     }
 
     const panningInfo = this.interactionState.panning;
     if (panningInfo) {
-      this.interactionState.panning = undefined
+      this.interactionState.panning = undefined;
+      this.cursorHandler.updateCursor();
     }
   }
 
