@@ -27,6 +27,24 @@ export class Chip {
     );
   }
 
+  public static createOutputChip(
+    model: WorkingChip, renderManager: RenderManager,
+    id: string, pos: Vector2
+  ) {
+    model.addChip(id, pos, new Vector2(3, 3), NodeType.OUTPUT);
+
+    // add renderable to render manager
+    renderManager.addRenderable(
+      new GridElementRenderable({
+        id: id,
+        startingPos: pos,
+        inputs: 1,
+        outputs: 0,
+        width: 3,
+        color: 'gray'
+      })
+    );
+  }
   public static deleteChip(
     model: WorkingChip, renderManager: RenderManager,
     id: string

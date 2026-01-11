@@ -57,13 +57,19 @@ import { Vector2 } from "./utils/Vector2";
 
 // renderManager.addRenderable(gridElement3);
 
-const worldSize = new Vector2(10, 10);
+const worldSize = new Vector2(50, 50);
 
 const app = new EditorApp(worldSize);
 app.start();
 
 app.execute({
   type: 'add-input-element',
-  pos: new Vector2(5, 5),
-  id: 'test-element-1'
+  pos: new Vector2(25, 25),
+  id: 'test-input-1'
 });
+
+app.execute({
+  type: 'add-output-element',
+  pos: new Vector2(30, 25),
+  id: 'test-output-1'
+})

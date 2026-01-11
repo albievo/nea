@@ -148,8 +148,8 @@ export class WorkingChip {
     // check the element is within the bounds of the world
     if (boundingBox.top <= 0) return false;
     if (boundingBox.left <= 0) return false;
-    if (boundingBox.bottom >= this.worldSize.y - 1) return false;
-    if (boundingBox.right >= this.worldSize.x - 1) return false;
+    if (boundingBox.bottom >= this.worldSize.y) return false;
+    if (boundingBox.right >= this.worldSize.x) return false;
 
     // iterate through each cell that will be taken by the element
     // and ensure that it is availabile
