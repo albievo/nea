@@ -1,20 +1,15 @@
 import { Renderable, WireKind, BoundingBox } from "../Renderable";
-import { Vector2 } from "../../../utils/Vector2";
-import { RenderManager } from "../RenderManager";
-import { GridElement } from "../../rendering/GridElement";
-import { AStarPathfinder } from "../pathfinding/AStarPathfinder";
-import { MathUtils } from "../../../utils/MathUtils";
-import events from "../../event/events";
+import { Vector2 } from "../../../../utils/Vector2";
+import { RenderManager } from "../../RenderManager";
+import { GridElementRenderable } from "../GridElementRenderable";
+import { AStarPathfinder } from "../../pathfinding/AStarPathfinder";
+import { MathUtils } from "../../../../utils/MathUtils";
+import events from "../../../event/events";
+import { Renderer } from "../../Renderer";
 
 export abstract class Wire<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
-  protected startingPos: Vector2;
-
-  protected readonly fromIdx: number;
-  protected readonly fromId: string
-  protected readonly fromElem: GridElement;
-
-  protected pathfinder: AStarPathfinder;
+  protected abstract _startingPos: Vector2;
 
   protected boundingBox: BoundingBox = { // initialised as 0s
     top: 0,
@@ -27,25 +22,12 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
   protected readonly OUTER_WIDTH = 0.4;
 
   constructor(
-    id: string, renderManager: RenderManager,
-    fromId: string, fromElem: GridElement, fromIdx: number
+    id: string
   ) {
-    super(id, renderManager)
-
-    this.fromId = fromId;
-    this.fromElem = fromElem;
-    this.fromIdx = fromIdx;
-
-    this.startingPos = this.calcStartingPos();
-
-    this.pathfinder = new AStarPathfinder(renderManager.availabilityGrid);
-  }
-
-  protected calcStartingPos() {
-    return this.fromElem.getOutputPos(this.fromIdx).add(1, 0);
+    super(id)
   }
   
-  protected drawPathToEndPoint(width: number, color: string) {
+  protected drawPathToEndPoint(renderer: Renderer, width: number, color: string) {
     const firstSegmentPoints: [Vector2, Vector2] = [
       this.startingPos.add(0, 0.5 - width / 2),
       this.startingPos.add(0, 0.5 + width / 2)
@@ -57,7 +39,7 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
     ];
 
     // draw first segment
-    this.renderManager.drawPolygon([
+    renderer.drawPolygon([
       firstSegmentPoints[0],
       firstSegmentPoints[1],
       recentEndSegmentPoints[0],
@@ -72,9 +54,9 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
       const [e, f] = recentEndSegmentPoints;
 
       // draw segment
-      this.renderManager.drawPolygon([a, b, c, d], color);
+      renderer.drawPolygon([a, b, c, d], color);
       // draw segment connector
-      this.renderManager.drawPolygon([e, f, a, b], color);
+      renderer.drawPolygon([e, f, a, b], color);
 
       recentEndSegmentPoints = [c, d];
     }
@@ -106,7 +88,7 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
     return this.boundingBox;
   }
 
-  protected setPath(newPath: Vector2[]) {
+  public setPath(newPath: Vector2[]) {
     this.path = [];
 
     const firstCell = newPath[0];
@@ -139,5 +121,9 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
     }
 
     events.emit('render-required')
+  }
+
+  public get startingPos() {
+    return this._startingPos.fixedCopy();
   }
 }

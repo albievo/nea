@@ -1,0 +1,50 @@
+import events from "../../event/events";
+import { EventHandlerMap } from "../../event/eventTypes";
+import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
+import { RenderManager } from "../RenderManager";
+import $ from 'jquery';
+import { Vector2 } from "../../../utils/Vector2";
+import { Renderer } from "../Renderer";
+
+export class GridRenderable extends Renderable<'grid'> {
+  protected _kind = 'grid' as const;
+  
+  constructor(
+    id: string,
+    private size: Vector2
+  ) {
+    super(id);
+  }
+
+  protected getBoundingBox(): BoundingBox {
+    return {
+      top: 0,
+      left: 0,
+      right: this.size.x + 1,
+      bottom: this.size.y + 1 
+    }
+  }
+
+  protected renderObject(renderer: Renderer) {
+    const cameraBoundingBox = renderer.getScreenBoundingBox();
+
+    const startRow = Math.ceil(cameraBoundingBox.top);
+    const endRow = Math.floor(cameraBoundingBox.bottom);
+    const startCol = Math.ceil(cameraBoundingBox.left);
+    const endCol = Math.floor(cameraBoundingBox.right);
+
+    //draw rows
+    for (let row = startRow; row <= endRow; row++) {
+      const from = new Vector2(cameraBoundingBox.left, row)
+      const to = new Vector2(cameraBoundingBox.right, row);
+      renderer.drawLine({ from, to }, 'black');
+    }
+
+    //draw columns
+    for (let col = startCol; col <= endCol; col++) {
+      const from = new Vector2(cameraBoundingBox.top, col)
+      const to = new Vector2(cameraBoundingBox.bottom, col);
+      renderer.drawLine({ from, to }, 'black');
+    }
+  }
+}

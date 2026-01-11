@@ -3,6 +3,7 @@ import { ChipBehaviour } from "./ChipBehaviour";
 import { OutputPin, InputPin } from "./Pins";
 import { Value } from "./Value";
 import { Queue } from "../../utils/Queue";
+import { GeneralUtils } from "../../utils/GeneralUtils";
 
 export class Netlist {
   private nodes: NetlistNode[];
@@ -138,6 +139,48 @@ export class Netlist {
     this.addNodeToNonCanonicalTables(node);
   }
 
+  public rmvNode(id: string): void {
+    const node = this.nodesById.get(id);
+    if (!node) {
+      console.error('no node of this id found');
+      return;
+    }
+    
+    // -- remove conections --
+    const connectionsIn = this.inputIndex.get(id);
+    const connectionsOut = this.outputIndex.get(id);
+
+    if (connectionsIn) {
+      for (const connection of connectionsIn.values()) {
+        this.rmvConnection(connection.getId());
+      }
+    }
+    if (connectionsOut) {
+      for (const connections of connectionsOut.values()) {
+        for (const connection of connections) {
+          this.rmvConnection(connection.getId());
+        }
+      }
+    }
+    this.inputIndex.delete(id);
+    this.outputIndex.delete(id);
+
+    // -- remove node from other lookup tables --
+    if (node.getType() === NodeType.INPUT) {
+      this.inputNum -= 1;
+      this.inputNodeIds = GeneralUtils.removeValue(this.inputNodeIds, id);
+    }
+    if (node.getType() === NodeType.OUTPUT) {
+      this.outputNum -= 1;
+      this.outputNodeIds = GeneralUtils.removeValue(this.outputNodeIds, id);
+    }
+
+    // -- remove node from canonical table --
+    this.nodes = this.nodes.filter(
+      node => node.getId() !== id
+    );
+  }
+
   private validateNewNode(node: NetlistNode): string | null {
     const existing = this.nodesById.get(node.getId());
     if (existing) return `node with id ${node.getId()} already exists`;
@@ -261,6 +304,15 @@ export class Netlist {
       (_, idx) =>
         this.nodesById.get(this.outputNodeIds[idx])?.getInputVal(0) ?? Value.X
       )
+  }
+
+  private rmvConnection(id: string) {
+    // remove from non-canonical table
+    this.connectionsById.delete(id);
+    // remove from canonical table
+    this.connections = this.connections.filter(
+      connection => connection.getId() !== id
+    );
   }
 }
 

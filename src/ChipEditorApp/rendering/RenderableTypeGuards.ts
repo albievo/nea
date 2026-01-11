@@ -1,8 +1,15 @@
-import { Renderable, RenderableKind } from './Renderable';
-import { GridElement } from './GridElement';
+import { Renderable, RenderableKind } from './renderables/Renderable';
+import { GridElementRenderable } from './renderables/GridElementRenderable';
+import { TempWireRenderable } from './renderables/wires/TempWireRenderable';
 
-export function isGridElement(
-  r: Renderable<RenderableKind> | undefined
-): r is GridElement {
-  return r?.kind === 'grid-element';
+export function isGridElementRenderable(
+  value: unknown
+): value is GridElementRenderable {
+  return value instanceof GridElementRenderable;
+}
+
+export function isTempWireRenderable(
+  value: unknown
+): value is TempWireRenderable {
+  return value instanceof TempWireRenderable;
 }

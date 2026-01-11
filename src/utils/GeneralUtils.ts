@@ -19,4 +19,8 @@ export class GeneralUtils {
   static objectIsEmpty(object: Object) {
     return (Object.keys(object).length === 0);
   }
+
+  static removeValue<T>(arr: T[], value: T): T[] {
+    return arr.filter(item => item !== value);
+  }
 }

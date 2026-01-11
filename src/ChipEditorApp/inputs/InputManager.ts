@@ -20,6 +20,9 @@ export class InputManager {
     $(document).on('keydown.spaceKeyTracker', e => {
       if (e.key === ' ') this.handleSpaceKeyDown();
     });
+    $(window).on('resize', () => {
+      events.emit('resize');
+    })
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {

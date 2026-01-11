@@ -1,14 +1,14 @@
 import { AStarNode } from "./AStarNode";
 import { MathUtils } from "../../../utils/MathUtils";
 import { Vector2 } from "../../../utils/Vector2";
-import { CellTakenBy } from "../RenderManager";
 import { GeneralUtils } from "../../../utils/GeneralUtils";
+import { CellTakenBy } from "../../WorkingChip";
 
 export class AStarPathfinder {
   private height: number
   private width: number;
 
-  private readonly availabilityGrid: CellTakenBy[][];
+  private availabilityGrid: CellTakenBy[][];
 
   private adjacentRelations = [
     new Vector2(-1, -1),
@@ -26,6 +26,10 @@ export class AStarPathfinder {
     this.width = availibilyGrid[0].length;
 
     this.availabilityGrid = availibilyGrid;
+  }
+
+  public updateAvailabilityGrid(availabilityGrid: CellTakenBy[][]) {
+    this.availabilityGrid = availabilityGrid;
   }
 
   public pathfind(startCell: Vector2, endCell: Vector2): Vector2[] | null {
