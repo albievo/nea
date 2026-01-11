@@ -1,6 +1,6 @@
 import { RenderManager } from "../rendering/RenderManager";
 import { Camera } from "../rendering/Camera";
-import { CellTakenBy, WorkingChip } from "../WorkingChip";
+import { CellTakenBy, WorkingChip } from "../model/WorkingChip";
 
 export interface BaseAction {
   do(ctx: ActionContext): void;

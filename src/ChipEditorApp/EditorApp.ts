@@ -4,7 +4,7 @@ import { InputManager } from "./inputs/InputManager";
 import { Vector2 } from "../utils/Vector2";
 import { WebpageUtils } from "../utils/WebpageUtils";
 import { Renderer } from "./rendering/Renderer";
-import { WorkingChip } from "./WorkingChip";
+import { WorkingChip } from "./model/WorkingChip";
 import { InteractionController, InteractionState } from "./controller/InteractionController";
 import { ActionDoer } from "./actions/ActionDoer";
 import { ActionContext } from "./actions/Action";

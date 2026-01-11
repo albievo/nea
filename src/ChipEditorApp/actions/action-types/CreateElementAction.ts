@@ -1,7 +1,5 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { Chip } from "../../controller/objectControllers.ts/Chip";
-import { NodeType } from "../../netlist/Netlist";
-import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
 import { ActionContext, UndoableAction } from "../Action";
 
 export class CreateInputElementAction implements UndoableAction {

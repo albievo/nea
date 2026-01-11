@@ -1,7 +1,7 @@
 import { Action, ActionContext, UndoableAction } from "./Action";
 import { Stack } from "../../utils/Stack";
 import { RenderManager } from "../rendering/RenderManager";
-import { WorkingChip } from "../WorkingChip";
+import { WorkingChip } from "../model/WorkingChip";
 import { Camera } from "../rendering/Camera";
 
 

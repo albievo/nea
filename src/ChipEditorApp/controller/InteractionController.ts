@@ -3,7 +3,7 @@ import { ActionDoer } from "../actions/ActionDoer";
 import events from "../event/events";
 import { AStarPathfinder } from "../rendering/pathfinding/AStarPathfinder";
 import { RenderManager } from "../rendering/RenderManager";
-import { WorkingChip } from "../WorkingChip";
+import { WorkingChip } from "../model/WorkingChip";
 import { MathUtils } from "../../utils/MathUtils";
 import { TempWireRenderable } from "../rendering/renderables/wires/TempWireRenderable";
 import { TempWire } from "./objectControllers.ts/TempWire";
