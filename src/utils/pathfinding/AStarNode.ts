@@ -1,4 +1,4 @@
-import { Vector2 } from "../../../utils/Vector2";
+import { Vector2 } from "../Vector2";
 
 export class AStarNode {
   private _cell: Vector2;

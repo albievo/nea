@@ -1,7 +1,6 @@
 import { Vector2 } from "../../utils/Vector2";
 import { ActionDoer } from "../actions/ActionDoer";
 import events from "../event/events";
-import { AStarPathfinder } from "../rendering/pathfinding/AStarPathfinder";
 import { RenderManager } from "../rendering/RenderManager";
 import { WorkingChip } from "../model/WorkingChip";
 import { MathUtils } from "../../utils/MathUtils";
@@ -10,12 +9,10 @@ import { TempWire } from "./objectControllers.ts/TempWire";
 import { Chip } from "./objectControllers.ts/Chip";
 import { MoveElementAction } from "../actions/action-types/MoveElementAction";
 import { Camera } from "../rendering/Camera";
+import { InteractionState } from "./InteractionState";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
-
-  private onElement: string | null = null;
-  private onOutputPin: number = -1;
   
   constructor(
     private renderManager: RenderManager,
@@ -43,23 +40,25 @@ export class InteractionController {
       return;
     }
     
-    if (this.onOutputPin !== -1 && this.onElement) { // on a pin
-      this.createTempWire(this.onElement, this.onOutputPin, cell.add(1, 0)); // create a temporary wire
+    const onElement = this.interactionState.onElement;
+    const onOutputPin = this.interactionState.onOutputPin
+    if (
+      onOutputPin !== undefined &&
+      onElement
+    ) { // on a pin
+      this.createTempWire(
+        onElement,
+        onOutputPin,
+        cell.add(1, 0)
+      ); // create a temporary wire
     }
-    else if (this.onElement) { // on an element but not a pin
+    else if (onElement) { // on an element but not a pin
       // position of the mouse relative to the element
       const elementPos = cell.subtract(
-        this.renderManager.getPositionOfElement(
-          this.onElement
-        )
+        this.renderManager.getPositionOfElement(onElement)
       );
 
-      this.startElementDrag(this.onElement, elementPos);
-    }
-    else {
-      events.emit('mouse-down-on-grid', {
-        worldPos: event.worldPos
-      });
+      this.startElementDrag(onElement, elementPos);
     }
   }
 
@@ -101,23 +100,24 @@ export class InteractionController {
 
     // null if nothing there, the elements id if there is an element
     const takenBy = this.chip.cellHasElement(cell);
+    const onElement = this.interactionState.onElement;
     // if we are on an element and we havent yet said that we are
-    if (!this.onElement && takenBy) {
-      this.onElement = takenBy;
+    if (!onElement && takenBy) {
+      this.interactionState.onElement = takenBy;
       events.emit('mouse-moved-into-element', { elementId: takenBy });
     }
-    // if we arent on an element and havent yet said that we arents
-    else if (this.onElement && !takenBy) {
-      this.onElement = null;
-      this.onOutputPin = -1;
+    // if we arent on an element and havent yet said that we arent
+    else if (onElement && !takenBy) {
+      this.interactionState.onElement = undefined;
+      this.interactionState.onOutputPin = undefined;
       events.emit('mouse-moved-off-element');
     }
 
-    if (this.onElement) {
-      this.onOutputPin = this.worldPosIsOnPin(event.worldPos);
+    if (onElement) {
+      this.interactionState.onOutputPin = this.worldPosIsOnPin(event.worldPos);
     }
 
-    if (this.interactionState.tempWire && !this.onElement) {
+    if (this.interactionState.tempWire && !onElement) {
       this.updateTempWirePath(this.interactionState.tempWire.renderable, cell);
     }
 
@@ -130,10 +130,10 @@ export class InteractionController {
       // the id of the element that we are to the left of.
       // undefined if there isn't one
       let onLeftOfElement;
-      if (this.onElement && !elementToTheLeft) { // if we are on the left of an element
-        onLeftOfElement = this.onElement;
+      if (onElement && !elementToTheLeft) { // if we are on the left of an element
+        onLeftOfElement = onElement;
       }
-      else if (!this.onElement && elementToTheRight) { // if we are 1 to the left of an element
+      else if (!onElement && elementToTheRight) { // if we are 1 to the left of an element
         onLeftOfElement = elementToTheRight;
       }
 
@@ -152,14 +152,14 @@ export class InteractionController {
           inputAtPosition !== -1 &&
           !this.chip.isInputTaken(onLeftOfElement, inputAtPosition)
         ) {
-          this.interactionState.activePin = {
+          this.interactionState.activeInputPin = {
             elementId: onLeftOfElement,
             pinIdx: inputAtPosition
           }
         }
       }
       else { // if we arent next to or on an input pin
-        this.interactionState.activePin = undefined;
+        this.interactionState.activeInputPin = undefined;
       }
     }
   }
@@ -169,11 +169,11 @@ export class InteractionController {
     if (wireInfo) { // if a temp wire is being dragged
       this.interactionState.tempWire = undefined;
 
-      const activePin = this.interactionState.activePin
-      if (activePin) {
+      const activeInputPin = this.interactionState.activeInputPin
+      if (activeInputPin) {
         this.createPermWire(
           wireInfo.fromId, wireInfo.fromIdx,
-          activePin.elementId, activePin.pinIdx
+          activeInputPin.elementId, activeInputPin.pinIdx
         )
       }
     }
@@ -199,24 +199,24 @@ export class InteractionController {
     this.camera.zoomAt(event.worldPos, event.delta.y);
   }
 
-  private worldPosIsOnPin(worldPos: Vector2): number {
-    if (!this.onElement) {
-      return -1;
-    }
+  private worldPosIsOnPin(worldPos: Vector2): number | undefined {
+    const onElement = this.interactionState.onElement
+
+    if (!onElement) return undefined;
 
     const outputPins = this.renderManager.getOutputIdxsOfElementWithId(
-      this.onElement
+      onElement
     );
 
     for (const pinPos of outputPins) {
       const pinWorldPos = this.renderManager.getPositionOfElement(
-        this.onElement
+        onElement
       );
       const pinRadius = this.renderManager.getPinRadiusOfElement(
-        this.onElement
+        onElement
       );
       const pinDims = this.renderManager.getDimsOfElement(
-        this.onElement
+        onElement
       );
 
       const outputDistFromTop = pinPos + 0.5;
@@ -228,7 +228,7 @@ export class InteractionController {
       }
     }
     
-    return -1;
+    return undefined;
   }
 
   private updateTempWirePath(
@@ -273,25 +273,5 @@ export class InteractionController {
     }
 
     Chip.renderableFollowsMouse(this.chip, this.renderManager, id, offset);
-  }
-}
-
-export interface InteractionState {
-  tempWire?: {
-    renderable: TempWireRenderable;
-    fromId: string;
-    fromIdx: number;
-  }
-  activePin?: {
-    elementId: string,
-    pinIdx: number
-  }
-  draggingElement?: {
-    startingPos: Vector2,
-    renderableId: string
-  }
-  space?: boolean;
-  panning?: {
-    mouseDown: Vector2
   }
 }

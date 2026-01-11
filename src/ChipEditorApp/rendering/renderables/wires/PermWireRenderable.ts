@@ -1,6 +1,5 @@
 import { GridElementRenderable } from "../GridElementRenderable";
 import { Wire } from "./Wire";
-import { RenderManager } from "../../RenderManager";
 import { EventHandlerMap } from "../../../event/eventTypes";
 import { Vector2 } from "../../../../utils/Vector2";
 import { Renderer } from "../../Renderer";

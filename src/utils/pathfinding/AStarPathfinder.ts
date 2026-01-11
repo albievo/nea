@@ -1,8 +1,8 @@
 import { AStarNode } from "./AStarNode";
-import { MathUtils } from "../../../utils/MathUtils";
-import { Vector2 } from "../../../utils/Vector2";
-import { GeneralUtils } from "../../../utils/GeneralUtils";
-import { CellTakenBy } from "../../model/WorkingChip";
+import { MathUtils } from "../MathUtils";
+import { Vector2 } from "../Vector2";
+import { GeneralUtils } from "../GeneralUtils";
+import { CellTakenBy } from "../../ChipEditorApp/model/WorkingChip";
 
 export class AStarPathfinder {
   private height: number

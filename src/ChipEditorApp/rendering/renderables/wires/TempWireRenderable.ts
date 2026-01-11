@@ -1,13 +1,5 @@
-import { EventHandlerMap } from "../../../event/eventTypes";
 import { Vector2 } from "../../../../utils/Vector2";
-import { BoundingBox, Renderable } from "../Renderable";
-import { RenderManager } from "../../RenderManager";
-import { AStarPathfinder } from "../../pathfinding/AStarPathfinder";
-import { MathUtils } from "../../../../utils/MathUtils";
 import { Wire } from "./Wire";
-import { GridElementRenderable } from "../GridElementRenderable";
-import events from "../../../event/events";
-import $ from 'jquery';
 import { Renderer } from "../../Renderer";
 
 export class TempWireRenderable extends Wire<'temp-wire'> {

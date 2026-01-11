@@ -1,10 +1,6 @@
 import { Renderable, WireKind, BoundingBox } from "../Renderable";
 import { Vector2 } from "../../../../utils/Vector2";
-import { RenderManager } from "../../RenderManager";
-import { GridElementRenderable } from "../GridElementRenderable";
-import { AStarPathfinder } from "../../pathfinding/AStarPathfinder";
 import { MathUtils } from "../../../../utils/MathUtils";
-import events from "../../../event/events";
 import { Renderer } from "../../Renderer";
 
 export abstract class Wire<K extends WireKind> extends Renderable<K>{
@@ -119,8 +115,6 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
         this.boundingBox.bottom = cell.y;
       }
     }
-
-    events.emit('render-required')
   }
 
   public get startingPos() {

@@ -6,7 +6,7 @@ import { isGridElementRenderable, isTempWireRenderable } from "./RenderableTypeG
 import { GridElementRenderable } from "./renderables/GridElementRenderable";
 import { Renderer } from "./Renderer";
 import { WorkingChip } from "../model/WorkingChip";
-import { InteractionState } from "../controller/InteractionController";
+import { InteractionState } from "../controller/InteractionState";
 
 export class RenderManager {
   private _mouseTracker: MouseTracker;

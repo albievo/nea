@@ -1,8 +1,4 @@
-import events from "../../event/events";
-import { EventHandlerMap } from "../../event/eventTypes";
 import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
-import { RenderManager } from "../RenderManager";
-import $ from 'jquery';
 import { Vector2 } from "../../../utils/Vector2";
 import { Renderer } from "../Renderer";
 

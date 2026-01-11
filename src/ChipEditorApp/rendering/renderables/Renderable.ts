@@ -1,8 +1,5 @@
-import events from "../../event/events";
-import { EventHandlerMap, eventTypes, EventTypes, Handler } from "../../event/eventTypes";
 import { Camera } from "../Camera";
 import { Renderer } from "../Renderer";
-import { RenderManager } from "../RenderManager";
 import $ from 'jquery';
 
 export abstract class Renderable<K extends RenderableKind> {
