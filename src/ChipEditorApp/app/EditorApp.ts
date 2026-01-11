@@ -74,12 +74,23 @@ export class EditorApp {
 
   public execute(cmd: Command) {
     switch (cmd.type) {
-      case 'add-input-element': this.addInputElement(cmd.pos, cmd.id);
-      case 'add-output-element': this.addOutputElement(cmd.pos, cmd.id);
+      case 'add-input-element':
+        this.addInputElement(cmd.pos, cmd.id);
+        break;
+
+      case 'add-output-element':
+        this.addOutputElement(cmd.pos, cmd.id);
+        break;
+
+      default: {
+        const _exhaustive: never = cmd;
+        throw new Error(`Unknown command: ${String((cmd as any).type)}`);
+      }
     }
   }
 
   private addInputElement(pos: Vector2, id?: string) {
+    console.log('adding input element');
     this.actionDoer.do(new CreateInputElementAction(
       id || crypto.randomUUID(), pos
     ));
@@ -91,43 +102,3 @@ export class EditorApp {
     ));
   }
 }
-
-// class EditorApp {
-//   camera: Camera;
-//   chip: WorkingChip;
-//   undo: UndoManager;
-//   renderer: RenderManager;
-//   input: InputManager;
-//   controller: EditorController;
-
-//   constructor(canvas: HTMLCanvasElement) {
-//     this.camera = new Camera(canvas);
-
-//     this.chip = new WorkingChip();
-
-//     this.undo = new UndoManager();
-
-//     this.renderer = new RenderManager(
-//       canvas,
-//       this.camera,
-//       this.chip
-//     );
-
-//     this.input = new InputManager(
-//       canvas,
-//       this.camera
-//     );
-
-//     this.controller = new EditorController(
-//       this.chip,
-//       this.undo,
-//       this.renderer,
-//       this.input
-//     );
-//   }
-
-//   start() {
-//     this.input.start();
-//     this.renderer.start();
-//   }
-// }

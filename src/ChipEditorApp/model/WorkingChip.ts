@@ -46,8 +46,7 @@ export class WorkingChip {
   }
 
   public addElementToCell(pos: Vector2, id: string) {
-    console.log(`setting ${pos.toString()} to ${id}`);
-    this.availabilityGrid[pos.y][pos.x] = { type: 'element', ids: [id] };
+     this.availabilityGrid[pos.y][pos.x] = { type: 'element', ids: [id] };
   }
 
   public rmvElementFromCell(pos: Vector2) {
@@ -118,6 +117,8 @@ export class WorkingChip {
     id: string, pos: Vector2, dims: Vector2,
     type: NodeType, behaviour?: NetlistBehaviour
   ) {
+    console.log(`adding chip w/ id ${id}`)
+
     try {
       this.netlist.addNode(new NetlistNode(
         id, type, behaviour
@@ -140,7 +141,6 @@ export class WorkingChip {
   ) {
     this.netlist.rmvNode(id);
   }
-
   
   public isValidPosition(
     id: string, boundingBox: BoundingBox

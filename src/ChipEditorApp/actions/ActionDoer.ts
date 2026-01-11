@@ -23,6 +23,8 @@ export class ActionDoer {
   }
 
   public do(action: Action) {
+    console.log(`doing ${action}`);
+
     try {
       action.do(this.ctx);
     } catch (err) {
