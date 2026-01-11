@@ -35,7 +35,7 @@ export class GridRenderable extends Renderable<'grid'> {
 
     //draw rows
     for (let row = startRow; row <= endRow; row++) {
-      const from = new Vector2(cameraBoundingBox.left, row)
+      const from = new Vector2(cameraBoundingBox.left, row);
       const to = new Vector2(cameraBoundingBox.right, row);
       renderer.drawLine({ from, to }, 'black');
     }

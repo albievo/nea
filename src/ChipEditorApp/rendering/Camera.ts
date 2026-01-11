@@ -17,8 +17,6 @@ export class Camera {
   private worldSize: Vector2;
   private windowDims!: Vector2;
 
-  private mouseDownAt = new Vector2(0, 0);
-
   readonly baseCellPixels = 48;
 
   private _isPanning: boolean = false;
@@ -47,8 +45,6 @@ export class Camera {
     // mouse position in screen pixels
     const mouseScreen = this.worldPosToScreen(worldPos);
 
-    const mouseWorld = this.screenToWorld(mouseScreen);
-
     // just used to check whether there has been a change
     // const oldZoom = this.zoom;
 
@@ -58,7 +54,7 @@ export class Camera {
 
     // adjust pan to keep mouseWorld under cursor
     const newMouseWorld = this.screenToWorld(mouseScreen);
-    const delta = newMouseWorld.subtract(mouseWorld);
+    const delta = newMouseWorld.subtract(worldPos);
     this.setPan(this.pan.subtract(delta));
 
     // const zoomFactor = this.zoom / oldZoom;
@@ -74,23 +70,27 @@ export class Camera {
     );
   }
 
-  /** Convert world coordinates to screen coordinates (pixels) */
+  /** Convert world coordinates to screen coordinates (CSS pixels) */
   public worldPosToScreen(worldPos: Vector2) {
-    return worldPos.subtract(this.pan).mult(this.zoom * this.baseCellPixels);
+    return worldPos.subtract(this.pan).mult(this.calcScaleFactor());
   }
 
-  /** Convert screen coordinates (pixels) to world coordinates */
+  /** Convert screen coordinates (CSS pixels) to world coordinates */
   public screenToWorld(screenPos: Vector2) {
-    const screenCoordsInWorldUnits = screenPos.divide(this.zoom * this.baseCellPixels)
-    return  screenCoordsInWorldUnits.add(this.pan);
+    return screenPos.divide(this.calcScaleFactor()).add(this.pan);
   }
+
+  private calcScaleFactor() {
+    return this.zoom * this.baseCellPixels;
+  }
+
 
   public worldUnitsToScreenPixels(units: number) {
-    return units * this.zoom * this.baseCellPixels;
+    return units * this.calcScaleFactor();
   }
 
   public screenPixelsToWorldUnits(pixels: number) {
-    return pixels / (this.zoom * this.baseCellPixels);
+    return pixels / this.calcScaleFactor();
   }
 
   public getPan() {
@@ -107,8 +107,8 @@ export class Camera {
 
   private fitToScreen() {
     this.windowDims = new Vector2(
-      $(document).width()! * this.dppr,
-      $(document).height()! * this.dppr
+      $(document).width()!,
+      $(document).height()!
     )
 
     this.minZoom = this.calcMinZoom();
@@ -116,7 +116,7 @@ export class Camera {
 
   /**calculate how many cells you should be able to see right now*/
   public calcWorldUnitsOnScreen(): Vector2 {
-    const cellDim = this.worldUnitsToScreenPixels(1);
+    const cellDim = this.worldUnitsToScreenPixels(1); // CSS px per world unit
     return this.windowDims.divide(cellDim);
   }
 
@@ -139,7 +139,6 @@ export class Camera {
 
   private handleResize() {
     this.fitToScreen();
-
     // bounds the zoom so it fits to the new page
     this.setZoom(this.zoom);
   }
@@ -157,7 +156,7 @@ export class Camera {
       Math.max(0, Math.min(pan.y, maxPan.y))
     );
 
-    return finalPan
+    return finalPan;
   }
 
   /**
@@ -190,16 +189,16 @@ export class Camera {
 
   public getWorldPosFromJqueryMouseEvent(event: JQuery.MouseEventBase): Vector2 {
     const screenPos = new Vector2(
-      event.clientX * this.dppr,
-      event.clientY * this.dppr
+      event.clientX,
+      event.clientY
     );
     return this.screenToWorld(screenPos);
   }
 
   public getWorldPosFromDOMWheelEvent(event: WheelEvent) {
     const screenPos = new Vector2(
-      event.clientX * this.dppr,
-      event.clientY * this.dppr
+      event.clientX,
+      event.clientY
     );
 
     return this.screenToWorld(screenPos);

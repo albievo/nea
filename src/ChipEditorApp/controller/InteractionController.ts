@@ -196,6 +196,7 @@ export class InteractionController {
   }
 
   private handleWheel(event: { delta: Vector2, worldPos: Vector2 }) {
+    console.log(event.worldPos);
     this.camera.zoomAt(event.worldPos, event.delta.y);
   }
 
