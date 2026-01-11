@@ -121,17 +121,20 @@ export class Renderer {
     color: string
   ) {
     const centreScreen = this.camera.worldPosToScreen(centre);
-    const radiusScreen = this.camera.worldUnitsToScreenPixels(radius);
-    const angles = this.getRotationRange(direction);
-    
+    const radiusScreen = this.camera.worldUnitsToScreenPixels(radius);    
+    const { start, end, anticlockwise } = this.getRotationRange(direction);
+
     this.ctx.beginPath();
     this.ctx.arc(
-      centreScreen.x + 1, centreScreen.y,
+      centreScreen.x,
+      centreScreen.y,
       radiusScreen,
-      angles[0], angles[1]
-    )
+      start,
+      end,
+      anticlockwise
+    );
 
-    this.ctx.fillStyle = color;
+    this.ctx.fillStyle = color
     this.ctx.fill();
   }
 
@@ -162,11 +165,15 @@ interface Line {
 
 type Direction = 'up' | 'right' | 'down' | 'left';
 
-type RotationRange = readonly [number, number];
+type RotationRange = {
+  start: number;
+  end: number;
+  anticlockwise: boolean;
+};
 
 const directionRotations: Record<Direction, RotationRange> = {
-  up: [-Math.PI, 0],
-  right: [Math.PI * 3 / 2, Math.PI / 2],
-  down: [0, -Math.PI],
-  left: [-Math.PI / 2, Math.PI / 2],
+  up:    { start: Math.PI, end: 0, anticlockwise: false },
+  right: { start: -Math.PI / 2, end: Math.PI / 2, anticlockwise: false },
+  down:  { start: 0, end: Math.PI, anticlockwise: false },
+  left:  { start: Math.PI / 2, end: -Math.PI / 2, anticlockwise: false },
 };
