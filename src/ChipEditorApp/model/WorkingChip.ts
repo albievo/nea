@@ -20,9 +20,25 @@ export class WorkingChip {
     );
   }
 
-  public updateChipPosition(chipId: string, newPosition: Vector2) {
-    this.chipPositionsById.set(chipId, newPosition);
-    events.emit('grid-element-moved', { id: chipId });
+  public updateChipPosition(
+    chipId: string,
+    oldPos: Vector2, newPos: Vector2,
+    dims: Vector2
+  ) {
+    // remove old positions (not yet implemented)
+    this.rmvElementFromCellInBox({
+      top: oldPos.y, bottom: oldPos.y + dims.y - 1,
+      left: oldPos.x, right: oldPos.x + dims.x - 1
+    })
+
+    // add new positions
+    this.addElementToCellInBox(chipId, {
+      top: newPos.y, bottom: newPos.y + dims.y - 1,
+      left: newPos.x, right: newPos.x + dims.x - 1
+    })
+
+    // add to table
+    this.chipPositionsById.set(chipId, newPos);
   }
 
   public get availabilityGrid() {
@@ -34,6 +50,28 @@ export class WorkingChip {
     this.availabilityGrid[pos.y][pos.x] = { type: 'element', ids: [id] };
   }
 
+  public rmvElementFromCell(pos: Vector2) {
+    this.availabilityGrid[pos.y][pos.x] = { type: undefined, ids: [] };
+  }
+
+  public addElementToCellInBox(id: string, bb: BoundingBox) {
+    for (let x = bb.left; x <= bb.right; x++) {
+      for (let y = bb.top; y <= bb.bottom; y++) {
+        const cell = new Vector2(x, y)
+        this.addElementToCell(cell, id);
+      }
+    }
+  }
+
+  public rmvElementFromCellInBox(bb: BoundingBox) {
+    for (let x = bb.left; x <= bb.right; x++) {
+      for (let y = bb.top; y <= bb.bottom; y++) {
+        const cell = new Vector2(x, y)
+        this.rmvElementFromCell(cell);
+      }
+    }
+  }
+
   public addWireToCell(pos: Vector2, id: string) {
     const cellTakenBy = this.availabilityGrid[pos.y][pos.x];
 
@@ -41,10 +79,6 @@ export class WorkingChip {
 
     cellTakenBy.type = 'wire';
     cellTakenBy.ids.push(id);
-  }
-
-  public rmvElementFromCell(pos: Vector2) {
-    this.availabilityGrid[pos.y][pos.x] = { type: undefined, ids: [] };
   }
 
   public cellHasElement(pos: Vector2): string | null {
@@ -95,11 +129,10 @@ export class WorkingChip {
 
     this.chipPositionsById.set(id, pos);
     
-    for (let x = pos.x; x < pos.x + dims.x; x++) {
-      for (let y = pos.y; y < pos.y + dims.y; y++) {
-        this.addElementToCell(new Vector2(x, y), id);
-      }
-    }
+    this.addElementToCellInBox(id, {
+      top: pos.y, bottom: pos.y + dims.y - 1,
+      left: pos.x, right: pos.x + dims.x - 1
+    })
   }
 
   public rmvChip(

@@ -1,10 +1,12 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { Chip } from "../../controller/objectControllers.ts/Chip";
+import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
 import { RenderManager } from "../../rendering/RenderManager";
 import { ActionContext, UndoableAction } from "../Action";
 
 export class MoveElementAction implements UndoableAction {
   undoable: true = true;
+  private renderable?: GridElementRenderable;
 
   constructor(
     private id: string,
@@ -17,18 +19,27 @@ export class MoveElementAction implements UndoableAction {
     );
     if (!isValidPosition) return;
 
-    ctx.chip.updateChipPosition(this.id, this.to);
+    this.renderable = ctx.renderManager.
+      getGridElementWithId(this.id) ?? undefined;
     
-    const renderable = ctx.renderManager.getGridElementWithId(this.id);
-    if (!renderable) return;
-    renderable.pos = this.to;
+    if (!this.renderable) return;
+
+    ctx.chip.updateChipPosition(
+      this.id,
+      this.from, this.to,
+      this.renderable.dims
+    );
+    this.renderable.pos = this.to;
   }
 
-  undo(ctx: ActionContext): void {
-    ctx.chip.updateChipPosition(this.id, this.from);
+  undo(ctx: ActionContext): void {   
+    if (!this.renderable) return;
 
-    const renderable = ctx.renderManager.getGridElementWithId(this.id);
-    if (!renderable) return;
-    renderable.pos = this.from;
+    ctx.chip.updateChipPosition(
+      this.id,
+      this.to, this.from,
+      this.renderable.dims
+    );
+    this.renderable.pos = this.from;
   }
 }
