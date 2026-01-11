@@ -60,3 +60,4 @@ import { Vector2 } from "./utils/Vector2";
 const worldSize = new Vector2(10, 10);
 
 const app = new EditorApp(worldSize);
+app.start();

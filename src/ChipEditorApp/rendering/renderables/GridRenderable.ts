@@ -42,8 +42,8 @@ export class GridRenderable extends Renderable<'grid'> {
 
     //draw columns
     for (let col = startCol; col <= endCol; col++) {
-      const from = new Vector2(cameraBoundingBox.top, col)
-      const to = new Vector2(cameraBoundingBox.bottom, col);
+      const from = new Vector2(col, cameraBoundingBox.top)
+      const to = new Vector2(col, cameraBoundingBox.bottom);
       renderer.drawLine({ from, to }, 'black');
     }
   }

@@ -8,6 +8,7 @@ import { WorkingChip } from "./WorkingChip";
 import { InteractionController, InteractionState } from "./controller/InteractionController";
 import { ActionDoer } from "./actions/ActionDoer";
 import { ActionContext } from "./actions/Action";
+import { GridRenderable } from "./rendering/renderables/GridRenderable";
 
 export class EditorApp {
   private camera: Camera;
@@ -61,10 +62,12 @@ export class EditorApp {
     );
   }
 
-  // start() {
-  //   this.input.start();
-  //   this.renderer.start();
-  // }
+  public start() {
+    this.renderManager.addRenderable(new GridRenderable(
+      crypto.randomUUID(),
+      this.chip.worldSize
+    ));
+  }
 }
 
 // class EditorApp {

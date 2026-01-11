@@ -15,9 +15,9 @@ export class Renderer {
   constructor (
     private camera: Camera
   ) {
+    this.windowDims = this.calcWindowDims();
     this.ctx = this.setCtx();
     this.fitCanvasToPage();
-    this.windowDims = this.calcWindowDims();
     events.on('resize', () => {
       this.fitCanvasToPage();
     })
@@ -40,6 +40,7 @@ export class Renderer {
 
 
   private fitCanvasToPage() {
+    console.log('fitting canvas to page');
     this.ctx.canvas.width = this.windowDims.x;
     this.ctx.canvas.height = this.windowDims.y;
   }
@@ -82,7 +83,7 @@ export class Renderer {
     const fromScreen = this.camera.worldPosToScreen(line.from);
     const toScreen = this.camera.worldPosToScreen(line.to);
 
-    this.ctx.moveTo(fromScreen.x, toScreen.y);
+    this.ctx.moveTo(fromScreen.x, fromScreen.y);
     this.ctx.lineTo(toScreen.x, toScreen.y);
 
     this.ctx.strokeStyle = color;
