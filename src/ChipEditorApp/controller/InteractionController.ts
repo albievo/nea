@@ -99,10 +99,11 @@ export class InteractionController {
 
     // null if nothing there, the elements id if there is an element
     const takenBy = this.chip.cellHasElement(cell);
-    const onElement = this.interactionState.onElement;
+    let onElement = this.interactionState.onElement;
     // if we are on an element and we havent yet said that we are
     if (!onElement && takenBy) {
       this.interactionState.onElement = takenBy;
+      onElement = takenBy;
       events.emit('mouse-moved-into-element', { elementId: takenBy });
     }
     // if we arent on an element and havent yet said that we arent

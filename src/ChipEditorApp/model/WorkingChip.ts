@@ -81,6 +81,13 @@ export class WorkingChip {
   }
 
   public cellHasElement(pos: Vector2): string | null {
+    if (
+      pos.x < 0 ||
+      pos.x >= this.worldSize.x ||
+      pos.y < 0 ||
+      pos.y >= this.worldSize.y
+    ) return null;
+
     return (
       this.availabilityGrid[pos.y][pos.x].type === 'element'
         ? this.availabilityGrid[pos.y][pos.x].ids[0]
