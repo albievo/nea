@@ -464,13 +464,13 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
   }
 
   public get pos(): Vector2 {
-    return this.pos.fixedCopy();
+    return this._pos.fixedCopy();
   }
   public set pos(pos: Vector2) {
     this._pos = pos;
   }
   public get dims(): Vector2 {
-    return this.dims.fixedCopy();
+    return this._dims.fixedCopy();
   }
   private set dims(dims: Vector2) {
     this._dims = dims;

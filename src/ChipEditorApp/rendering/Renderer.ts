@@ -166,7 +166,7 @@ type RotationRange = readonly [number, number];
 
 const directionRotations: Record<Direction, RotationRange> = {
   up: [-Math.PI, 0],
-  right: [Math.PI / 2, Math.PI * 3 / 2],
+  right: [Math.PI * 3 / 2, Math.PI / 2],
   down: [0, -Math.PI],
   left: [-Math.PI / 2, Math.PI / 2],
 };

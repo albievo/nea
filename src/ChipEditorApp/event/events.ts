@@ -45,12 +45,6 @@ class Events {
       handler,
       id
     });
-
-    if (type === 'temp-wire-released') {
-      for (const handler of this.listeners[type]!) {
-        console.log(handler);
-      }
-    }; 
   }
 
   /**

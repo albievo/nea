@@ -30,7 +30,8 @@ export class WorkingChip {
   }
 
   public addElementToCell(pos: Vector2, id: string) {
-    this.availabilityGrid[pos.y][pos.x] = { type: 'element', ids: [id]};
+    console.log(`setting ${pos.toString()} to ${id}`);
+    this.availabilityGrid[pos.y][pos.x] = { type: 'element', ids: [id] };
   }
 
   public addWireToCell(pos: Vector2, id: string) {
@@ -94,8 +95,8 @@ export class WorkingChip {
 
     this.chipPositionsById.set(id, pos);
     
-    for (let x = 0; x < pos.x + dims.x; x++) {
-      for (let y = 0; x < pos.y + dims.y; y++) {
+    for (let x = pos.x; x < pos.x + dims.x; x++) {
+      for (let y = pos.y; y < pos.y + dims.y; y++) {
         this.addElementToCell(new Vector2(x, y), id);
       }
     }

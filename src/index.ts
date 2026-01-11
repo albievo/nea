@@ -5,7 +5,7 @@
 // import events from "./ChipEditorApp/event/events"; 
 import './index.scss';
 
-import { EditorApp } from "./ChipEditorApp/EditorApp";
+import { EditorApp } from "./ChipEditorApp/app/EditorApp";
 import { Vector2 } from "./utils/Vector2";
 
 // const worldSize = new Vector2(50, 50);
@@ -61,3 +61,9 @@ const worldSize = new Vector2(10, 10);
 
 const app = new EditorApp(worldSize);
 app.start();
+
+app.execute({
+  type: 'add-input-element',
+  pos: new Vector2(5, 5),
+  id: 'test-element-1'
+});

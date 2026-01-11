@@ -1,14 +1,16 @@
-import { Camera } from "./rendering/Camera";
-import { RenderManager } from "./rendering/RenderManager";
-import { InputManager } from "./inputs/InputManager";
-import { Vector2 } from "../utils/Vector2";
-import { WebpageUtils } from "../utils/WebpageUtils";
-import { Renderer } from "./rendering/Renderer";
-import { WorkingChip } from "./model/WorkingChip";
-import { InteractionController, InteractionState } from "./controller/InteractionController";
-import { ActionDoer } from "./actions/ActionDoer";
-import { ActionContext } from "./actions/Action";
-import { GridRenderable } from "./rendering/renderables/GridRenderable";
+import { Camera } from "../rendering/Camera";
+import { RenderManager } from "../rendering/RenderManager";
+import { InputManager } from "../inputs/InputManager";
+import { Vector2 } from "../../utils/Vector2";
+import { WebpageUtils } from "../../utils/WebpageUtils";
+import { Renderer } from "../rendering/Renderer";
+import { WorkingChip } from "../model/WorkingChip";
+import { InteractionController, InteractionState } from "../controller/InteractionController";
+import { ActionDoer } from "../actions/ActionDoer";
+import { ActionContext } from "../actions/Action";
+import { GridRenderable } from "../rendering/renderables/GridRenderable";
+import { Command } from "./Command";
+import { CreateInputElementAction } from "../actions/action-types/CreateElementAction";
 
 export class EditorApp {
   private camera: Camera;
@@ -67,6 +69,18 @@ export class EditorApp {
     this.renderManager.addRenderable(new GridRenderable(
       crypto.randomUUID(),
       this.chip.worldSize
+    ));
+  }
+
+  public execute(cmd: Command) {
+    switch (cmd.type) {
+      case 'add-input-element': this.addInputElement(cmd.pos, cmd.id);
+    }
+  }
+
+  private addInputElement(pos: Vector2, id?: string) {
+    this.actionDoer.do(new CreateInputElementAction(
+      id || crypto.randomUUID(), pos
     ));
   }
 }

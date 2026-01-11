@@ -23,8 +23,16 @@ export class ActionDoer {
   }
 
   public do(action: Action) {
-  if (action.undoable) 
-    this.undoStack.push(action);
+    try {
+      action.do(this.ctx);
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+    if (action.undoable) {
+      this.undoStack.push(action);
+    }
   }
 
   public undo() {
