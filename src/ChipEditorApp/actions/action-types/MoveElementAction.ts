@@ -1,5 +1,6 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { Chip } from "../../controller/objectControllers.ts/Chip";
+import { PermWire } from "../../controller/objectControllers.ts/PermWire";
 import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
 import { RenderManager } from "../../rendering/RenderManager";
 import { ActionContext, UndoableAction } from "../Action";
@@ -30,6 +31,10 @@ export class MoveElementAction implements UndoableAction {
       this.renderable.dims
     );
     this.renderable.pos = this.to;
+
+    for (const permWireId of ctx.renderManager.permWires) {
+      PermWire.updatePath(ctx.chip, ctx.renderManager, permWireId);
+    }
   }
 
   undo(ctx: ActionContext): void {   
@@ -41,5 +46,9 @@ export class MoveElementAction implements UndoableAction {
       this.renderable.dims
     );
     this.renderable.pos = this.from;
+
+    for (const permWireId of ctx.renderManager.permWires) {
+      PermWire.updatePath(ctx.chip, ctx.renderManager, permWireId);
+    }
   }
 }
