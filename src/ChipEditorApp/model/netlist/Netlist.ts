@@ -306,13 +306,18 @@ export class Netlist {
       )
   }
 
-  private rmvConnection(id: string) {
+  public rmvConnection(id: string) {
     // remove from non-canonical table
     this.connectionsById.delete(id);
     // remove from canonical table
     this.connections = this.connections.filter(
       connection => connection.getId() !== id
     );
+  }
+
+  public getConnectionTo(id: string): InputPin | undefined {
+    const connection = this.connectionsById.get(id);
+    return connection?.getTo();
   }
 }
 

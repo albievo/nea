@@ -5,6 +5,8 @@ import { GeneralUtils } from "../../utils/GeneralUtils";
 import { Netlist, NetlistNode, NodeType } from "./netlist/Netlist";
 import { NetlistBehaviour } from "./netlist/ChipBehaviour";
 import { BoundingBox } from "../rendering/renderables/Renderable";
+import { InputPin, OutputPin } from "./netlist/Pins";
+import { Connection } from "./netlist/Connection";
 
 export class WorkingChip {
   private chipPositionsById = new Map<string, Vector2>;
@@ -95,7 +97,7 @@ export class WorkingChip {
     ); 
   }
 
-  public takeInput(id: string, idx: number) {
+  private takeInput(id: string, idx: number) {
     let elementInputs = this._takenInputs.get(id);
 
     if (!elementInputs) {
@@ -106,7 +108,7 @@ export class WorkingChip {
     elementInputs.set(idx, true);
   }
 
-  public releaseInput(id: string, idx: number) {
+  private releaseInput(id: string, idx: number) {
     let elementInputs = this._takenInputs.get(id);
 
     if (!elementInputs) return;
@@ -173,6 +175,24 @@ export class WorkingChip {
     }
 
     return true
+  }
+
+  public addConnection(
+    id: string,
+    from: OutputPin, to: InputPin
+  ) {
+    this.netlist.addConnection(new Connection(
+      id, from, to
+    ))
+    this.takeInput(to.nodeId, to.inputIdx);
+  }
+
+  public rmvConnection(id: string) {
+    const input = this.netlist.getConnectionTo(id);
+    if (!input) return;
+
+    this.netlist.rmvConnection(id);
+    this.releaseInput(input.nodeId, input.inputIdx);
   }
 }
 

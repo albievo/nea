@@ -11,6 +11,7 @@ import { MoveElementAction } from "../actions/action-types/MoveElementAction";
 import { Camera } from "../rendering/Camera";
 import { InteractionState } from "./InteractionState";
 import { CursorHandler } from "../rendering/CursorHandler";
+import { CreateConnectionAction } from "../actions/action-types/CreateConnectionAction";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -170,8 +171,8 @@ export class InteractionController {
           !this.chip.isInputTaken(onLeftOfElement, inputAtPosition)
         ) {
           this.interactionState.activeInputPin = {
-            elementId: onLeftOfElement,
-            pinIdx: inputAtPosition
+            nodeId: onLeftOfElement,
+            inputIdx: inputAtPosition
           }
         }
       }
@@ -188,10 +189,11 @@ export class InteractionController {
 
       const activeInputPin = this.interactionState.activeInputPin
       if (activeInputPin) {
-        this.createPermWire(
-          wireInfo.fromId, wireInfo.fromIdx,
-          activeInputPin.elementId, activeInputPin.pinIdx
-        )
+        this.actions.do(new CreateConnectionAction(
+          crypto.randomUUID(),
+          { nodeId: wireInfo.fromId, outputIdx: wireInfo.fromIdx },
+          activeInputPin
+        ));
       }
 
       this.cursorHandler.updateCursor();
@@ -284,14 +286,6 @@ export class InteractionController {
         id, fromPos
       )
     };
-  }
-
-  private createPermWire(
-    fromId: string, fromIdx: number,
-    toId: string, toIdx: number
-  ) {
-    console.log(`should create a perm wire from ${fromId}, ${fromIdx} to ${toId}, ${toIdx}`);
-    this.chip.takeInput(toId, toIdx);
   }
 
   private startElementDrag(id: string, offset: Vector2) {
