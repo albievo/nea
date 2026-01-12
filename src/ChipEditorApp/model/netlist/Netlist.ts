@@ -307,8 +307,26 @@ export class Netlist {
   }
 
   public rmvConnection(id: string) {
-    // remove from non-canonical table
+    const connection = this.connectionsById.get(id);
+    if (!connection) return;
+    // ---- remove from non-canonical tables ----
+
+    // rmv from connectionsById
     this.connectionsById.delete(id);
+    
+    //rmv from input index
+    const inputToNode = this.inputIndex.get(connection.getTo().nodeId);
+    inputToNode?.delete(connection.getTo().inputIdx);
+
+    // rmv from output index
+    const outputFromNode = this.outputIndex.get(connection.getFrom().nodeId);
+    if (!outputFromNode) return;
+    const outputsFromPin = outputFromNode.get(connection.getFrom().outputIdx) ?? [];
+    outputFromNode.set(connection.getFrom().outputIdx, outputsFromPin.filter(
+      connection => connection.getId() !== id
+    ));
+    outputFromNode?.delete(connection?.getFrom().outputIdx);
+
     // remove from canonical table
     this.connections = this.connections.filter(
       connection => connection.getId() !== id

@@ -1,6 +1,5 @@
 import { PermWire } from "../../controller/objectControllers.ts/PermWire";
 import { InputPin, OutputPin } from "../../model/netlist/Pins";
-import { PermWireRenderable } from "../../rendering/renderables/wires/PermWireRenderable";
 import { ActionContext, UndoableAction } from "../Action";
 
 export class CreateConnectionAction implements UndoableAction {

@@ -188,6 +188,7 @@ export class WorkingChip {
 
   public rmvConnection(id: string) {
     const input = this.netlist.getConnectionTo(id);
+    console.log(input);
     if (!input) return;
 
     this.netlist.rmvConnection(id);
