@@ -1,8 +1,8 @@
 import { Vector2 } from "../../../../utils/Vector2";
-import { Wire } from "./Wire";
+import { WireRenderable } from "./WireRenderable";
 import { Renderer } from "../../Renderer";
 
-export class TempWireRenderable extends Wire<'temp-wire'> {
+export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
   protected _startingPos: Vector2;
 

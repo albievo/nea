@@ -3,7 +3,7 @@ import { Vector2 } from "../../../../utils/Vector2";
 import { MathUtils } from "../../../../utils/MathUtils";
 import { Renderer } from "../../Renderer";
 
-export abstract class Wire<K extends WireKind> extends Renderable<K>{
+export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
   protected _startingPos = Vector2.zeroes;
   protected _endingPos = Vector2.zeroes;
@@ -117,7 +117,7 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
       }
     }
 
-    this._endingPos = newPath[newPath.length].fixedCopy();
+    this._endingPos = newPath[newPath.length - 1].fixedCopy();
   }
 
   public get startingPos() {

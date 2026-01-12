@@ -1,13 +1,12 @@
 import { GridElementRenderable } from "../GridElementRenderable";
-import { Wire } from "./Wire";
+import { WireRenderable } from "./WireRenderable";
 import { EventHandlerMap } from "../../../event/eventTypes";
 import { Vector2 } from "../../../../utils/Vector2";
 import { Renderer } from "../../Renderer";
 
-export class PermWireRenderable extends Wire<'perm-wire'> {
+export class PermWireRenderable extends WireRenderable<'perm-wire'> {
   protected _kind = 'perm-wire' as const;
-  // protected endingPos: Vector2;
-  // protected _startingPos: Vector2;
+
   
   constructor(
     id: string
@@ -15,35 +14,7 @@ export class PermWireRenderable extends Wire<'perm-wire'> {
     super(
       id
     );
-    // this.endingPos = this.calcEndingPos();
-    // this._startingPos = this.calcStartingPos();
-    // this.updateAndRenderPath();
   }
-
-  // private handleGridElementMoved(details: {id: string}) {
-  //   if (details.id === this.fromId) {
-  //     this._startingPos = this.calcStartingPos();
-  //   }
-  //   if (details.id === this.toId) { // could be both if it leads to itself
-  //     this.endingPos = this.calcEndingPos();
-  //   }
-
-  //   // this.updateAndRenderPath();
-  // }
-
-  // private updateAndRenderPath() {
-  //   const newPath = this.pathfinder.pathfind(this.startingPos, this.endingPos);
-  //   if (!newPath) {
-  //     console.error(`couldn't pathfind from ${this.startingPos} to ${this.endingPos}`);
-  //     return;
-  //   }
-
-  //   this.setPath(newPath);
-  // }
-
-  // private calcEndingPos() {
-  //   return this.toElem.getInputPos(this.toIdx).subtract(1, 0);
-  // }
 
   protected renderObject(renderer: Renderer): void {
     const lastSegmentEndOuter = this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, 'black');
@@ -84,8 +55,4 @@ export class PermWireRenderable extends Wire<'perm-wire'> {
       finalSegmentStartPoints[1]
     ], color);
   }
-
-  // protected calcStartingPos(): Vector2 {
-  //   return this.fromElem.getOutputPos(this.fromIdx).add(1, 0);
-  // }
 }
