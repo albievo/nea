@@ -1,7 +1,7 @@
-import { Netlist, NetlistNode, NodeType } from "../../src/ChipEditorApp/netlist/Netlist";
-import { PrimitiveBehaviour } from "../../src/ChipEditorApp/netlist/ChipBehaviour";
-import { Connection } from "../../src/ChipEditorApp/netlist/Connection";
-import { Value } from "../../src/ChipEditorApp/netlist/Value";
+import { Netlist, NetlistNode, NodeType } from "../../src/ChipEditorApp/model/netlist/Netlist";
+import { PrimitiveBehaviour } from "../../src/ChipEditorApp/model/netlist/ChipBehaviour";
+import { Connection } from "../../src/ChipEditorApp/model/netlist/Connection";
+import { Value } from "../../src/ChipEditorApp/model/netlist/Value";
 import { GeneralUtils } from "../../src/utils/GeneralUtils";
 
 import { randomUUID } from "crypto";

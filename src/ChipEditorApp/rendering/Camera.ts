@@ -3,7 +3,6 @@ import { Vector2 } from "../../utils/Vector2";
 import $ from 'jquery';
 import { BoundingBox } from "./renderables/Renderable";
 import { InputManager } from "../inputs/InputManager";
-import inputState from "../inputs/InputState";
 
 export class Camera {
   private zoom = 3;

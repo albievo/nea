@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
-import { PrimitiveBehaviour, TruthtableBehaviour } from '../../src/ChipEditorApp/netlist/ChipBehaviour';
-import { Connection } from '../../src/ChipEditorApp/netlist/Connection';
-import { Netlist, NetlistNode, NodeType } from '../../src/ChipEditorApp/netlist/Netlist';
-import { Value } from '../../src/ChipEditorApp/netlist/Value';
+import { PrimitiveBehaviour, TruthtableBehaviour } from '../../src/ChipEditorApp/model/netlist/ChipBehaviour';
+import { Connection } from '../../src/ChipEditorApp/model/netlist/Connection';
+import { Netlist, NetlistNode, NodeType } from '../../src/ChipEditorApp/model/netlist/Netlist';
+import { Value } from '../../src/ChipEditorApp/model/netlist/Value';
 
 describe('primitives behave as intended', () => {
   test('and primitives behaves as intended', () => {

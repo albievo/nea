@@ -20,6 +20,18 @@ export class InputManager {
     $(document).on('keydown.spaceKeyTracker', e => {
       if (e.key === ' ') this.handleSpaceKeyDown();
     });
+    $(document).on('keydown.undoTracker', (e: JQuery.KeyDownEvent) => {
+      const isCtrl = e.ctrlKey || e.metaKey; // meta for macOS Cmd
+      const isZ = e.key === 'z' || e.key === 'Z';
+
+      if (isCtrl && isZ) this.handleCtrlZ(e);
+    })
+    $(document).on('keydown.redoTracker', (e: JQuery.KeyDownEvent) => {
+      const isCtrl = e.ctrlKey || e.metaKey; // meta for macOS Cmd
+      const isZ = e.key === 'y' || e.key === 'Y';
+
+      if (isCtrl && isZ) this.handleCtrlY(e);
+    })
     $(window).on('resize', () => {
       events.emit('resize');
     })
@@ -73,6 +85,19 @@ export class InputManager {
 
     events.emit('space-up');
   }
+
+  private handleCtrlZ(e: JQuery.KeyDownEvent) {
+    e.preventDefault();     // stop browser undo
+    e.stopPropagation();
+    events.emit('ctrl-z');
+  }
+
+  private handleCtrlY(e: JQuery.KeyDownEvent) {
+    e.preventDefault();     // stop browser undo
+    e.stopPropagation();
+    events.emit('ctrl-y');
+  }
+
 
   private set space(val: boolean) {
     this._space = val;

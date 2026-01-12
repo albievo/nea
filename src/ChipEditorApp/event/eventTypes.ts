@@ -24,6 +24,8 @@ export type EventPayloads = {
   "mouse-down-on-output-pin": { pinIdx: number, elementId: string, at: Vector2 };
   "mouse-down-on-element": { elementId: string, elementPos: Vector2 };
   "mouse-down-on-grid": { worldPos: Vector2 };
+  'ctrl-z': void;
+  'ctrl-y': void;
 };
 
 export type EventTypes = keyof EventPayloads;
