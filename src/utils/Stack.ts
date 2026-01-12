@@ -23,4 +23,8 @@ export class Stack<TData> {
   isEmpty(): boolean {
     return this.arr.length === 0;
   }
+
+  clear(): void {
+    this.arr = [];
+  }
 }
