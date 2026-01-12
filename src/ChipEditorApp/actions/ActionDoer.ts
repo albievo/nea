@@ -6,8 +6,8 @@ import { Camera } from "../rendering/Camera";
 
 
 export class ActionDoer {
-  private undoStack = new Stack<UndoableAction>();
-  private redoStack = new Stack<UndoableAction>();
+  private undoStack = new Stack<UndoableAction>(32);
+  private redoStack = new Stack<UndoableAction>(32);
   private ctx: ActionContext;
 
   constructor(

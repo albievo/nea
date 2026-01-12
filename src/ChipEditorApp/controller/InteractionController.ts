@@ -35,6 +35,8 @@ export class InteractionController {
       interactionState.space = false
       this.cursorHandler.updateCursor();
     });
+    events.on('ctrl-z', () => this.handleUndo());
+    events.on('ctrl-y', () => this.handleRedo());
   }
 
   /**
@@ -217,6 +219,14 @@ export class InteractionController {
 
   private handleWheel(event: { delta: Vector2, worldPos: Vector2 }) {
     this.camera.zoomAt(event.worldPos, event.delta.y);
+  }
+
+  private handleUndo() {
+    this.actions.undo();
+  }
+
+  private handleRedo() {
+    this.actions.redo();
   }
 
   private worldPosIsOnPin(worldPos: Vector2): number | undefined {
