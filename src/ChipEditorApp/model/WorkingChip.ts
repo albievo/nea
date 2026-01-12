@@ -1,6 +1,5 @@
 import { Vector2 } from "../../utils/Vector2";
 import events from "../event/events";
-import { MouseTracker } from "../rendering/MouseTracker";
 import { GeneralUtils } from "../../utils/GeneralUtils";
 import { Netlist, NetlistNode, NodeType } from "./netlist/Netlist";
 import { NetlistBehaviour } from "./netlist/ChipBehaviour";
@@ -193,6 +192,10 @@ export class WorkingChip {
 
     this.netlist.rmvConnection(id);
     this.releaseInput(input.nodeId, input.inputIdx);
+  }
+
+  public getConnection(id: string): Connection | undefined {
+    return this.netlist.getConnection(id);
   }
 }
 

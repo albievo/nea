@@ -6,42 +6,30 @@ import { Renderer } from "../../Renderer";
 
 export class PermWireRenderable extends Wire<'perm-wire'> {
   protected _kind = 'perm-wire' as const;
-  protected endingPos: Vector2;
-  protected _startingPos: Vector2;
+  // protected endingPos: Vector2;
+  // protected _startingPos: Vector2;
   
   constructor(
-    id: string,
-    private readonly fromId: string,
-    private readonly fromElem: GridElementRenderable,
-    private readonly fromIdx: number,
-    private readonly toId: string,
-    private readonly toElem: GridElementRenderable,
-    private readonly toIdx: number 
+    id: string
   ) {
     super(
       id
     );
-    this.endingPos = this.calcEndingPos();
-    this._startingPos = this.calcStartingPos();
+    // this.endingPos = this.calcEndingPos();
+    // this._startingPos = this.calcStartingPos();
     // this.updateAndRenderPath();
   }
 
-  public getEventHandlers(): EventHandlerMap {
-    return {
-      'grid-element-moved': this.handleGridElementMoved.bind(this)
-    }
-  }
+  // private handleGridElementMoved(details: {id: string}) {
+  //   if (details.id === this.fromId) {
+  //     this._startingPos = this.calcStartingPos();
+  //   }
+  //   if (details.id === this.toId) { // could be both if it leads to itself
+  //     this.endingPos = this.calcEndingPos();
+  //   }
 
-  private handleGridElementMoved(details: {id: string}) {
-    if (details.id === this.fromId) {
-      this._startingPos = this.calcStartingPos();
-    }
-    if (details.id === this.toId) { // could be both if it leads to itself
-      this.endingPos = this.calcEndingPos();
-    }
-
-    // this.updateAndRenderPath();
-  }
+  //   // this.updateAndRenderPath();
+  // }
 
   // private updateAndRenderPath() {
   //   const newPath = this.pathfinder.pathfind(this.startingPos, this.endingPos);
@@ -53,9 +41,9 @@ export class PermWireRenderable extends Wire<'perm-wire'> {
   //   this.setPath(newPath);
   // }
 
-  private calcEndingPos() {
-    return this.toElem.getInputPos(this.toIdx).subtract(1, 0);
-  }
+  // private calcEndingPos() {
+  //   return this.toElem.getInputPos(this.toIdx).subtract(1, 0);
+  // }
 
   protected renderObject(renderer: Renderer): void {
     const lastSegmentEndOuter = this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, 'black');
@@ -71,8 +59,8 @@ export class PermWireRenderable extends Wire<'perm-wire'> {
     lastSegmentEnd: [Vector2, Vector2]
   ) {
     const finalSegmentStartPoints = [
-      this.endingPos.add(0.5, 0.5 - width / 2),
-      this.endingPos.add(0.5, 0.5 + width / 2)
+      this._endingPos.add(0.5, 0.5 - width / 2),
+      this._endingPos.add(0.5, 0.5 + width / 2)
     ];
     
     const finalSegmentEndPoints = [
@@ -97,7 +85,7 @@ export class PermWireRenderable extends Wire<'perm-wire'> {
     ], color);
   }
 
-  protected calcStartingPos(): Vector2 {
-    return this.fromElem.getOutputPos(this.fromIdx).add(1, 0);
-  }
+  // protected calcStartingPos(): Vector2 {
+  //   return this.fromElem.getOutputPos(this.fromIdx).add(1, 0);
+  // }
 }

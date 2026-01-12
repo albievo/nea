@@ -36,8 +36,6 @@ class Events {
     handler: Handler<EventPayloads[K]>,
     id?: string,
   ): void {
-    if (type === 'temp-wire-released') console.log('adding temp wire released listener'); 
-
     if (!this.listeners[type]) {
       this.listeners[type] = [];
     }

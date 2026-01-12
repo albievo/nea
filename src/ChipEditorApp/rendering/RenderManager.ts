@@ -1,20 +1,18 @@
 import { Renderable, RenderableKind } from "./renderables/Renderable";
 import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
-import { MouseTracker } from "./MouseTracker";
-import { isGridElementRenderable, isTempWireRenderable } from "./RenderableTypeGuards";
+import { isGridElementRenderable, isPermWireRenderable, isTempWireRenderable } from "./RenderableTypeGuards";
 import { GridElementRenderable } from "./renderables/GridElementRenderable";
 import { Renderer } from "./Renderer";
 import { WorkingChip } from "../model/WorkingChip";
 import { InteractionState } from "../controller/InteractionState";
+import { GeneralUtils } from "../../utils/GeneralUtils";
+import { PermWireRenderable } from "./renderables/wires/PermWireRenderable";
 
 export class RenderManager {
-  private _mouseTracker: MouseTracker;
-
   private renderablesById = new Map<string, Renderable<RenderableKind>>();
 
-  private gridId?: string;
-  private _tempWireId?: string;
+  private _permWires: string[] = [];
 
   constructor(
     private worldSize: Vector2,
@@ -23,8 +21,6 @@ export class RenderManager {
     private model: WorkingChip,
     private interactionState: InteractionState
   ) {
-    this._mouseTracker = new MouseTracker(this, this.worldSize);
-
     requestAnimationFrame(() => this.frame(
       this.renderer,
       this.model,
@@ -56,11 +52,8 @@ export class RenderManager {
   public addRenderable(renderable: Renderable<RenderableKind>) {
     const id = renderable.id;
 
-    if (renderable.kind === 'grid') {
-      this.gridId = id;
-    }
-    else if (renderable.kind === 'temp-wire') {
-      this._tempWireId = id;
+    if (renderable.kind === 'perm-wire') {
+      this._permWires.push(id);
     }
 
     const existing = this.renderablesById.get(id);
@@ -77,11 +70,8 @@ export class RenderManager {
       return
     }
 
-    if (renderable.kind === 'grid') {
-      this.gridId = undefined;
-    }
-    if (renderable.kind === 'temp-wire') {
-      this._tempWireId = undefined;
+    if (renderable.kind === 'perm-wire') {
+      GeneralUtils.removeValue(this._permWires, id);
     }
     
     this.renderablesById.delete(id);
@@ -93,9 +83,6 @@ export class RenderManager {
 
   public get camera() {
     return this._camera;
-  }
-  public get mouseTracker() {
-    return this._mouseTracker;
   }
 
   public getRenderableWithId(id: string) {
@@ -160,5 +147,19 @@ export class RenderManager {
     }
 
     return element;
+  }
+
+  public getPermWireWithId(id: string): PermWireRenderable | null {
+    const element = this.renderablesById.get(id);
+
+    if (!isPermWireRenderable(element)) {
+      return null;
+    }
+
+    return element;
+  }
+
+  public get permWires() {
+    return this._permWires;
   }
 }

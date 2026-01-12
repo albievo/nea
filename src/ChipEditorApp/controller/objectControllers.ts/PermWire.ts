@@ -22,17 +22,12 @@ export class PermWire {
     );
     if (!fromElement || !toElement) return;
 
-    const renderable = new PermWireRenderable(
-      id,
-      from.nodeId, fromElement, from.outputIdx,
-      to.nodeId, toElement, to.inputIdx
-    )
+    const renderable = new PermWireRenderable(id)
     renderManager.addRenderable(renderable);
 
     const startPos = fromElement.getOutputPos(from.outputIdx).add(1, 0);
     const endPos = toElement.getInputPos(to.inputIdx).subtract(1, 0);
 
-    console.log(`from: ${startPos.toString()}, to: ${endPos.toString()}`);
     const initialPath = Wire.computePath(startPos, endPos, model.availabilityGrid);
     renderable.setPath(initialPath);
   }
@@ -43,5 +38,32 @@ export class PermWire {
   ) {
     model.rmvConnection(id);
     renderManager.rmvRenderable(id);
+  }
+
+  public static updatePath(
+    model: WorkingChip, renderManager: RenderManager,
+    id: string
+  ) {
+    const connectionModel = model.getConnection(id);
+    if (!connectionModel) return;
+
+    const from = connectionModel.getFrom();
+    const to = connectionModel.getTo();
+
+    const fromElem = renderManager.getGridElementWithId(from.nodeId);
+    const toElem = renderManager.getGridElementWithId(to.nodeId);
+    if (!fromElem || !toElem) return;
+
+    const fromPos = fromElem.getOutputPos(from.outputIdx).add(1, 0);
+    const toPos = toElem.getInputPos(to.inputIdx).subtract(1, 0);
+
+    const path = Wire.computePath(
+      fromPos, toPos, model.availabilityGrid
+    );
+
+    const renderable = renderManager.getPermWireWithId(id);
+    if (!renderable) return;
+
+    renderable.setPath(path);
   }
 }

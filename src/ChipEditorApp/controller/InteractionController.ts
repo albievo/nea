@@ -55,7 +55,6 @@ export class InteractionController {
     
     const onElement = this.interactionState.onElement;
     const onOutputPin = this.interactionState.onOutputPin
-    console.log(onOutputPin);
     if (
       onOutputPin !== undefined &&
       onElement
@@ -191,7 +190,6 @@ export class InteractionController {
       this.interactionState.tempWire = undefined;
 
       const activeInputPin = this.interactionState.activeInputPin
-      console.log(`from id: ${wireInfo.fromId}, from idx: ${wireInfo.fromIdx}`);
       if (activeInputPin) {
         this.actions.do(new CreateConnectionAction(
           crypto.randomUUID(),

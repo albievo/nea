@@ -6,6 +6,7 @@ import { NodeType } from "../../model/netlist/Netlist";
 import { RenderManager } from "../../rendering/RenderManager";
 import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
 import { BoundingBox } from "../../rendering/renderables/Renderable";
+import { PermWire } from "./PermWire";
 
 export class Chip {
   public static createInputChip(
@@ -74,6 +75,12 @@ export class Chip {
       if (isValidPosition) {
         element.pos = pos;
       }
+
+      // ---- update all perm wire routes ----
+      for (const permWireId of renderManager.permWires) {
+        PermWire.updatePath(model, renderManager, permWireId);
+      }
+
     }, this.generateDraggingId(id));
   }
 

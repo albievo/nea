@@ -5,7 +5,8 @@ import { Renderer } from "../../Renderer";
 
 export abstract class Wire<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
-  protected abstract _startingPos: Vector2;
+  protected _startingPos = Vector2.zeroes;
+  protected _endingPos = Vector2.zeroes;
 
   protected boundingBox: BoundingBox = { // initialised as 0s
     top: 0,
@@ -87,13 +88,13 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
   public setPath(newPath: Vector2[]) {
     this.path = [];
 
-    const firstCell = newPath[0];
-    this.path.push(firstCell);
+    this._startingPos = newPath[0].fixedCopy();
+    this.path.push(this._startingPos);
 
-    this.boundingBox.top = firstCell.y;
-    this.boundingBox.right = firstCell.x
-    this.boundingBox.bottom = firstCell.y;
-    this.boundingBox.left = firstCell.x;
+    this.boundingBox.top = this._startingPos.y;
+    this.boundingBox.right = this._startingPos.x
+    this.boundingBox.bottom = this._startingPos.y;
+    this.boundingBox.left = this._startingPos.x;
 
     for (let cellIdx = 1; cellIdx < newPath.length; cellIdx++) {
       const cell = newPath[cellIdx];
@@ -115,6 +116,8 @@ export abstract class Wire<K extends WireKind> extends Renderable<K>{
         this.boundingBox.bottom = cell.y;
       }
     }
+
+    this._endingPos = newPath[newPath.length].fixedCopy();
   }
 
   public get startingPos() {

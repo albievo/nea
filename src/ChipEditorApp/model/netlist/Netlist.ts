@@ -319,6 +319,10 @@ export class Netlist {
     const connection = this.connectionsById.get(id);
     return connection?.getTo();
   }
+
+  public getConnection(id: string): Connection | undefined {
+    return this.connectionsById.get(id);
+  }
 }
 
 export class NetlistNode {
