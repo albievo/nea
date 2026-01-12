@@ -7,7 +7,7 @@ export class Stack<TData> {
 
   push(item: TData) {
     this.arr.push(item);
-    if (this.arr.length >= this.maxSize) {
+    if (this.arr.length > this.maxSize) {
       this.arr.shift();
     }
   }

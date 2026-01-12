@@ -11,5 +11,12 @@ test('stack adds and removes correctly', () => {
 })
 
 test('stack correctly reaches max size', () => {
-  
+  const stack = new Stack<number>(2);
+  stack.push(1);
+  stack.push(2);
+  stack.push(3);
+
+  expect(stack.pop()).toEqual(3);
+  expect(stack.pop()).toEqual(2);
+  expect(stack.pop()).toEqual(undefined);
 })
