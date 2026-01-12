@@ -3,6 +3,7 @@ import { WireRenderable } from "./WireRenderable";
 import { EventHandlerMap } from "../../../event/eventTypes";
 import { Vector2 } from "../../../../utils/Vector2";
 import { Renderer } from "../../Renderer";
+import { COLORS } from "../../../../theme/colors";
 
 export class PermWireRenderable extends WireRenderable<'perm-wire'> {
   protected _kind = 'perm-wire' as const;
@@ -17,10 +18,10 @@ export class PermWireRenderable extends WireRenderable<'perm-wire'> {
   }
 
   protected renderObject(renderer: Renderer): void {
-    const lastSegmentEndOuter = this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, 'black');
-    this.drawEndPointConnector(renderer, this.OUTER_WIDTH, 'black', lastSegmentEndOuter);
-    const lastSegmentEndInner = this.drawPathToEndPoint(renderer, this.INNER_WIDTH, 'lightblue');
-    this.drawEndPointConnector(renderer, this.INNER_WIDTH, 'lightblue', lastSegmentEndInner);
+    const lastSegmentEndOuter = this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
+    this.drawEndPointConnector(renderer, this.OUTER_WIDTH, COLORS.outline, lastSegmentEndOuter);
+    const lastSegmentEndInner = this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS.on);
+    this.drawEndPointConnector(renderer, this.INNER_WIDTH, COLORS.on, lastSegmentEndInner);
   }
 
   private drawEndPointConnector(

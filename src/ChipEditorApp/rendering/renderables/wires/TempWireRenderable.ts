@@ -1,6 +1,7 @@
 import { Vector2 } from "../../../../utils/Vector2";
 import { WireRenderable } from "./WireRenderable";
 import { Renderer } from "../../Renderer";
+import { COLORS } from "../../../../theme/colors";
 
 export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -17,8 +18,8 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   }
 
   protected renderObject(renderer: Renderer): void {
-    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, 'black');
-    this.drawPathToEndPoint(renderer, this.INNER_WIDTH, 'lightblue');
+    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
+    this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS.on);
   }
 
   // private handleMouseChangedCell(movement: {from: Vector2, to: Vector2}) {

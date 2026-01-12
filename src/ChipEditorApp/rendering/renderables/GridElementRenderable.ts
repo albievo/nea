@@ -1,9 +1,13 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { BoundingBox, Renderable } from "./Renderable";
 import { Renderer } from "../Renderer";
+import { NodeType } from "../../model/netlist/Netlist";
+import { COLORS } from "../../../theme/colors";
 
 export class GridElementRenderable extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
+
+  private type: NodeType
 
   // in world units
   private _dims: Vector2;
@@ -18,6 +22,9 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
 
   public readonly PIN_RADIUS = 0.3;
 
+  private readonly INNER_INDICATOR_RADIUS = 0.8;
+  private readonly OUTER_INDICATOR_RADIUS = 0.9;
+
   private color: string;
 
   constructor(details: GridElementDetails) {
@@ -27,6 +34,7 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     this.outputs = details.outputs;
     this.color = details.color;
     this._pos = details.startingPos.copy();
+    this.type = details.type;
 
     let yDim: number;
     if ( // hard coded to mske common configurations look nicer
@@ -130,7 +138,6 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       this.pos.add(0, this.dims.y),
       this.pos.add(this.dims)
     ], color);
-
     // calculate screen radius of pins
     for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
       const yPos = this.pos.y + pinIdx + 0.5;
@@ -150,17 +157,45 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
         this.renderOutputPin(renderer, centre, this.PIN_RADIUS);
       }
     }
+
+    // draw bits for input and output elements
+    if (this.type === NodeType.CHIP) return;
+    const centre = this.pos.add(1.5, 1.5);
+
+    // draw circle for output
+    if (this.type === NodeType.OUTPUT) {
+      renderer.drawCircle(centre, this.OUTER_INDICATOR_RADIUS, COLORS.outline);
+      renderer.drawCircle(centre, this.INNER_INDICATOR_RADIUS, COLORS.on);
+    }
+
+    // draw square for output
+    if (this.type === NodeType.INPUT) {
+      const outerBox: BoundingBox = {
+        top: centre.y - this.OUTER_INDICATOR_RADIUS,
+        right: centre.x + this.OUTER_INDICATOR_RADIUS,
+        bottom: centre.y + this.OUTER_INDICATOR_RADIUS,
+        left: centre.x - this.OUTER_INDICATOR_RADIUS,
+      }
+      const innerBox: BoundingBox = {
+        top: centre.y - this.INNER_INDICATOR_RADIUS,
+        right: centre.x + this.INNER_INDICATOR_RADIUS,
+        bottom: centre.y + this.INNER_INDICATOR_RADIUS,
+        left: centre.x - this.INNER_INDICATOR_RADIUS,
+      }
+      renderer.drawRectFromBox(outerBox, COLORS.outline);
+      renderer.drawRectFromBox(innerBox, COLORS.on);
+    }
   }
 
   private renderInputPin(renderer: Renderer, centre: Vector2, radius: number) {
     renderer.drawSemicircle(
-      centre, radius, 'right', 'lightblue'
+      centre, radius, 'right', COLORS.on
     );
   }
 
   private renderOutputPin(renderer: Renderer, centre: Vector2, radius: number) {
     renderer.drawSemicircle(
-      centre, radius, 'left', 'lightblue'
+      centre, radius, 'left', COLORS.on 
     );
   }
 
@@ -250,5 +285,6 @@ interface GridElementDetails {
   inputs: number,
   outputs: number,
   width: number, // measured in world units
-  color: string
+  color: string,
+  type: NodeType
 }

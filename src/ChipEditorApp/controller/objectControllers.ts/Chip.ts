@@ -23,7 +23,8 @@ export class Chip {
         inputs: 0,
         outputs: 1,
         width: 3,
-        color: 'gray'
+        color: 'gray',
+        type: NodeType.INPUT
       })
     );
   }
@@ -42,7 +43,8 @@ export class Chip {
         inputs: 1,
         outputs: 0,
         width: 3,
-        color: 'gray'
+        color: 'gray',
+        type: NodeType.OUTPUT
       })
     );
   }

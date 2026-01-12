@@ -138,6 +138,33 @@ export class Renderer {
     this.ctx.fill();
   }
 
+  public drawCircle(centre: Vector2, radius: number, color: string) {
+    const centreScreen = this.camera.worldPosToScreen(centre);
+    const radiusScreen = this.camera.worldUnitsToScreenPixels(radius);
+
+    this.ctx.beginPath();
+    this.ctx.arc(
+      centreScreen.x, centreScreen.y,
+      radiusScreen,
+      0, Math.PI * 2,
+    );
+
+    this.ctx.fillStyle = color
+    this.ctx.fill();
+  }
+
+  public drawRectFromBox(box: BoundingBox, color: string) {
+
+    const topLeft = this.camera.worldPosToScreen(new Vector2(box.left, box.top));
+    const bottomRight = this.camera.worldPosToScreen(new Vector2(box.right, box.bottom));
+
+    const w = bottomRight.x - topLeft.x;
+    const h = bottomRight.y - topLeft.y;
+
+    this.ctx.fillStyle = color;
+    this.ctx.fillRect(topLeft.x, topLeft.y, w, h);
+  }
+
   public getScreenBoundingBox(): BoundingBox {
     const pan = this.camera.getPan();
     const dims = this.camera.calcWorldUnitsOnScreen();
