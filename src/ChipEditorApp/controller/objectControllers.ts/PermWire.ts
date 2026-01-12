@@ -28,6 +28,8 @@ export class PermWire {
     const startPos = fromElement.getOutputPos(from.outputIdx).add(1, 0);
     const endPos = toElement.getInputPos(to.inputIdx).subtract(1, 0);
 
+    console.log(`pathfinding from ${startPos.toString()} to ${endPos.toString()}`)
+
     const initialPath = Wire.computePath(startPos, endPos, model.availabilityGrid);
     renderable.setPath(initialPath);
   }
@@ -56,6 +58,8 @@ export class PermWire {
 
     const fromPos = fromElem.getOutputPos(from.outputIdx).add(1, 0);
     const toPos = toElem.getInputPos(to.inputIdx).subtract(1, 0);
+
+    console.log(`pathfinding from ${fromPos.toString()} to ${toPos.toString()}`)
 
     const path = Wire.computePath(
       fromPos, toPos, model.availabilityGrid
