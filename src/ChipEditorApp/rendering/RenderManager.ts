@@ -102,7 +102,7 @@ export class RenderManager {
     return this.renderablesById.get(id);
   }
 
-  public getOutputIdxsOfElementWithId(id: string): number[] {
+  public getOutputIdxsOfElementWithId(id: string): {pos: number, idx: number}[] {
     const element = this.getGridElementWithId(id);
 
     if (!element) {

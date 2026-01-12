@@ -12,6 +12,7 @@ import { Camera } from "../rendering/Camera";
 import { InteractionState } from "./InteractionState";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { CreateConnectionAction } from "../actions/action-types/CreateConnectionAction";
+import { Wire } from "./objectControllers.ts/Wire";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -54,6 +55,7 @@ export class InteractionController {
     
     const onElement = this.interactionState.onElement;
     const onOutputPin = this.interactionState.onOutputPin
+    console.log(onOutputPin);
     if (
       onOutputPin !== undefined &&
       onElement
@@ -185,9 +187,11 @@ export class InteractionController {
   private handleMouseUp(event: { worldPos: Vector2 }) {
     const wireInfo = this.interactionState.tempWire;
     if (wireInfo) { // if a temp wire is being dragged
+      // get rid of the temp wire
       this.interactionState.tempWire = undefined;
 
       const activeInputPin = this.interactionState.activeInputPin
+      console.log(`from id: ${wireInfo.fromId}, from idx: ${wireInfo.fromIdx}`);
       if (activeInputPin) {
         this.actions.do(new CreateConnectionAction(
           crypto.randomUUID(),
@@ -240,23 +244,23 @@ export class InteractionController {
       onElement
     );
 
-    for (const pinPos of outputPins) {
-      const pinWorldPos = this.renderManager.getPositionOfElement(
+    for (const pin of outputPins) {
+      const onElementPos = this.renderManager.getPositionOfElement(
         onElement
       );
       const pinRadius = this.renderManager.getPinRadiusOfElement(
         onElement
       );
-      const pinDims = this.renderManager.getDimsOfElement(
+      const onElementDims = this.renderManager.getDimsOfElement(
         onElement
       );
 
-      const outputDistFromTop = pinPos + 0.5;
-      const outputPos = pinWorldPos.add(new Vector2(pinDims.x, outputDistFromTop))
+      const outputDistFromTop = pin.pos + 0.5;
+      const outputPos = onElementPos.add(onElementDims.x, outputDistFromTop);
       const distToMouse = MathUtils.calcDistBetweenPoints(worldPos, outputPos);
 
       if (distToMouse <= pinRadius && worldPos.x <= outputPos.x) {
-        return pinPos;
+        return pin.idx;
       }
     }
     
@@ -267,7 +271,7 @@ export class InteractionController {
     wire: TempWireRenderable,
     endCell: Vector2
   ) {
-    const path = TempWire.computePath(
+    const path = Wire.computePath(
       wire.startingPos,
       endCell,
       this.chip.availabilityGrid

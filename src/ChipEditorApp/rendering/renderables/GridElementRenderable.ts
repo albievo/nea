@@ -74,12 +74,12 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     // hard coded as small so take up a significant amount of space
     if (this.inputs === 0 && this.outputs === 1) {
       this.inputPositions = [-1, -1, -1];
-      this,this.outputPositions = [-1, 0, -1];
+      this.outputPositions = [-1, 0, -1];
       return;
     }
     if (this.inputs === 1 && this.outputs === 0) {
       this.inputPositions = [-1, 0, -1];
-      this,this.outputPositions = [-1, -1, -1];
+      this.outputPositions = [-1, -1, -1];
       return;
     }
 
@@ -446,14 +446,17 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
   //   events.off('temp-wire-released', `make-perm-wire-to-${this.id}`);
   // }
 
-  public getOutputPositions() {
+  public getOutputPositions(): {pos: number, idx: number}[] {
     const outputIdxs = [];
 
     // iterate through potential pin positions
-    for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
+    for (let pos = 0; pos < this.dims.y; pos++) {
       // if there is an output pin here
-      const pinAtPos = this.outputPositions[posIdx];
-      if (pinAtPos !== -1) outputIdxs.push(posIdx);
+      const pinAtPos = this.outputPositions[pos];
+      if (pinAtPos !== -1) outputIdxs.push({
+        pos,
+        idx: pinAtPos
+      });
     }
 
     return outputIdxs;
