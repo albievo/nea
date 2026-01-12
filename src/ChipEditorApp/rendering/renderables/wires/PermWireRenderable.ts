@@ -21,7 +21,6 @@ export class PermWireRenderable extends WireRenderable<'perm-wire'> {
     this.drawEndPointConnector(renderer, this.OUTER_WIDTH, 'black', lastSegmentEndOuter);
     const lastSegmentEndInner = this.drawPathToEndPoint(renderer, this.INNER_WIDTH, 'lightblue');
     this.drawEndPointConnector(renderer, this.INNER_WIDTH, 'lightblue', lastSegmentEndInner);
-
   }
 
   private drawEndPointConnector(

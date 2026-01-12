@@ -71,13 +71,15 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
     const startCellCentre = startCell.add(0.5, 0.5);
     const endCellCentre = endCell.add(0.5, 0.5);
 
-    const startCellExtra = relation.mult(- 0.01); // to stop tiny gaps between segments
+    // to stop tiny gaps between segments
+    const startCellExtra = relation.mult(-0.01);
+    const endCellExtra = relation.mult(0.01);
 
     return [
       startCellCentre.add(perp).add(startCellExtra),
       startCellCentre.subtract(perp).add(startCellExtra),
-      endCellCentre.add(perp),
-      endCellCentre.subtract(perp)
+      endCellCentre.add(perp).add(endCellExtra),
+      endCellCentre.subtract(perp).add(endCellExtra)
     ];
   }
    
