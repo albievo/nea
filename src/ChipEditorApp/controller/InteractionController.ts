@@ -210,7 +210,8 @@ export class InteractionController {
         draggingInfo.renderableId,
         draggingInfo.startingPos, endPos
       ));
-      
+      // tell render manager to stop tracking preview info
+      this.renderManager.previewMatchesCanon();
       this.interactionState.draggingElement = undefined;
     }
 
@@ -272,7 +273,8 @@ export class InteractionController {
     const path = Wire.computePath(
       wire.startingPos,
       endCell,
-      this.chip.availabilityGrid
+      this.chip.availabilityGrid,
+      this.renderManager.previewAvailabilityOverlay
     );
     wire.setPath(path);
   }

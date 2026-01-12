@@ -30,7 +30,10 @@ export class PermWire {
 
     console.log(`pathfinding from ${startPos.toString()} to ${endPos.toString()}`)
 
-    const initialPath = Wire.computePath(startPos, endPos, model.availabilityGrid);
+    const initialPath = Wire.computePath(
+      startPos, endPos,
+      model.availabilityGrid, renderManager.previewAvailabilityOverlay
+    );
     renderable.setPath(initialPath);
   }
 
@@ -62,7 +65,8 @@ export class PermWire {
     console.log(`pathfinding from ${fromPos.toString()} to ${toPos.toString()}`)
 
     const path = Wire.computePath(
-      fromPos, toPos, model.availabilityGrid
+      fromPos, toPos,
+      model.availabilityGrid, renderManager.previewAvailabilityOverlay
     );
 
     const renderable = renderManager.getPermWireWithId(id);

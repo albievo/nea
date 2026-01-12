@@ -3,12 +3,14 @@ import { MathUtils } from "../MathUtils";
 import { Vector2 } from "../Vector2";
 import { GeneralUtils } from "../GeneralUtils";
 import { CellTakenBy } from "../../ChipEditorApp/model/WorkingChip";
+import { AvailabilityOverlay } from "../../ChipEditorApp/rendering/RenderManager";
 
 export class AStarPathfinder {
   private height: number
   private width: number;
 
   private availabilityGrid: CellTakenBy[][];
+  private availabilityOverlay: AvailabilityOverlay
 
   private adjacentRelations = [
     new Vector2(-1, -1),
@@ -21,11 +23,12 @@ export class AStarPathfinder {
     new Vector2(1, 1),
   ]
 
-  constructor(availibilyGrid: CellTakenBy[][]) {
+  constructor(availibilyGrid: CellTakenBy[][], overlay?: AvailabilityOverlay) {
     this.height = availibilyGrid.length;
     this.width = availibilyGrid[0].length;
 
     this.availabilityGrid = availibilyGrid;
+    this.availabilityOverlay = overlay ?? new Map<`(${number}, ${number})`, CellTakenBy>();
   }
 
   public updateAvailabilityGrid(availabilityGrid: CellTakenBy[][]) {
@@ -148,8 +151,18 @@ export class AStarPathfinder {
   }
 
   private cellIsAvailable(pos: Vector2) {
+    const overlay = this.availabilityOverlay.get(pos.toString());
+    const grid = this.availabilityGrid[pos.y][pos.x]
+
+    if (overlay) {
+      return (
+        (grid.type !== 'element' && overlay.type !== 'element') ||
+        overlay.type === 'none'
+      )
+    }
+
     return !(
-      this.availabilityGrid[pos.y][pos.x].type === 'element'
+      grid.type === 'element'
     )
   }
 

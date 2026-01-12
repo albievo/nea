@@ -200,6 +200,6 @@ export class WorkingChip {
 }
 
 export interface CellTakenBy {
-  type?: 'wire' | 'element',
+  type?: 'wire' | 'element' | 'none',
   ids: string[]
 }

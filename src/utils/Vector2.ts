@@ -111,7 +111,7 @@ export class Vector2 {
     )
   }
 
-  public toString() {
+  public toString(): `(${number}, ${number})` {
     return `(${this.x}, ${this.y})`;
   }
 }

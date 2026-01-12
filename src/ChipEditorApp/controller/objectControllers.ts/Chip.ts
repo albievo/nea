@@ -73,7 +73,7 @@ export class Chip {
 
       // ---- update to the new position ----
       if (isValidPosition) {
-        element.pos = pos;
+        renderManager.moveGridElementPreview(id, pos);
       }
 
       // ---- update all perm wire routes ----

@@ -1,18 +1,18 @@
-import { Renderable, RenderableKind } from "./renderables/Renderable";
+import { BoundingBox, Renderable, RenderableKind } from "./renderables/Renderable";
 import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
 import { isGridElementRenderable, isPermWireRenderable, isTempWireRenderable } from "./RenderableTypeGuards";
 import { GridElementRenderable } from "./renderables/GridElementRenderable";
 import { Renderer } from "./Renderer";
-import { WorkingChip } from "../model/WorkingChip";
+import { CellTakenBy, WorkingChip } from "../model/WorkingChip";
 import { InteractionState } from "../controller/InteractionState";
 import { GeneralUtils } from "../../utils/GeneralUtils";
 import { PermWireRenderable } from "./renderables/wires/PermWireRenderable";
 
 export class RenderManager {
   private renderablesById = new Map<string, Renderable<RenderableKind>>();
-
   private _permWires: string[] = [];
+  public previewAvailabilityOverlay: AvailabilityOverlay = new Map<`(${number}, ${number})`, CellTakenBy>();
 
   constructor(
     private worldSize: Vector2,
@@ -162,4 +162,49 @@ export class RenderManager {
   public get permWires() {
     return this._permWires;
   }
+
+  public moveGridElementPreview(id: string, to: Vector2) {
+    const element = this.getGridElementWithId(id);
+    if (!element) return;
+
+    this.rmvPreviewElementFromCellInBox({
+      top: element.pos.y, bottom: element.pos.y + element.dims.y - 1,
+      left: element.pos.x, right: element.pos.x + element.dims.x - 1
+    })
+
+    element.pos = to.fixedCopy();
+
+    this.addPreviewElementToCellInBox(id, {
+      top: element.pos.y, bottom: element.pos.y + element.dims.y - 1,
+      left: element.pos.x, right: element.pos.x + element.dims.x - 1
+    });
+  }
+
+  public previewMatchesCanon() {
+    this.previewAvailabilityOverlay.clear();
+  }
+
+  private addPreviewElementToCellInBox(id: string, bb: BoundingBox) {
+    for (let x = bb.left; x <= bb.right; x++) {
+      for (let y = bb.top; y <= bb.bottom; y++) {
+        const cell = new Vector2(x, y)
+        this.previewAvailabilityOverlay.set(
+          cell.toString(), { type: 'element', ids: [id] }
+        );
+      }
+    }
+  }
+
+  private rmvPreviewElementFromCellInBox(bb: BoundingBox) {
+    for (let x = bb.left; x <= bb.right; x++) {
+      for (let y = bb.top; y <= bb.bottom; y++) {
+        const cell = new Vector2(x, y)
+        this.previewAvailabilityOverlay.set(
+          cell.toString(), { type: 'none', ids: [] }
+        );
+      }
+    }
+  }
 }
+
+export type AvailabilityOverlay = Map<`(${number}, ${number})`, CellTakenBy>;

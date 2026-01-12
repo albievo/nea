@@ -76,3 +76,44 @@ test("correctly identify the shortest path with obstacles", () => {
     calculatedPath.every((cell, cellIdx) => cell.equals(correctPath2[cellIdx]))
   ).toBeTruthy();
 })
+
+test("correctly take overlays into account", () => {
+  const availabilityGrid = GeneralUtils.createMatrixOfVals<CellTakenBy>(() => ({ids: []}), 10, 10);
+  const overlay = new Map<`(${number}, ${number})`, CellTakenBy>;
+
+  overlay.set('(1, 0)', {type: 'element', ids: ['element-id']});
+
+  const pathfinder = new AStarPathfinder(availabilityGrid, overlay);
+
+  const startCell = new Vector2(0, 0);
+  const endCell = new Vector2(2, 0);
+  let correctPath = [startCell, new Vector2(1, 1), endCell];
+  let calculatedPath = pathfinder.pathfind(startCell, endCell);
+
+  if (calculatedPath === null) {
+    expect(calculatedPath).toBeTruthy();
+    return;
+  }
+
+  expect(calculatedPath.length).toBe(correctPath.length);
+  expect(
+    calculatedPath.every((cell, cellIdx) => cell.equals(correctPath[cellIdx]))
+  ).toBeTruthy();
+
+  availabilityGrid[0][1] = {type: 'element', ids: ['elemet-id']};
+  overlay.set('(1, 0)', {type: 'none', ids: ['element-id']});
+
+  correctPath = [startCell, new Vector2(1, 0), endCell]
+  calculatedPath = pathfinder.pathfind(startCell, endCell);
+
+
+  if (calculatedPath === null) {
+    expect(calculatedPath).toBeTruthy();
+    return;
+  }
+
+  expect(calculatedPath.length).toBe(correctPath.length);
+  expect(
+    calculatedPath.every((cell, cellIdx) => cell.equals(correctPath[cellIdx]))
+  ).toBeTruthy();
+})
