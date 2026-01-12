@@ -373,6 +373,9 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     return -1;
   }
 
+  /**
+   * get the position of the output pin with index
+   */
   public getOutputPos(pinIdx: number): Vector2 {
     const outputPosIdx = this.getOutputPosIdx(pinIdx);
 
@@ -384,6 +387,9 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     return outputCell;
   }
 
+  /**
+   * get the position of the input pin with index
+   */
   public getInputPos(pinIdx: number): Vector2 {
     const inputPosIdx = this.getInputPosIdx(pinIdx);
 

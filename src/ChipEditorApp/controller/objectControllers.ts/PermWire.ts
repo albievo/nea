@@ -2,6 +2,7 @@ import { InputPin, OutputPin } from "../../model/netlist/Pins";
 import { WorkingChip } from "../../model/WorkingChip";
 import { PermWireRenderable } from "../../rendering/renderables/wires/PermWireRenderable";
 import { RenderManager } from "../../rendering/RenderManager";
+import { Wire } from "./Wire";
 
 export class PermWire {
   public static create(
@@ -21,11 +22,19 @@ export class PermWire {
     );
     if (!fromElement || !toElement) return;
 
-    renderManager.addRenderable(new PermWireRenderable(
+    const renderable = new PermWireRenderable(
       id,
       from.nodeId, fromElement, from.outputIdx,
       to.nodeId, toElement, to.inputIdx
-    ));
+    )
+    renderManager.addRenderable(renderable);
+
+    const startPos = fromElement.getOutputPos(from.outputIdx).add(1, 0);
+    const endPos = toElement.getInputPos(to.inputIdx).subtract(1, 0);
+
+    console.log(`from: ${startPos.toString()}, to: ${endPos.toString()}`);
+    const initialPath = Wire.computePath(startPos, endPos, model.availabilityGrid);
+    renderable.setPath(initialPath);
   }
 
   public static delete(
