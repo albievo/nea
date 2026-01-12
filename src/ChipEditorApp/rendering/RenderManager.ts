@@ -106,7 +106,7 @@ export class RenderManager {
       return -1;
     }
 
-    return element.PIN_RADIUS;
+    return element.OUTER_PIN_RADIUS;
   }
 
   public getPositionOfElement(id: string): Vector2 {

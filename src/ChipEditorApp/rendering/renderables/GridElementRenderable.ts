@@ -2,7 +2,8 @@ import { Vector2 } from "../../../utils/Vector2";
 import { BoundingBox, Renderable } from "./Renderable";
 import { Renderer } from "../Renderer";
 import { NodeType } from "../../model/netlist/Netlist";
-import { COLORS } from "../../../theme/colors";
+import { COLORS, valToColor } from "../../../theme/colors";
+import { Value } from "../../model/netlist/Value";
 
 export class GridElementRenderable extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
@@ -20,10 +21,11 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
   private inputPositions!: number[];
   private outputPositions!: number[];
 
-  public readonly PIN_RADIUS = 0.3;
+  public readonly INNER_PIN_RADIUS = 0.3;
+  public readonly OUTER_PIN_RADIUS = 0.375;
 
   private readonly INNER_INDICATOR_RADIUS = 0.8;
-  private readonly OUTER_INDICATOR_RADIUS = 0.9;
+  private readonly OUTER_INDICATOR_RADIUS = 0.875;
 
   private color: string;
 
@@ -144,9 +146,9 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
 
       const inputIdx = this.inputPositions[pinIdx]
       // draw the inputs
-      if (inputIdx !== -1) { // if we should render a pin here\
-        const centre = new Vector2(this.pos.x, yPos)
-        this.renderInputPin(renderer, centre, this.PIN_RADIUS);
+      if (inputIdx !== -1) { // if we should render a pin here
+        const centre = new Vector2(this.pos.x, yPos);
+        this.renderInputPin(renderer, centre, Value.ONE);
       }
 
       const outputIdx = this.outputPositions[pinIdx]
@@ -154,7 +156,7 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       if (outputIdx !== -1) { // if we should render a pin here
         const xPos = this.pos.x + this.dims.x
         const centre = new Vector2(xPos, yPos);
-        this.renderOutputPin(renderer, centre, this.PIN_RADIUS);
+        this.renderOutputPin(renderer, centre, Value.ONE);
       }
     }
 
@@ -187,15 +189,23 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     }
   }
 
-  private renderInputPin(renderer: Renderer, centre: Vector2, radius: number) {
+  private renderInputPin(renderer: Renderer, centre: Vector2, state: Value) {
+    const color = valToColor(state);
     renderer.drawSemicircle(
-      centre, radius, 'right', COLORS.on
+      centre, this.OUTER_PIN_RADIUS, 'right', COLORS['outline']
+    );
+    renderer.drawSemicircle(
+      centre, this.INNER_PIN_RADIUS, 'right', COLORS[color]
     );
   }
 
-  private renderOutputPin(renderer: Renderer, centre: Vector2, radius: number) {
+  private renderOutputPin(renderer: Renderer, centre: Vector2, state: Value) {
+    const color = valToColor(state);
     renderer.drawSemicircle(
-      centre, radius, 'left', COLORS.on 
+      centre, this.OUTER_PIN_RADIUS, 'left', COLORS['outline']
+    );
+    renderer.drawSemicircle(
+      centre, this.INNER_PIN_RADIUS, 'left', COLORS[color]
     );
   }
 
