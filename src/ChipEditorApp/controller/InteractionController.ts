@@ -136,14 +136,19 @@ export class InteractionController {
 
     // check if we are on an interactable part
     if (onElement) {
+      // check if we are on a pin
       this.interactionState.onOutputPin = this.worldPosIsOnPin(event.worldPos);
-      this.cursorHandler.updateCursor();
 
+      // check if we are on an input button
       if (onRenderable && onRenderable.getType() === NodeType.INPUT) {
         this.interactionState.onInputBtn = this.posIsOnInputBtn(
-          onElement, event.worldPos.subtract(onRenderable.pos)
-        )
+          onElement, event.worldPos
+        );
+
+        console.log(this.interactionState.onInputBtn);
       }
+
+      this.cursorHandler.updateCursor();
     }
 
     // if we should be updating a temp wire path
@@ -317,7 +322,6 @@ export class InteractionController {
   private posIsOnInputBtn(id: string, position: Vector2): boolean {
     const radius = this.renderManager.getIndicatorRadiusOfElement(id);
     const elementPos = this.renderManager.getPositionOfElement(id);
-    const relativePos = position.subtract(elementPos);
 
     const bb: BoundingBox = {
       left: elementPos.x + 1.5 - radius,
@@ -327,10 +331,10 @@ export class InteractionController {
     }
 
     return (
-      relativePos.x > bb.left   &&
-      relativePos.x < bb.right  &&
-      relativePos.y > bb.top    &&
-      relativePos.y < bb.bottom
+      position.x > bb.left   &&
+      position.x < bb.right  &&
+      position.y > bb.top    &&
+      position.y < bb.bottom
     )
   }
 }
