@@ -75,7 +75,7 @@ export class InteractionController {
       this.interactionState.inputElements.set(onElement,
         Value.negate(this.interactionState.inputElements.get(onElement)!)
       );
-      console.log(this.interactionState.inputElements.get(onElement));
+      this.chip.updateNetlist(this.interactionState.inputElements);
     }
     else { // on an element but not an interactable
       // position of the mouse relative to the element
