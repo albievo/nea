@@ -203,28 +203,44 @@ describe("evaluating a netlist", () => {
 
     expect(
       GeneralUtils.arraysAreEqual(
-        netlist.evaluate([Value.ZERO, Value.ZERO]).outputValues,
+        netlist.evaluate(new Map([
+          [nodeIds[0], Value.ZERO],
+          [nodeIds[1], Value.ZERO],
+        ])).outputValues,
+        
         [Value.ONE]
       )
     ).toBeTruthy();
 
     expect(
       GeneralUtils.arraysAreEqual(
-        netlist.evaluate([Value.ONE, Value.ZERO]).outputValues,
+        netlist.evaluate(new Map([
+          [nodeIds[0], Value.ONE],
+          [nodeIds[1], Value.ZERO],
+        ])).outputValues,
+        
         [Value.ONE]
       )
     ).toBeTruthy();
 
     expect(
       GeneralUtils.arraysAreEqual(
-        netlist.evaluate([Value.ZERO, Value.ONE]).outputValues,
+        netlist.evaluate(new Map([
+          [nodeIds[0], Value.ZERO],
+          [nodeIds[1], Value.ONE],
+        ])).outputValues,
+        
         [Value.ONE]
       )
     ).toBeTruthy();
 
     expect(
       GeneralUtils.arraysAreEqual(
-        netlist.evaluate([Value.ONE, Value.ONE]).outputValues,
+        netlist.evaluate(new Map([
+          [nodeIds[0], Value.ONE],
+          [nodeIds[1], Value.ONE],
+        ])).outputValues,
+        
         [Value.ZERO]
       )
     ).toBeTruthy();
@@ -327,17 +343,26 @@ describe("evaluating a netlist", () => {
     ]);
 
 
-    const setTo0 = oneBitRamNetlist.evaluate([Value.ZERO, Value.ONE]);
+    const setTo0 = oneBitRamNetlist.evaluate(new Map([
+      [nodeIds[0], Value.ZERO],
+      [nodeIds[1], Value.ONE],
+    ]));
 
     expect(setTo0.returnReason).toEqual("stable");
     expect(setTo0.outputValues[0]).toEqual(Value.ZERO);
 
-    const switchOffWrite = oneBitRamNetlist.evaluate([Value.ZERO, Value.ZERO]);
+    const switchOffWrite = oneBitRamNetlist.evaluate(new Map([
+      [nodeIds[0], Value.ZERO],
+      [nodeIds[1], Value.ZERO],
+    ]));
 
     expect(switchOffWrite.returnReason).toEqual("stable");
     expect(switchOffWrite.outputValues[0]).toEqual(Value.ZERO);
 
-    const holding0 = oneBitRamNetlist.evaluate([Value.ONE, Value.ZERO]);
+    const holding0 = oneBitRamNetlist.evaluate(new Map([
+      [nodeIds[1], Value.ZERO],
+      [nodeIds[0], Value.ONE],
+    ]));
 
     expect(holding0.returnReason).toEqual("stable");
     expect(holding0.outputValues[0]).toEqual(Value.ZERO);

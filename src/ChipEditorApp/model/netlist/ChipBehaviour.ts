@@ -12,6 +12,21 @@ export abstract class ChipBehaviour {
   protected generateXOutput() {
     return Array.from({ length: this.outputs }, () => Value.X)
   }
+
+  protected static addIdsToInputs(inputs: Value[], idxToInputId: Map<number, string>):  Map<string, Value> {
+    const map = new Map<string, Value>();
+
+    for (let inputIdx = 0; inputIdx < inputs.length; inputIdx++) {
+      if (!idxToInputId.has(inputIdx)) {
+        throw new Error(`not provided with an input id for input idx ${inputIdx}`);
+      }
+
+      const inputId = idxToInputId.get(inputIdx)!;
+      map.set(inputId, inputs[inputIdx]);
+    }
+
+    return map;
+  }
 }
 
 export class PrimitiveBehaviour extends ChipBehaviour {
@@ -105,7 +120,7 @@ export class TruthtableBehaviour extends ChipBehaviour {
   /**
    * Assumes netlist is static
    */
-  static buildTruthtable(netlist: Netlist): Uint32Array {
+  static buildTruthtable(netlist: Netlist, idxToInputId: Map<number, string>): Uint32Array {
     const inputNum = netlist.getInputNum();
     const outputNum = netlist.getOutputNum();
 
@@ -133,7 +148,8 @@ export class TruthtableBehaviour extends ChipBehaviour {
       // get input array
       const inputs = makeInputs(inputDecimal);
       // get output array
-      const outputs = netlist.evaluate(inputs).outputValues;
+      const inputsWithIds = NetlistBehaviour.addIdsToInputs(inputs, idxToInputId);
+      const outputs = netlist.evaluate(inputsWithIds).outputValues;
 
       // iterate through output array
       for (let outputIdx = 0; outputIdx < outputNum; outputIdx++) {
@@ -160,24 +176,27 @@ export class TruthtableBehaviour extends ChipBehaviour {
 
 export class NetlistBehaviour extends ChipBehaviour {
   kind = "netlist";
-  private netlist: Netlist;
 
   readonly inputs: number;
   readonly outputs: number;
 
-  constructor(netlist: Netlist) {
+  constructor(
+    private netlist: Netlist, 
+    private idxToInputId: Map<number, string>
+  ) {
     super();
-    this.netlist = netlist;
 
     this.inputs = this.netlist.getInputNum();
     this.outputs = this.netlist.getOutputNum();
   }
 
   evaluate(inputs: Value[]): Value[] {
+    const inputsWithIds = NetlistBehaviour.addIdsToInputs(inputs, this.idxToInputId);
+
     // currently ignores output reason.
     // Could maybe do something if due to max iteration? 
     // but not super important
-    return this.netlist.evaluate(inputs).outputValues;
+    return this.netlist.evaluate(inputsWithIds).outputValues;
   }
 }
 

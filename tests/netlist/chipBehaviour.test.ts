@@ -133,7 +133,12 @@ describe('truthtable behaves as intended', () => {
 
     const nand_truthtable = [parseInt('11100000000000000000000000000000', 2)];
     
-    expect(nand_truthtable[0]).toEqual(TruthtableBehaviour.buildTruthtable(nand_netlist)[0]);
+    expect(nand_truthtable[0]).toEqual(TruthtableBehaviour.buildTruthtable(
+      nand_netlist, new Map<number, string>([
+        [0, nodeIds[0]],
+        [1, nodeIds[1]]
+      ])
+    )[0]);
   })
 
   test('truthtable is correctly evaluated with 1 output', () => {
@@ -265,7 +270,12 @@ describe('truthtable behaves as intended', () => {
 
     const and_or_truthtable = [parseInt('00010111000000000000000000000000', 2)];
 
-    expect(TruthtableBehaviour.buildTruthtable(and_or_netlist)[0]).toEqual(and_or_truthtable[0])
+    expect(and_or_truthtable[0]).toEqual(TruthtableBehaviour.buildTruthtable(
+      and_or_netlist, new Map<number, string>([
+        [0, nodeIds[0]],
+        [1, nodeIds[1]]
+      ])
+    )[0]);
   })
 
   test('truthtable is correctly evaluated with 2 outputs', () => {

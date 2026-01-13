@@ -227,27 +227,29 @@ export class Netlist {
       });
   }
 
-  public evaluate(input: Value[], reset: boolean = false): NetlistOutput {
-    if (input.length !== this.inputNum) {
-      throw new Error(`input is of length ${input.length} when it should be of ${this.inputNum}`);
-    } 
-
-    // reset all stored values
+  public evaluate(input: Map<string, Value>, reset: boolean = false): NetlistOutput {
     if (reset) {
       this.reset();
     }
 
     // create signal queue
     const signalQueue = new Queue<Signal>();
-
+    
     // add all signals from input elements to the queue
-    this.inputNodeIds.forEach((nodeId, idx) => {
+    for (const inputId of this.inputNodeIds) {
+    if (!input.has(inputId)) {
+      throw new Error(`input ${inputId} has not been provided a value`);
+    }
+
+    const inputVal = input.get(inputId)!;
+
       this.enqueueSignalsFromPinWithValue(
         signalQueue, 
-        { nodeId, outputIdx: 0 },
-        input[idx]
+        { nodeId: inputId, outputIdx: 0 },
+        inputVal
       );
-    });
+    }
+
 
     let iterations = 0;
 
