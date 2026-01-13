@@ -18,8 +18,7 @@ export class CreateConnectionAction implements UndoableAction {
     );
 
     const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
-    ctx.renderManager.renderState = newState;
-    console.log(ctx.renderManager.renderState);
+    ctx.renderManager.updateRenderState(newState);
   }
 
   undo(ctx: ActionContext): void {

@@ -222,6 +222,16 @@ export class RenderManager {
       }
     }
   }
+
+  /**
+   * this is pretty rough, could be improved by being passed a list of changes instead,
+   * but works for now
+   */
+  public updateRenderState(newState: RenderState) {
+    this.renderState.wires = newState.wires;
+    this.renderState.inputPins = newState.inputPins;
+    this.renderState.outputPins = newState.outputPins;
+  }
 }
 
 export type AvailabilityOverlay = Map<`(${number}, ${number})`, CellTakenBy>;

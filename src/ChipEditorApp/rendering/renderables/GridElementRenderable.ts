@@ -183,8 +183,11 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
 
     // draw square for output
     if (this.type === NodeType.INPUT) {
+      console.log(this.renderState);
       const val = this.renderState.outputPins.get(this.id)?.get(0) ?? Value.X;
       const color = valToColor(val);
+
+      console.log(`val: ${val}, color: ${color}`);
 
       const outerBox: BoundingBox = {
         top: centre.y - this.OUTER_INDICATOR_RADIUS,
