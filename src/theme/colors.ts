@@ -7,7 +7,7 @@ export const COLORS = {
   outline: '#000000',
   background: '#ffffff',
   gridLine: '#dcdcdc',
-  elementBackground: '#606060'
+  stdElementBackground: '#606060'
 } as const;
 
 export type ColorKey = keyof typeof COLORS;

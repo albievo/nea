@@ -16,6 +16,7 @@ import { Wire } from "./objectControllers.ts/Wire";
 import { NodeType } from "../model/netlist/Netlist";
 import { BoundingBox } from "../rendering/renderables/Renderable";
 import { Value } from "../model/netlist/Value";
+import { InvertInputAction } from "../actions/action-types/InvertInputAction";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -72,10 +73,7 @@ export class InteractionController {
     }
     else if (this.interactionState.onInputBtn) {
       // invert the value of the state
-      this.interactionState.inputElements.set(onElement,
-        Value.negate(this.interactionState.inputElements.get(onElement)!)
-      );
-      this.chip.updateNetlist(this.interactionState.inputElements);
+      this.actions.do(new InvertInputAction(onElement));
     }
     else { // on an element but not an interactable
       // position of the mouse relative to the element
@@ -310,7 +308,7 @@ export class InteractionController {
       fromId,
       fromIdx,
       renderable: new TempWireRenderable(
-        id, fromPos
+        id, this.renderManager.renderState, fromPos
       )
     };
   }

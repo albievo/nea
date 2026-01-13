@@ -2,6 +2,7 @@ import { Vector2 } from "../../../../utils/Vector2";
 import { WireRenderable } from "./WireRenderable";
 import { Renderer } from "../../Renderer";
 import { COLORS } from "../../../../theme/colors";
+import { RenderState } from "../../RenderManager";
 
 export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -9,12 +10,11 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
 
   constructor(
     id: string,
+    renderState: RenderState,
     fromPos: Vector2
   ) {
-    super(
-      id
-    );
-    this._startingPos = fromPos
+    super(id, renderState);
+    this._startingPos = fromPos;
   }
 
   protected renderObject(renderer: Renderer): void {

@@ -25,8 +25,9 @@ export class Chip {
         inputs: 0,
         outputs: 1,
         width: 3,
-        color: 'gray',
-        type: NodeType.INPUT
+        color: 'stdElementBackground',
+        type: NodeType.INPUT,
+        renderState: renderManager.renderState
       })
     );
     
@@ -47,8 +48,9 @@ export class Chip {
         inputs: 1,
         outputs: 0,
         width: 3,
-        color: 'gray',
-        type: NodeType.OUTPUT
+        color: 'stdElementBackground',
+        type: NodeType.OUTPUT,
+        renderState: renderManager.renderState
       })
     );
   }

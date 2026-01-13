@@ -2,6 +2,7 @@ import { BoundingBox, Renderable, RenderableKind } from "./Renderable";
 import { Vector2 } from "../../../utils/Vector2";
 import { Renderer } from "../Renderer";
 import { COLORS } from "../../../theme/colors";
+import { RenderState } from "../RenderManager";
 
 export class GridRenderable extends Renderable<'grid'> {
   protected _kind = 'grid' as const;

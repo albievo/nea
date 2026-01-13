@@ -4,17 +4,16 @@ import { EventHandlerMap } from "../../../event/eventTypes";
 import { Vector2 } from "../../../../utils/Vector2";
 import { Renderer } from "../../Renderer";
 import { COLORS } from "../../../../theme/colors";
+import { RenderState } from "../../RenderManager";
 
 export class PermWireRenderable extends WireRenderable<'perm-wire'> {
   protected _kind = 'perm-wire' as const;
 
-  
   constructor(
-    id: string
+    id: string,
+    renderState: RenderState
   ) {
-    super(
-      id
-    );
+    super(id, renderState);
   }
 
   protected renderObject(renderer: Renderer): void {

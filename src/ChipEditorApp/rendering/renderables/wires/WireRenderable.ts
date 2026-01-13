@@ -2,11 +2,14 @@ import { Renderable, WireKind, BoundingBox } from "../Renderable";
 import { Vector2 } from "../../../../utils/Vector2";
 import { MathUtils } from "../../../../utils/MathUtils";
 import { Renderer } from "../../Renderer";
+import { RenderState } from "../../RenderManager";
 
 export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
   protected _startingPos = Vector2.zeroes;
   protected _endingPos = Vector2.zeroes;
+
+  private renderState: RenderState;
 
   protected boundingBox: BoundingBox = { // initialised as 0s
     top: 0,
@@ -19,9 +22,11 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
   protected readonly OUTER_WIDTH = 0.4;
 
   constructor(
-    id: string
+    id: string,
+    renderState: RenderState
   ) {
     super(id)
+    this.renderState = renderState;
   }
   
   protected drawPathToEndPoint(renderer: Renderer, width: number, color: string) {

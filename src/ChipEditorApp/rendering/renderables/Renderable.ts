@@ -1,6 +1,7 @@
 import { Camera } from "../Camera";
 import { Renderer } from "../Renderer";
 import $ from 'jquery';
+import { RenderState } from "../RenderManager";
 
 export abstract class Renderable<K extends RenderableKind> {
   protected $canvas: JQuery<HTMLElement> = $('#canvas');
@@ -11,7 +12,7 @@ export abstract class Renderable<K extends RenderableKind> {
   protected abstract getBoundingBox(): BoundingBox;
 
   constructor(
-    private _id: string
+    private _id: string,
   ) { }
 
   public get id() {

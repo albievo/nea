@@ -2,13 +2,16 @@ import { Vector2 } from "../../../utils/Vector2";
 import { BoundingBox, Renderable } from "./Renderable";
 import { Renderer } from "../Renderer";
 import { NodeType } from "../../model/netlist/Netlist";
-import { COLORS, valToColor } from "../../../theme/colors";
+import { ColorKey, COLORS, valToColor } from "../../../theme/colors";
 import { Value } from "../../model/netlist/Value";
+import { RenderState } from "../RenderManager";
 
 export class GridElementRenderable extends Renderable<'grid-element'> {
   protected _kind = 'grid-element' as const;
 
-  private type: NodeType
+  private type: NodeType;
+
+  private renderState: RenderState
 
   // in world units
   private _dims: Vector2;
@@ -26,8 +29,8 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
 
   private readonly INNER_INDICATOR_RADIUS = 0.8;
   public readonly OUTER_INDICATOR_RADIUS = 0.875;
-
-  private color: string;
+  
+  private color: ColorKey;
 
   constructor(details: GridElementDetails) {
     super(details.id);
@@ -37,6 +40,7 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     this.color = details.color;
     this._pos = details.startingPos.copy();
     this.type = details.type;
+    this.renderState = details.renderState;
 
     let yDim: number;
     if ( // hard coded to mske common configurations look nicer
@@ -132,14 +136,14 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
   }
 
   protected renderObject(renderer: Renderer) {
-    const color = this.color || 'gray'
+    const color = this.color
 
     renderer.drawPolygon([
       this.pos,
       this.pos.add(this.dims.x, 0),
       this.pos.add(0, this.dims.y),
       this.pos.add(this.dims)
-    ], color);
+    ], COLORS[color]);
     // calculate screen radius of pins
     for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
       const yPos = this.pos.y + pinIdx + 0.5;
@@ -298,6 +302,7 @@ interface GridElementDetails {
   inputs: number,
   outputs: number,
   width: number, // measured in world units
-  color: string,
-  type: NodeType
+  color: ColorKey,
+  type: NodeType,
+  renderState: RenderState
 }

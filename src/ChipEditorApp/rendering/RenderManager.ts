@@ -8,11 +8,15 @@ import { CellTakenBy, WorkingChip } from "../model/WorkingChip";
 import { InteractionState } from "../controller/InteractionState";
 import { GeneralUtils } from "../../utils/GeneralUtils";
 import { PermWireRenderable } from "./renderables/wires/PermWireRenderable";
+import { Value } from "../model/netlist/Value";
 
 export class RenderManager {
   private renderablesById = new Map<string, Renderable<RenderableKind>>();
   private _permWires: string[] = [];
+
   public previewAvailabilityOverlay: AvailabilityOverlay = new Map<`(${number}, ${number})`, CellTakenBy>();
+
+  public renderState: RenderState;
 
   constructor(
     private worldSize: Vector2,
@@ -21,6 +25,12 @@ export class RenderManager {
     private model: WorkingChip,
     private interactionState: InteractionState
   ) {
+    this.renderState = {
+      wires: new Map<string, Value>(),
+      inputPins: new Map<string, Map<number, Value>>(),
+      outputPins: new Map<string, Map<number, Value>>(),
+    }
+
     requestAnimationFrame(() => this.frame(
       this.renderer,
       this.model,
@@ -218,3 +228,9 @@ export class RenderManager {
 }
 
 export type AvailabilityOverlay = Map<`(${number}, ${number})`, CellTakenBy>;
+
+export interface RenderState {
+  wires: Map<string, Value>,
+  inputPins: Map<string, Map<number, Value>>,
+  outputPins: Map<string, Map<number, Value>>
+}
