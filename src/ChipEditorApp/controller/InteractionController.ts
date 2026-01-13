@@ -144,8 +144,6 @@ export class InteractionController {
         this.interactionState.onInputBtn = this.posIsOnInputBtn(
           onElement, event.worldPos
         );
-
-        console.log(this.interactionState.onInputBtn);
       }
 
       this.cursorHandler.updateCursor();

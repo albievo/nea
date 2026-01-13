@@ -34,6 +34,7 @@ export class CursorHandler {
     }
     if (inputBtn) {
       this.setPointer('pointer');
+      return;
     }
     if (outputPin) {
       this.setPointer('ew-resize');
