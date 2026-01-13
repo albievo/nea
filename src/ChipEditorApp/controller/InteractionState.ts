@@ -19,4 +19,5 @@ export interface InteractionState {
   panning?: {
     mouseDown: Vector2
   }
+  onInputBtn?: boolean;
 }

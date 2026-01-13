@@ -109,6 +109,16 @@ export class RenderManager {
     return element.OUTER_PIN_RADIUS;
   }
 
+  public getIndicatorRadiusOfElement(id: string): number {
+    const element = this.getGridElementWithId(id);
+
+    if (!element) {
+      return -1;
+    }
+
+    return element.OUTER_INDICATOR_RADIUS;
+  }
+
   public getPositionOfElement(id: string): Vector2 {
     const element = this.getGridElementWithId(id);
 

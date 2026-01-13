@@ -13,6 +13,8 @@ import { InteractionState } from "./InteractionState";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { CreateConnectionAction } from "../actions/action-types/CreateConnectionAction";
 import { Wire } from "./objectControllers.ts/Wire";
+import { NodeType } from "../model/netlist/Netlist";
+import { BoundingBox } from "../rendering/renderables/Renderable";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -114,6 +116,9 @@ export class InteractionController {
     // null if nothing there, the elements id if there is an element
     const takenBy = this.chip.cellHasElement(cell);
     let onElement = this.interactionState.onElement;
+    let onRenderable = onElement
+      ? this.renderManager.getGridElementWithId(onElement)
+      : undefined;
     // if we are on an element and we havent yet said that we are
     if (!onElement && takenBy) {
       this.interactionState.onElement = takenBy;
@@ -129,10 +134,16 @@ export class InteractionController {
       events.emit('mouse-moved-off-element');
     }
 
-    // check if we are on a pin
+    // check if we are on an interactable part
     if (onElement) {
       this.interactionState.onOutputPin = this.worldPosIsOnPin(event.worldPos);
       this.cursorHandler.updateCursor();
+
+      if (onRenderable && onRenderable.getType() === NodeType.INPUT) {
+        this.interactionState.onInputBtn = this.posIsOnInputBtn(
+          onElement, event.worldPos.subtract(onRenderable.pos)
+        )
+      }
     }
 
     // if we should be updating a temp wire path
@@ -301,5 +312,25 @@ export class InteractionController {
     }
 
     Chip.renderableFollowsMouse(this.chip, this.renderManager, id, offset);
+  }
+
+  private posIsOnInputBtn(id: string, position: Vector2): boolean {
+    const radius = this.renderManager.getIndicatorRadiusOfElement(id);
+    const elementPos = this.renderManager.getPositionOfElement(id);
+    const relativePos = position.subtract(elementPos);
+
+    const bb: BoundingBox = {
+      left: elementPos.x + 1.5 - radius,
+      right: elementPos.x + 1.5 + radius,
+      top: elementPos.y + 1.5 - radius,
+      bottom: elementPos.y + 1.5 + radius,
+    }
+
+    return (
+      relativePos.x > bb.left   &&
+      relativePos.x < bb.right  &&
+      relativePos.y > bb.top    &&
+      relativePos.y < bb.bottom
+    )
   }
 }

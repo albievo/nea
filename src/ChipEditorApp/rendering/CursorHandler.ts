@@ -18,6 +18,7 @@ export class CursorHandler {
     const space = this.state.space;
     const mouseOnElement = this.state.onElement !== undefined;
     const draggingElement = this.state.draggingElement !== undefined;
+    const inputBtn = this.state.onInputBtn;
 
     if (panning) {
       this.setPointer('grabbing');
@@ -30,6 +31,9 @@ export class CursorHandler {
     if (space) {
       this.setPointer('grab');
       return;
+    }
+    if (inputBtn) {
+      this.setPointer('pointer');
     }
     if (outputPin) {
       this.setPointer('ew-resize');
