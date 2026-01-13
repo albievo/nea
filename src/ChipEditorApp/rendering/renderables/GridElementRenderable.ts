@@ -186,8 +186,6 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       const val = this.renderState.outputPins.get(this.id)?.get(0) ?? Value.X;
       const color = valToColor(val);
 
-      console.log(this.renderState);
-
       const outerBox: BoundingBox = {
         top: centre.y - this.OUTER_INDICATOR_RADIUS,
         right: centre.x + this.OUTER_INDICATOR_RADIUS,

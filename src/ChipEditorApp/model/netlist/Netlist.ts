@@ -239,11 +239,12 @@ export class Netlist {
     
     // add all signals from input elements to the queue
     for (const inputId of this.inputNodeIds) {
-    if (!input.has(inputId)) {
-      throw new Error(`input ${inputId} has not been provided a value`);
-    }
+      if (!input.has(inputId)) {
+        throw new Error(`input ${inputId} has not been provided a value`);
+      }
 
-    const inputVal = input.get(inputId)!;
+      const inputVal = input.get(inputId)!;
+      this.nodesById.get(inputId)?.setInputNodeOutputVal(inputVal);
 
       this.enqueueSignalsFromPinWithValue(
         signalQueue, 
@@ -441,6 +442,10 @@ export class NetlistNode {
     if (this.type == NodeType.CHIP) {
       this.outputVals = this.chipBehaviour!.evaluate(this.inputVals);
     }
+  }
+  public setInputNodeOutputVal(val: Value) {
+    if (!(this.type === NodeType.INPUT)) return;
+    this.outputVals = [val];
   }
 
   public getInputVal(inputIdx: number): Value {

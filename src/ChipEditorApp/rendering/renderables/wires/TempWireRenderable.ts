@@ -22,8 +22,8 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
     const val = this.renderState.wires.get(this.id) ?? Value.X;
     const color = valToColor(val);
 
-    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS[color]);
-    this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS.on);
+    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
+    this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS[color]);
   }
 
   // private handleMouseChangedCell(movement: {from: Vector2, to: Vector2}) {
