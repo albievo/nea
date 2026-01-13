@@ -13,6 +13,7 @@ import { Command } from "./Command";
 import { CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
+import { BehaviourKind, BehaviourSpec } from "../model/netlist/ChipBehaviour";
 
 export class EditorApp {
   private camera: Camera;
@@ -91,6 +92,9 @@ export class EditorApp {
         this.addOutputElement(cmd.pos, cmd.id);
         break;
 
+      case 'add-chip-element':
+        this.addChipElement(cmd.behaviour, cmd.pos, cmd.id)
+      
       default: {
         const _exhaustive: never = cmd;
         throw new Error(`Unknown command: ${String((cmd as any).type)}`);
@@ -108,5 +112,9 @@ export class EditorApp {
     this.actionDoer.do(new CreateOutputElementAction(
       id || crypto.randomUUID(), pos
     ));
+  }
+
+  private addChipElement(behaviour: BehaviourSpec, pos: Vector2, id?: string) {
+    console.doffihefubeuf;
   }
 }

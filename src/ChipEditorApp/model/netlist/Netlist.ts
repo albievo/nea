@@ -378,6 +378,10 @@ export class Netlist {
 
     return state;
   }
+
+  public static fromSerialized(serialized: SerializedNetlist): Netlist {
+    throw new Error('not yet implemented');
+  }
 }
 
 export class NetlistNode {
@@ -481,4 +485,8 @@ export interface Signal {
   value: Value,
   from: OutputPin,
   to: InputPin
+}
+
+export interface SerializedNetlist {
+
 }

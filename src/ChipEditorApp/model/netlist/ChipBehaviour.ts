@@ -1,4 +1,4 @@
-import { Netlist } from "./Netlist";
+import { Netlist, SerializedNetlist } from "./Netlist";
 import { Value } from "./Value";
 
 export abstract class ChipBehaviour {
@@ -271,3 +271,10 @@ const primitiveInformation = {
   inputs: number,
   outputs: number
 }>
+
+export type BehaviourSpec = 
+  | { kind: "primitive"; type: PrimitiveType }
+  | { kind: "truthtable"; table: number[] }
+  | { kind: "netlist"; definition: SerializedNetlist };
+
+export type BehaviourKind = 'primitive' | 'truthtable' | 'netlist'
