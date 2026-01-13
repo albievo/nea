@@ -15,7 +15,9 @@ export class CreateConnectionAction implements UndoableAction {
     PermWire.create(
       ctx.chip, ctx.renderManager,
       this.id, this.from, this.to
-    )
+    );
+
+    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
   }
 
   undo(ctx: ActionContext): void {
@@ -23,5 +25,7 @@ export class CreateConnectionAction implements UndoableAction {
       ctx.chip, ctx.renderManager,
       this.id
     );
+
+    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
   }
 }

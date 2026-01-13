@@ -29,10 +29,7 @@ export class Chip {
         type: NodeType.INPUT
       })
     );
-
-    if (!interactionState.inputElements) {
-      interactionState.inputElements = new Map<string, Value>();
-    }
+    
     interactionState.inputElements.set(id, Value.ZERO);
   }
 

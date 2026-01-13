@@ -14,7 +14,9 @@ abstract class CreateElementAction implements UndoableAction {
     Chip.deleteChip(
       ctx.chip, ctx.renderManager,
       this.id
-    )
+    );
+
+    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
   }
 
   public abstract do(ctx: ActionContext): void
@@ -32,6 +34,8 @@ export class CreateInputElementAction extends CreateElementAction {
       ctx.chip, ctx.renderManager, ctx.interactionState,
       this.id, this.pos
     );
+
+    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
   }
 }
 
@@ -46,6 +50,8 @@ export class CreateOutputElementAction extends CreateElementAction {
     Chip.createOutputChip(
       ctx.chip, ctx.renderManager,
       this.id, this.pos
-    )
+    );
+
+    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
   }
 }

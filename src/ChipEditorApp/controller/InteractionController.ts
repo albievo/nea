@@ -71,17 +71,11 @@ export class InteractionController {
       this.cursorHandler.updateCursor();
     }
     else if (this.interactionState.onInputBtn) {
-      if ( // ensure that the input element actually exists
-        this.interactionState.inputElements &&
-        this.interactionState.inputElements.has(onElement)
-      ) {
-        // invert the value of the state
-        this.interactionState.inputElements.set(onElement,
-          Value.negate(this.interactionState.inputElements.get(onElement)!)
-        );
-
-        console.log(this.interactionState.inputElements.get(onElement));
-      }
+      // invert the value of the state
+      this.interactionState.inputElements.set(onElement,
+        Value.negate(this.interactionState.inputElements.get(onElement)!)
+      );
+      console.log(this.interactionState.inputElements.get(onElement));
     }
     else { // on an element but not an interactable
       // position of the mouse relative to the element

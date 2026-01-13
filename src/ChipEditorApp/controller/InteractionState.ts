@@ -21,5 +21,5 @@ export interface InteractionState {
     mouseDown: Vector2
   }
   onInputBtn?: boolean;
-  inputElements?: Map<string, Value>
+  inputElements: Map<string, Value>
 }

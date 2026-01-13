@@ -200,7 +200,7 @@ export class WorkingChip {
   }
 
   public updateNetlist(inputs: Map<string, Value>) {
-    this.netlist.evaluate(inputs);
+    console.log(this.netlist.evaluate(inputs));
   }
 }
 

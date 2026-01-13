@@ -12,6 +12,7 @@ import { GridRenderable } from "../rendering/renderables/GridRenderable";
 import { Command } from "./Command";
 import { CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
+import { Value } from "../model/netlist/Value";
 
 export class EditorApp {
   private camera: Camera;
@@ -19,7 +20,7 @@ export class EditorApp {
   private renderManager: RenderManager;
   private input: InputManager;
   private chip: WorkingChip;
-  private interactionState: InteractionState = { };
+  private interactionState: InteractionState = { inputElements: new Map<string, Value>() };
   private actionDoer: ActionDoer;
   private controller: InteractionController;
   private cursorHandler: CursorHandler;
