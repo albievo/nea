@@ -152,7 +152,9 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       // draw the inputs
       if (inputIdx !== -1) { // if we should render a pin here
         const centre = new Vector2(this.pos.x, yPos);
-        this.renderInputPin(renderer, centre, Value.ONE);
+        const val = this.renderState.inputPins.get(this.id)?.get(inputIdx) ?? Value.X;
+
+        this.renderInputPin(renderer, centre, val);
       }
 
       const outputIdx = this.outputPositions[pinIdx]
@@ -160,7 +162,9 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       if (outputIdx !== -1) { // if we should render a pin here
         const xPos = this.pos.x + this.dims.x
         const centre = new Vector2(xPos, yPos);
-        this.renderOutputPin(renderer, centre, Value.ONE);
+        const val = this.renderState.outputPins.get(this.id)?.get(outputIdx) ?? Value.X;
+
+        this.renderOutputPin(renderer, centre, val);
       }
     }
 
@@ -170,12 +174,20 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
 
     // draw circle for output
     if (this.type === NodeType.OUTPUT) {
+      const val = this.renderState.inputPins.get(this.id)?.get(0) ?? Value.X;
+      const color = valToColor(val);
+
       renderer.drawCircle(centre, this.OUTER_INDICATOR_RADIUS, COLORS.outline);
-      renderer.drawCircle(centre, this.INNER_INDICATOR_RADIUS, COLORS.on);
+      renderer.drawCircle(centre, this.INNER_INDICATOR_RADIUS, COLORS[color]);
     }
 
     // draw square for output
     if (this.type === NodeType.INPUT) {
+      const val = this.renderState.outputPins.get(this.id)?.get(0) ?? Value.X;
+      const color = valToColor(val);
+
+      console.log(this.renderState);
+
       const outerBox: BoundingBox = {
         top: centre.y - this.OUTER_INDICATOR_RADIUS,
         right: centre.x + this.OUTER_INDICATOR_RADIUS,
@@ -189,7 +201,7 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
         left: centre.x - this.INNER_INDICATOR_RADIUS,
       }
       renderer.drawRectFromBox(outerBox, COLORS.outline);
-      renderer.drawRectFromBox(innerBox, COLORS.on);
+      renderer.drawRectFromBox(innerBox, COLORS[color]);
     }
   }
 

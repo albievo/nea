@@ -3,13 +3,14 @@ import { Vector2 } from "../../../../utils/Vector2";
 import { MathUtils } from "../../../../utils/MathUtils";
 import { Renderer } from "../../Renderer";
 import { RenderState } from "../../RenderManager";
+import { Color, ColorKey } from "../../../../theme/colors";
 
 export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
   protected _startingPos = Vector2.zeroes;
   protected _endingPos = Vector2.zeroes;
 
-  private renderState: RenderState;
+  protected renderState: RenderState;
 
   protected boundingBox: BoundingBox = { // initialised as 0s
     top: 0,
@@ -29,7 +30,7 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
     this.renderState = renderState;
   }
   
-  protected drawPathToEndPoint(renderer: Renderer, width: number, color: string) {
+  protected drawPathToEndPoint(renderer: Renderer, width: number, color: Color) {
     const firstSegmentPoints: [Vector2, Vector2] = [
       this.startingPos.add(0, 0.5 - width / 2),
       this.startingPos.add(0, 0.5 + width / 2)

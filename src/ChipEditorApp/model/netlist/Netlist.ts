@@ -4,6 +4,8 @@ import { OutputPin, InputPin } from "./Pins";
 import { Value } from "./Value";
 import { Queue } from "../../../utils/Queue";
 import { GeneralUtils } from "../../../utils/GeneralUtils";
+import { RenderState } from "../../rendering/RenderManager";
+import { createEmptyRenderState } from "../../rendering/RenderState";
 
 export class Netlist {
   private nodes: NetlistNode[];
@@ -342,6 +344,38 @@ export class Netlist {
 
   public getConnection(id: string): Connection | undefined {
     return this.connectionsById.get(id);
+  }
+
+  public getRenderState(): RenderState {
+    const state = createEmptyRenderState();
+
+    for (const node of this.nodes) {
+      // add input values
+      const nodeInputs = new Map<number, Value>();
+      for (let inputIdx = 0; inputIdx < node.getInputNum(); inputIdx++) {
+        nodeInputs.set(inputIdx, node.getInputVal(inputIdx));
+      }
+      state.inputPins.set(node.getId(), nodeInputs);
+
+      // add output values
+      const nodeOutputs = new Map<number, Value>();
+      for (let outputIdx = 0; outputIdx < node.getOutputNum(); outputIdx++) {
+        nodeOutputs.set(outputIdx, node.getOutputVal(outputIdx));
+      }
+      state.outputPins.set(node.getId(), nodeOutputs);
+
+      // add connection values
+      for (const connection of this.connections) {
+        const connectionFrom = connection.getFrom();
+        const connectionFromNode = this.nodesById.get(connectionFrom.nodeId)
+        if (!connectionFromNode) continue;
+
+        const value = connectionFromNode.getOutputVal(connectionFrom.outputIdx);
+        state.wires.set(connection.getId(), value);
+      }
+    }
+
+    return state;
   }
 }
 

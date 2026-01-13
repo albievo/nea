@@ -16,7 +16,8 @@ abstract class CreateElementAction implements UndoableAction {
       this.id
     );
 
-    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    ctx.renderManager.renderState = newState;
   }
 
   public abstract do(ctx: ActionContext): void
@@ -35,7 +36,8 @@ export class CreateInputElementAction extends CreateElementAction {
       this.id, this.pos
     );
 
-    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    ctx.renderManager.renderState = newState;
   }
 }
 
@@ -52,6 +54,7 @@ export class CreateOutputElementAction extends CreateElementAction {
       this.id, this.pos
     );
 
-    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    ctx.renderManager.renderState = newState;
   }
 }

@@ -7,6 +7,7 @@ import { BoundingBox } from "../rendering/renderables/Renderable";
 import { InputPin, OutputPin } from "./netlist/Pins";
 import { Connection } from "./netlist/Connection";
 import { Value } from "./netlist/Value";
+import { RenderState } from "../rendering/RenderManager";
 
 export class WorkingChip {
   private chipPositionsById = new Map<string, Vector2>;
@@ -199,8 +200,12 @@ export class WorkingChip {
     return this.netlist.getConnection(id);
   }
 
-  public updateNetlist(inputs: Map<string, Value>) {
-    console.log(this.netlist.evaluate(inputs));
+  /**
+   * returns the render state after the evaluation
+   */
+  public updateNetlist(inputs: Map<string, Value>): RenderState {
+    this.netlist.evaluate(inputs);
+    return this.netlist.getRenderState();
   }
 }
 

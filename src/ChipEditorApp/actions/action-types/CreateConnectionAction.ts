@@ -17,7 +17,8 @@ export class CreateConnectionAction implements UndoableAction {
       this.id, this.from, this.to
     );
 
-    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    ctx.renderManager.renderState = newState;
   }
 
   undo(ctx: ActionContext): void {
@@ -26,6 +27,7 @@ export class CreateConnectionAction implements UndoableAction {
       this.id
     );
 
-    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    ctx.renderManager.renderState = newState;
   }
 }

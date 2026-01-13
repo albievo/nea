@@ -10,6 +10,8 @@ export class InvertInputAction implements NonUndoableAction {
     ctx.interactionState.inputElements.set(this.id,
       Value.negate(ctx.interactionState.inputElements.get(this.id)!)
     );
-    ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    
+    const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
+    ctx.renderManager.renderState = newState;
   }
 }

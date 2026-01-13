@@ -5,6 +5,7 @@ import events from '../event/events';
 import { Camera } from './Camera';
 import { MathUtils } from '../../utils/MathUtils';
 import { BoundingBox } from './renderables/Renderable';
+import { Color } from '../../theme/colors';
 
 export class Renderer {
   private $canvas = $('canvas');
@@ -138,7 +139,7 @@ export class Renderer {
     this.ctx.fill();
   }
 
-  public drawCircle(centre: Vector2, radius: number, color: string) {
+  public drawCircle(centre: Vector2, radius: number, color: Color) {
     const centreScreen = this.camera.worldPosToScreen(centre);
     const radiusScreen = this.camera.worldUnitsToScreenPixels(radius);
 

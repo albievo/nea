@@ -1,8 +1,9 @@
 import { Vector2 } from "../../../../utils/Vector2";
 import { WireRenderable } from "./WireRenderable";
 import { Renderer } from "../../Renderer";
-import { COLORS } from "../../../../theme/colors";
+import { COLORS, valToColor } from "../../../../theme/colors";
 import { RenderState } from "../../RenderManager";
+import { Value } from "../../../model/netlist/Value";
 
 export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -18,7 +19,10 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   }
 
   protected renderObject(renderer: Renderer): void {
-    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
+    const val = this.renderState.wires.get(this.id) ?? Value.X;
+    const color = valToColor(val);
+
+    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS[color]);
     this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS.on);
   }
 

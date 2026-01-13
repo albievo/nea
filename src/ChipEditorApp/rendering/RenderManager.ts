@@ -9,6 +9,7 @@ import { InteractionState } from "../controller/InteractionState";
 import { GeneralUtils } from "../../utils/GeneralUtils";
 import { PermWireRenderable } from "./renderables/wires/PermWireRenderable";
 import { Value } from "../model/netlist/Value";
+import { createEmptyRenderState } from "./RenderState";
 
 export class RenderManager {
   private renderablesById = new Map<string, Renderable<RenderableKind>>();
@@ -25,11 +26,7 @@ export class RenderManager {
     private model: WorkingChip,
     private interactionState: InteractionState
   ) {
-    this.renderState = {
-      wires: new Map<string, Value>(),
-      inputPins: new Map<string, Map<number, Value>>(),
-      outputPins: new Map<string, Map<number, Value>>(),
-    }
+    this.renderState = createEmptyRenderState();
 
     requestAnimationFrame(() => this.frame(
       this.renderer,

@@ -11,6 +11,7 @@ export const COLORS = {
 } as const;
 
 export type ColorKey = keyof typeof COLORS;
+export type Color = typeof COLORS[ColorKey];
 
 export function valToColor(val: Value): ColorKey {
   switch (val) {
