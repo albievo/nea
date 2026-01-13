@@ -55,7 +55,8 @@ export class EditorApp {
     this.actionDoer = new ActionDoer(
       this.renderManager,
       this.chip,
-      this.camera
+      this.camera,
+      this.interactionState
     );
 
     this.controller = new InteractionController(

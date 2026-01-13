@@ -1,6 +1,7 @@
 import { RenderManager } from "../rendering/RenderManager";
 import { Camera } from "../rendering/Camera";
 import { CellTakenBy, WorkingChip } from "../model/WorkingChip";
+import { InteractionState } from "../controller/InteractionState";
 
 export interface BaseAction {
   do(ctx: ActionContext): void;
@@ -21,4 +22,5 @@ export interface ActionContext {
   renderManager: RenderManager;
   camera: Camera;
   chip: WorkingChip;
+  interactionState: InteractionState;
 }

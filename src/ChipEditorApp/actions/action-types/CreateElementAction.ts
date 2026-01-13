@@ -29,9 +29,9 @@ export class CreateInputElementAction extends CreateElementAction {
 
   do(ctx: ActionContext): void {
     Chip.createInputChip(
-      ctx.chip, ctx.renderManager,
+      ctx.chip, ctx.renderManager, ctx.interactionState,
       this.id, this.pos
-    )
+    );
   }
 }
 

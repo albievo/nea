@@ -15,6 +15,7 @@ import { CreateConnectionAction } from "../actions/action-types/CreateConnection
 import { Wire } from "./objectControllers.ts/Wire";
 import { NodeType } from "../model/netlist/Netlist";
 import { BoundingBox } from "../rendering/renderables/Renderable";
+import { Value } from "../model/netlist/Value";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -56,10 +57,11 @@ export class InteractionController {
     }
     
     const onElement = this.interactionState.onElement;
+    if (!onElement) return; // the rest is only for if we're on an element: otherwise, skip
+
     const onOutputPin = this.interactionState.onOutputPin
     if (
-      onOutputPin !== undefined &&
-      onElement
+      onOutputPin !== undefined
     ) { // on a pin
       this.createTempWire(
         onElement,
@@ -68,7 +70,20 @@ export class InteractionController {
       ); // create a temporary wire
       this.cursorHandler.updateCursor();
     }
-    else if (onElement) { // on an element but not a pin
+    else if (this.interactionState.onInputBtn) {
+      if ( // ensure that the input element actually exists
+        this.interactionState.inputElements &&
+        this.interactionState.inputElements.has(onElement)
+      ) {
+        // invert the value of the state
+        this.interactionState.inputElements.set(onElement,
+          Value.negate(this.interactionState.inputElements.get(onElement)!)
+        );
+
+        console.log(this.interactionState.inputElements.get(onElement));
+      }
+    }
+    else { // on an element but not an interactable
       // position of the mouse relative to the element
       const elementPos = cell.subtract(
         this.renderManager.getPositionOfElement(onElement)

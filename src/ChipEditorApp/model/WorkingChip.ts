@@ -6,6 +6,7 @@ import { NetlistBehaviour } from "./netlist/ChipBehaviour";
 import { BoundingBox } from "../rendering/renderables/Renderable";
 import { InputPin, OutputPin } from "./netlist/Pins";
 import { Connection } from "./netlist/Connection";
+import { Value } from "./netlist/Value";
 
 export class WorkingChip {
   private chipPositionsById = new Map<string, Vector2>;
@@ -196,6 +197,10 @@ export class WorkingChip {
 
   public getConnection(id: string): Connection | undefined {
     return this.netlist.getConnection(id);
+  }
+
+  public updateNetlist(inputs: Map<string, Value>) {
+    this.netlist.evaluate(inputs);
   }
 }
 

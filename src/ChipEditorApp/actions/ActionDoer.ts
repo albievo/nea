@@ -3,6 +3,7 @@ import { Stack } from "../../utils/Stack";
 import { RenderManager } from "../rendering/RenderManager";
 import { WorkingChip } from "../model/WorkingChip";
 import { Camera } from "../rendering/Camera";
+import { InteractionState } from "../controller/InteractionState";
 
 
 export class ActionDoer {
@@ -13,21 +14,26 @@ export class ActionDoer {
   constructor(
     renderManager: RenderManager,
     chip: WorkingChip,
-    camera: Camera
+    camera: Camera,
+    interactionState: InteractionState
   ) {
     this.ctx = {
       renderManager, 
       chip,
-      camera
+      camera,
+      interactionState
     }
   }
 
-  public do(action: Action) {
+  /**
+   * @returns true if the action succeeded, false otherwise
+   */
+  public do(action: Action): boolean {
     try {
       action.do(this.ctx);
     } catch (err) {
       console.error(err);
-      return;
+      return false;
     }
 
     if (action.undoable) {
@@ -35,6 +41,8 @@ export class ActionDoer {
     }
 
     this.redoStack.clear();
+
+    return true;
   }
 
   public undo() {

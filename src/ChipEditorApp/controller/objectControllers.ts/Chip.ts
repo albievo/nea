@@ -7,10 +7,12 @@ import { RenderManager } from "../../rendering/RenderManager";
 import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
 import { BoundingBox } from "../../rendering/renderables/Renderable";
 import { PermWire } from "./PermWire";
+import { InteractionState } from "../InteractionState";
+import { Value } from "../../model/netlist/Value";
 
 export class Chip {
   public static createInputChip(
-    model: WorkingChip, renderManager: RenderManager,
+    model: WorkingChip, renderManager: RenderManager, interactionState: InteractionState,
     id: string, pos: Vector2
   ) {
     model.addChip(id, pos, new Vector2(3, 3), NodeType.INPUT);
@@ -27,6 +29,11 @@ export class Chip {
         type: NodeType.INPUT
       })
     );
+
+    if (!interactionState.inputElements) {
+      interactionState.inputElements = new Map<string, Value>();
+    }
+    interactionState.inputElements.set(id, Value.ZERO);
   }
 
   public static createOutputChip(
