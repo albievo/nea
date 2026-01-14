@@ -14,7 +14,7 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
     renderState: RenderState,
     fromPos: Vector2
   ) {
-    super(id, renderState);
+    super(id, renderState);4
     this._startingPos = fromPos;
   }
 

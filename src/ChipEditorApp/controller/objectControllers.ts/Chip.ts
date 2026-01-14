@@ -9,6 +9,7 @@ import { BoundingBox } from "../../rendering/renderables/Renderable";
 import { PermWire } from "./PermWire";
 import { InteractionState } from "../InteractionState";
 import { Value } from "../../model/netlist/Value";
+import { ChipBehaviour } from "../../model/netlist/ChipBehaviour";
 
 export class Chip {
   public static createInputChip(
@@ -130,5 +131,28 @@ export class Chip {
 
   private static generateDraggingId(id: string) {
     return `${id}-renderable-following-mouse`;
+  }
+
+  public static createChip(
+    model: WorkingChip, renderManager: RenderManager,
+    id: string, behaviour: ChipBehaviour, pos: Vector2
+  ) {
+    const element = new GridElementRenderable({
+      id: id,
+      startingPos: pos,
+      inputs: behaviour.inputs,
+      outputs: behaviour.outputs,
+      width: 3, // currently hard-coded, could be made more dynamic
+      color: 'stdElementBackground',
+      type: NodeType.CHIP,
+      renderState: renderManager.renderState
+    });
+
+    model.addChip(id, pos, element.dims, NodeType.CHIP, behaviour);
+
+    // add renderable to render manager
+    renderManager.addRenderable(
+      element
+    );
   }
 }

@@ -10,10 +10,10 @@ import { InteractionState } from "../controller/InteractionState";
 import { ActionDoer } from "../actions/ActionDoer";
 import { GridRenderable } from "../rendering/renderables/GridRenderable";
 import { Command } from "./Command";
-import { CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
+import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
-import { BehaviourKind, BehaviourSpec } from "../model/netlist/ChipBehaviour";
+import { BehaviourKind, BehaviourSpec, createBehaviour } from "../model/netlist/ChipBehaviour";
 
 export class EditorApp {
   private camera: Camera;
@@ -93,7 +93,8 @@ export class EditorApp {
         break;
 
       case 'add-chip-element':
-        this.addChipElement(cmd.behaviour, cmd.pos, cmd.id)
+        this.addChipElement(cmd.behaviour, cmd.pos, cmd.id);
+        break;
       
       default: {
         const _exhaustive: never = cmd;
@@ -114,7 +115,10 @@ export class EditorApp {
     ));
   }
 
-  private addChipElement(behaviour: BehaviourSpec, pos: Vector2, id?: string) {
-    console.doffihefubeuf;
+  private addChipElement(spec: BehaviourSpec, pos: Vector2, id?: string) {
+    const behaviour = createBehaviour(spec);
+    this.actionDoer.do(new CreateChipElementAction(
+      id || crypto.randomUUID(), behaviour, pos
+    ));
   }
 }

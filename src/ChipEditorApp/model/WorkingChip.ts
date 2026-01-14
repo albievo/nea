@@ -2,7 +2,7 @@ import { Vector2 } from "../../utils/Vector2";
 import events from "../event/events";
 import { GeneralUtils } from "../../utils/GeneralUtils";
 import { Netlist, NetlistNode, NodeType } from "./netlist/Netlist";
-import { NetlistBehaviour } from "./netlist/ChipBehaviour";
+import { ChipBehaviour, NetlistBehaviour } from "./netlist/ChipBehaviour";
 import { BoundingBox } from "../rendering/renderables/Renderable";
 import { InputPin, OutputPin } from "./netlist/Pins";
 import { Connection } from "./netlist/Connection";
@@ -125,7 +125,7 @@ export class WorkingChip {
 
   public addChip(
     id: string, pos: Vector2, dims: Vector2,
-    type: NodeType, behaviour?: NetlistBehaviour
+    type: NodeType, behaviour?: ChipBehaviour
   ) {
     try {
       this.netlist.addNode(new NetlistNode(
