@@ -9,8 +9,8 @@ describe('primitives behave as intended', () => {
     const andBehaviour = new PrimitiveBehaviour('and');
 
     expect(
-      andBehaviour.evaluate([Value.ONE, Value.ONE])[0]
-    ).toEqual(Value.ONE);
+      andBehaviour.evaluate([Value.ZERO, Value.ZERO])[0]
+    ).toEqual(Value.ZERO);
     expect(
       andBehaviour.evaluate([Value.ZERO, Value.ONE])[0]
     ).toEqual(Value.ZERO);

@@ -32,7 +32,11 @@ app.execute({
 });
 
 app.execute({
-  type: 'add-output-element',
+  type: 'add-chip-element',
+  behaviour: {
+    kind: 'primitive',
+    type: 'and'
+  },
   pos: new Vector2(30, 30),
-  id: 'test-output-2'
+  id: 'test-and-chip'
 })

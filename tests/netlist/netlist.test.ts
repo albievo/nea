@@ -367,4 +367,82 @@ describe("evaluating a netlist", () => {
     expect(holding0.returnReason).toEqual("stable");
     expect(holding0.outputValues[0]).toEqual(Value.ZERO);
   })
+
+  test("evalutating an and netlist works", () => {
+    const nodeIds = ['input-1', 'input-2', 'and-chip', 'output']
+
+
+    const netlist = new Netlist([
+      new NetlistNode(
+        nodeIds[0],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[1],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[2],
+        NodeType.CHIP,
+        new PrimitiveBehaviour('and')
+      ),
+      new NetlistNode(
+        nodeIds[3],
+        NodeType.OUTPUT,
+      ),
+    ], [
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[0],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 0
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[1],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 1
+        }
+      ),
+    ]);
+
+    netlist.evaluate(new Map([
+      [nodeIds[0], Value.ZERO],
+      [nodeIds[1], Value.ZERO],
+    ]));
+
+    netlist.addConnection(
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[2],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[3],
+          inputIdx: 0
+        }
+      )
+    )
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate(new Map([
+          [nodeIds[0], Value.ZERO],
+          [nodeIds[1], Value.ZERO],
+        ])).outputValues,
+        
+        [Value.ZERO]
+      )
+    ).toBeTruthy();
+  })
 })
