@@ -230,6 +230,9 @@ export class Netlist {
   }
 
   public evaluate(input: Map<string, Value>, reset: boolean = false): NetlistOutput {
+
+    const outputsSent = new Map<string, Map<number, boolean>>();
+
     if (reset) {
       this.reset();
     }
@@ -252,7 +255,6 @@ export class Netlist {
         inputVal
       );
     }
-
 
     let iterations = 0;
 
@@ -284,8 +286,12 @@ export class Netlist {
       
       const newOutputs = currentSignalToNode.getOutputs();
       newOutputs.forEach((value, idx) => {
-        // if the output is the same, dont send a signal
-        if (value === oldOutputs[idx]) {
+        const signalsSentFromNode = outputsSent.get(currentSignal.to.nodeId);
+        const signalSentFromPin = signalsSentFromNode?.has(idx) ?? false;
+
+        // if the output is the same, and the pin has already sent one signal,
+        // dont send another
+        if (value === oldOutputs[idx] && signalSentFromPin) {
           return;
         }
 
@@ -294,6 +300,13 @@ export class Netlist {
           { nodeId: currentSignal.to.nodeId, outputIdx: idx },
           value
         )
+
+        // tell outputsSent that we have sent a signal from this node
+        if (!signalSentFromPin) {
+          const innerMap = signalsSentFromNode ?? new Map<number, boolean>();
+          innerMap.set(idx, true);
+          outputsSent.set(currentSignal.to.nodeId, innerMap);
+        }
       })
     }
 
