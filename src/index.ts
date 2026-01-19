@@ -40,3 +40,13 @@ app.execute({
   pos: new Vector2(30, 30),
   id: 'test-and-chip'
 })
+
+app.execute({
+  type: 'add-chip-element',
+  behaviour: {
+    kind: 'primitive',
+    type: 'not'
+  },
+  pos: new Vector2(20, 25),
+  id: 'test-not-chip'
+})

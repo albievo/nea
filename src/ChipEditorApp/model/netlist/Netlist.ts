@@ -336,6 +336,10 @@ export class Netlist {
     const inputToNode = this.inputIndex.get(connection.getTo().nodeId);
     inputToNode?.delete(connection.getTo().inputIdx);
 
+    // set the value that the connection leads to to -1
+    const toNode = this.nodesById.get(connection.getTo().nodeId);
+    toNode?.setInputVal(connection.getTo().inputIdx, Value.X);
+
     // rmv from output index
     const outputFromNode = this.outputIndex.get(connection.getFrom().nodeId);
     if (!outputFromNode) return;
