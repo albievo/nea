@@ -27,7 +27,18 @@ module.exports = {
 
   module: {
     rules: [
-      {
+      { // HTML files
+        test: /\.html$/i,
+        loader: 'html-loader',
+        options: {
+          sources: {
+            list: [
+              '...', // keep default processing
+            ],
+          },
+        },
+      },
+      { // SCSS files
         test: /\.scss$/, // match SCSS files
         use: [
           MiniCssExtractPlugin.loader,
@@ -35,12 +46,12 @@ module.exports = {
           'sass-loader', // compile SCSS into CSS
         ],
       },
-      {
+      { // TS files
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
       },
-      {
+      { // image files in assets/
         test: /\.(png|jpe?g|gif|svg|webp|avif|ico)$/i,
         type: 'asset/resource',
         generator: {
