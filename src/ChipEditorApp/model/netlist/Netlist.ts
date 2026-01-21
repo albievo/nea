@@ -349,7 +349,7 @@ export class Netlist {
     ));
     outputFromNode?.delete(connection?.getFrom().outputIdx);
 
-    // remove from canonical table
+    // ---- remove from canonical table ----
     this.connections = this.connections.filter(
       connection => connection.getId() !== id
     );

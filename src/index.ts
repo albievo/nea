@@ -32,21 +32,27 @@ app.execute({
 });
 
 app.execute({
+  type: 'add-output-element',
+  pos: new Vector2(30, 30),
+  id: 'test-output-2'
+});
+
+app.execute({
   type: 'add-chip-element',
   behaviour: {
     kind: 'primitive',
-    type: 'and'
+    type: 'nand'
   },
-  pos: new Vector2(30, 30),
-  id: 'test-and-chip'
+  pos: new Vector2(20, 25),
+  id: 'test-nand-chip-1'
 })
 
 app.execute({
   type: 'add-chip-element',
   behaviour: {
     kind: 'primitive',
-    type: 'not'
+    type: 'nand'
   },
-  pos: new Vector2(20, 25),
-  id: 'test-not-chip'
+  pos: new Vector2(20, 30),
+  id: 'test-nand-chip-2'
 })

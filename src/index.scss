@@ -13,10 +13,8 @@ body {
 }
 
 #canvas-wrapper {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  inset: 0;
 
   #canvas {
     position: absolute;
@@ -26,5 +24,78 @@ body {
     padding: 0;
     height: 100%;
     width: 100%;
+  }
+}
+
+#ui {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+
+  #chip-selection-box {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 300px;
+
+    padding: 10px 20px 10px 20px;
+
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 20px;
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+
+    &-title {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+
+      display: flex;
+      align-items: center;
+      gap: auto;
+
+      &::-webkit-details-marker { display: none; }
+      &::marker { content: ""; }
+      h2 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+    }
+
+    // left arrow (chevron) built with borders
+    &-chev {
+      width: 10px;
+      height: 10px;
+
+      border-right: 2px solid white;
+      border-bottom: 2px solid white;
+
+      margin-left: auto;
+
+      // points left by default
+      transform: rotate(135deg);
+      transition: transform 160ms ease;
+    }
+
+    &[open] #chip-selection-box-chev {
+      transform: rotate(45deg); // down
+    }
+
+    &-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 10px;
+
+      .chip-preview {
+        width: 100%;
+
+        h4 {
+          text-align: center;
+        }
+      }
+    }
   }
 }

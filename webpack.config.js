@@ -39,7 +39,21 @@ module.exports = {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
-      }
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg|webp|avif|ico)$/i,
+        type: 'asset/resource',
+        generator: {
+          // outputs to: public/assets/<original path under src/assets>/filename.ext
+          filename: (pathData) => {
+            // pathData.filename is the original resource path relative to context
+            const rel = pathData.filename
+              .replace(/^src[\\/]/, '')       // -> "assets/icons/logo.png"
+              .replace(/\\/g, '/');           // normalize windows slashes
+            return rel;                        // -> emitted to "public/assets/icons/logo.png"
+          },
+        },
+      },
     ],
   },
 
