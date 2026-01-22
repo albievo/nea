@@ -1,6 +1,6 @@
 import { Connection } from "./Connection";
-import { ChipBehaviour } from "./ChipBehaviour";
-import { OutputPin, InputPin } from "./Pins";
+import { ChipBehaviour } from "../chip/ChipBehaviour";
+import { OutputPin, InputPin } from "../chip/Pins";
 import { Value } from "./Value";
 import { Queue } from "../../../utils/Queue";
 import { GeneralUtils } from "../../../utils/GeneralUtils";

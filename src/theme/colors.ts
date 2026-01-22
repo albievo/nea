@@ -1,4 +1,4 @@
-import { Value } from "../ChipEditorApp/model/netlist/Value";
+import { Value } from "../editor/model/netlist/Value";
 
 export const COLORS = {
   on: '#7ed957',

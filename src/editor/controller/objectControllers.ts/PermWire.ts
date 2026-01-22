@@ -1,4 +1,4 @@
-import { InputPin, OutputPin } from "../../model/netlist/Pins";
+import { InputPin, OutputPin } from "../../model/chip/Pins";
 import { WorkingChip } from "../../model/WorkingChip";
 import { PermWireRenderable } from "../../rendering/renderables/wires/PermWireRenderable";
 import { RenderManager } from "../../rendering/RenderManager";

@@ -1,6 +1,6 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { Chip } from "../../controller/objectControllers.ts/Chip";
-import { ChipBehaviour } from "../../model/netlist/ChipBehaviour";
+import { ChipBehaviour } from "../../model/chip/ChipBehaviour";
 import { ActionContext, UndoableAction } from "../Action";
 
 abstract class CreateElementAction implements UndoableAction {

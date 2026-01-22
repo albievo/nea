@@ -13,7 +13,7 @@ import { Command } from "./Command";
 import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
-import { BehaviourKind, BehaviourSpec, createBehaviour } from "../model/netlist/ChipBehaviour";
+import { BehaviourSpec, createBehaviour } from "../model/chip/BehaviourSpec";
 
 export class EditorApp {
   private camera: Camera;

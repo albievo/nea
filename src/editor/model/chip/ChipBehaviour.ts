@@ -1,5 +1,6 @@
-import { Netlist, SerializedNetlist } from "./Netlist";
-import { Value } from "./Value";
+import { Netlist, SerializedNetlist } from "../netlist/Netlist";
+import { Value } from "../netlist/Value";
+import { PrimitiveType, primitiveInformation } from "./primitives";
 
 export abstract class ChipBehaviour {
   abstract kind: string;
@@ -197,101 +198,5 @@ export class NetlistBehaviour extends ChipBehaviour {
     // Could maybe do something if due to max iteration? 
     // but not super important
     return this.netlist.evaluate(inputsWithIds).outputValues;
-  }
-}
-
-type PrimitiveType = keyof typeof primitiveInformation;
-
-const primitiveInformation = {
-  "not": {
-    evaluteFunction: (input: Value[]) => {
-      if (input.length !== 1) {
-        throw new Error("not gate must have exactly 1 input");
-      };
-      return [Value.negate(input[0])];
-    },
-    inputs: 1,
-    outputs: 1
-  },
-
-  "and": {
-    // if any 0 => 0; if all 1 => 1; else X
-    evaluteFunction: (input: Value[]) => {
-      if (input.length !== 2) {
-        throw new Error("and gate must have exactly 2 inputs");
-      };
-
-      const [a, b] = input;
-      
-      if (a === Value.ZERO || b === Value.ZERO) return [Value.ZERO];
-      if (a === Value.ONE && b === Value.ONE) return [Value.ONE];
-
-      return [Value.X];
-    },
-    inputs: 2,
-    outputs: 1
-  },
-
-  "nand": {
-    // NAND: if any 0 => 1; if all 1 => 0; else X
-    evaluteFunction: (input: Value[]): Value[] => {
-      if (input.length !== 2) {
-        throw new Error("nand gate must have exactly 2 inputs");
-      };
-
-      const [a, b] = input;
-      
-      if (a === Value.ZERO || b === Value.ZERO) return [Value.ONE];
-      if (a === Value.ONE && b === Value.ONE) return [Value.ZERO];
-
-      return [Value.X];
-    },
-    inputs: 2,
-    outputs: 1
-  },
-
-  "or": {
-    evaluteFunction: (input: Value[]): Value[] => {
-      if (input.length !== 2) {
-        throw new Error("or gate must have exactly 2 inputs");
-      };
-
-      const [a, b] = input;
-      
-      if (a === Value.ONE || b === Value.ONE) return [Value.ONE];
-      if (a === Value.ZERO && b === Value.ZERO) return [Value.ZERO];
-
-      return [Value.X];
-    },
-    inputs: 2,
-    outputs: 1
-  }
-} satisfies Record<string, {
-  evaluteFunction: (input: Value[]) => Value[],
-  inputs: number,
-  outputs: number
-}>
-
-export type BehaviourSpec = 
-  | { kind: "primitive"; type: PrimitiveType }
-  | { kind: "truthtable"; table: number[]; inputs: number, outputs: number }
-  | { kind: "netlist"; definition: SerializedNetlist };
-
-export type BehaviourKind = 'primitive' | 'truthtable' | 'netlist';
-
-
-export function createBehaviour(spec: BehaviourSpec): ChipBehaviour {
-  switch (spec.kind) {
-    case "primitive":
-      return new PrimitiveBehaviour(spec.type);
-
-    case "truthtable":
-      return new TruthtableBehaviour(spec.table, spec.inputs, spec.outputs);
-
-    case "netlist": {
-      throw new Error('not yet implemented');
-      // const netlist = Netlist.fromSerialized(spec.definition);
-      // return new NetlistBehaviour(netlist);
-    }
   }
 }

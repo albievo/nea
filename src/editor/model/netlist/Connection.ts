@@ -1,5 +1,5 @@
 import { Signal } from "./Netlist";
-import { InputPin, OutputPin } from "./Pins";
+import { InputPin, OutputPin } from "../chip/Pins";
 import { Value } from "./Value";
 
 export class Connection {

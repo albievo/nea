@@ -1,6 +1,6 @@
 import { TempWireRenderable } from "../rendering/renderables/wires/TempWireRenderable";
 import { Vector2 } from "../../utils/Vector2";
-import { InputPin } from "../model/netlist/Pins";
+import { InputPin } from "../model/chip/Pins";
 import { Value } from "../model/netlist/Value";
 
 export interface InteractionState {
