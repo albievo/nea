@@ -1,11 +1,9 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { WorkingChip } from "../../model/WorkingChip";
-import { eventTypes } from "../../event/eventTypes";
 import events from "../../event/events";
 import { NodeType } from "../../model/netlist/Netlist";
 import { RenderManager } from "../../rendering/RenderManager";
 import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
-import { BoundingBox } from "../../rendering/renderables/Renderable";
 import { PermWire } from "./PermWire";
 import { InteractionState } from "../InteractionState";
 import { Value } from "../../model/netlist/Value";

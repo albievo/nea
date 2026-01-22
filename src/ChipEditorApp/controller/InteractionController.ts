@@ -110,15 +110,9 @@ export class InteractionController {
       return;
     }
 
-    // if the new cell isn't the same as where we were before,
-    // emit the signal and update the last cell
-    if (!cell.equals(this.lastMouseCell)) {
-      events.emit('mouse-changed-cell', {
-        from: this.lastMouseCell,
-        to: cell
-      });
-      this.lastMouseCell = cell;
-    }
+    // if the new cell isn't the same as where we were before, update the last cell
+    const cellHasChanged = !cell.equals(this.lastMouseCell)
+    if (cellHasChanged) this.lastMouseCell = cell;
 
     // null if nothing there, the elements id if there is an element
     const takenBy = this.chip.cellHasElement(cell);
@@ -157,12 +151,12 @@ export class InteractionController {
     }
 
     // if we should be updating a temp wire path
-    if (this.interactionState.tempWire && !onElement) {
+    if (this.interactionState.tempWire && !onElement && cellHasChanged) {
       this.updateTempWirePath(this.interactionState.tempWire.renderable, cell);
     }
 
     // check whether we should be activating an input pin
-    if (this.interactionState.tempWire) {
+    if (this.interactionState.tempWire && cellHasChanged) {
       // check if we are next to or on an input pin
       const elementToTheLeft = this.chip.cellHasElement(cell.subtract(1, 0));
       const elementToTheRight = this.chip.cellHasElement(cell.add(1, 0));
@@ -304,13 +298,17 @@ export class InteractionController {
     fromId: string, fromIdx: number, fromPos: Vector2
   ) {
     const id = crypto.randomUUID();
+    const renderable = new TempWireRenderable(
+      id, this.renderManager.renderState, fromPos
+    );
+
     this.interactionState.tempWire = {
       fromId,
       fromIdx,
-      renderable: new TempWireRenderable(
-        id, this.renderManager.renderState, fromPos
-      )
+      renderable
     };
+
+    renderable.setPath([fromPos]);
   }
 
   private startElementDrag(id: string, offset: Vector2) {
