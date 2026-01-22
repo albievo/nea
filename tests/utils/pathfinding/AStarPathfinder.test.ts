@@ -1,5 +1,5 @@
 import { AStarPathfinder } from '../../../src/utils/pathfinding/AStarPathfinder';
-import { CellTakenBy } from '../../../src/ChipEditorApp/model/WorkingChip';
+import { CellTakenBy } from '../../../src/editor/model/WorkingChip';
 import { GeneralUtils } from '../../../src/utils/GeneralUtils';
 import { Vector2 } from '../../../src/utils/Vector2';
 

@@ -1,11 +1,6 @@
-// import { EditorApp } from './ChipEditorApp/EditorApp';
-// import { Grid } from "./ChipEditorApp/rendering/renderables/Grid";
-// import { Vector2 } from "./utils/Vector2";
-// import { GridElement } from "./ChipEditorApp/rendering/renderables/GridElementRenderable";
-// import events from "./ChipEditorApp/event/events"; 
 import './index.scss';
 
-import { EditorApp } from "./ChipEditorApp/app/EditorApp";
+import { EditorApp } from "./editor/app/EditorApp";
 import { Vector2 } from "./utils/Vector2";
 
 const worldSize = new Vector2(50, 50);
