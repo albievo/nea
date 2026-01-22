@@ -6,8 +6,6 @@ export type EventPayloads = {
   resize: void;
   "space-down": void;
   "space-up": void;
-  "mouse-moved-into-element": { elementId: string };
-  "mouse-moved-off-element": void;
   "mouse-changed-cell": { from: Vector2, to: Vector2 };
   "render-required": void;
   "temp-wire-path-updated": { endCell: Vector2 };

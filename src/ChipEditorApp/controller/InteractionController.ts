@@ -110,9 +110,13 @@ export class InteractionController {
       return;
     }
 
-    // if the new cell isn't the same as where we were before, update the last cell
+    // if the new cell isn't the same as where we were before, 
+    // update the last cell and emit the event
     const cellHasChanged = !cell.equals(this.lastMouseCell)
-    if (cellHasChanged) this.lastMouseCell = cell;
+    if (cellHasChanged) {
+      events.emit('mouse-changed-cell', { from: this.lastMouseCell, to: cell });
+      this.lastMouseCell = cell;
+    }
 
     // null if nothing there, the elements id if there is an element
     const takenBy = this.chip.cellHasElement(cell);
@@ -125,14 +129,12 @@ export class InteractionController {
       this.interactionState.onElement = takenBy;
       onElement = takenBy;
       this.cursorHandler.updateCursor();
-      events.emit('mouse-moved-into-element', { elementId: takenBy });
     }
     // if we arent on an element and havent yet said that we arent
     else if (onElement && !takenBy) {
       this.interactionState.onElement = undefined;
       this.interactionState.onOutputPin = undefined;
       this.cursorHandler.updateCursor();
-      events.emit('mouse-moved-off-element');
     }
 
     // check if we are on an interactable part
