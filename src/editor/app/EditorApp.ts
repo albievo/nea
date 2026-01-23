@@ -14,6 +14,7 @@ import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementA
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
 import { BehaviourSpec, createBehaviour } from "../model/chip/BehaviourSpec";
+import { ChipLibrary } from "../model/chip/ChipLibrary";
 
 export class EditorApp {
   private camera: Camera;
@@ -28,7 +29,10 @@ export class EditorApp {
 
   private dppr: number = WebpageUtils.calculateDevicePixelRatio();
 
-  constructor(worldSize: Vector2) {
+  constructor(
+    private worldSize: Vector2,
+    private chipLibrary: ChipLibrary
+  ) {
     this.camera = new Camera(
       worldSize,
       this.dppr
@@ -85,15 +89,30 @@ export class EditorApp {
   public execute(cmd: Command) {
     switch (cmd.type) {
       case 'add-input-element':
-        this.addInputElement(cmd.pos, cmd.id);
+        try {
+          this.addInputElement(cmd.pos, cmd.id);
+        }
+        catch (err) {
+          console.error(err)
+        }
         break;
 
       case 'add-output-element':
-        this.addOutputElement(cmd.pos, cmd.id);
+        try {
+          this.addOutputElement(cmd.pos, cmd.id);
+        }
+        catch (err) {
+          console.error(err)
+        }
         break;
 
       case 'add-chip-element':
-        this.addChipElement(cmd.behaviour, cmd.pos, cmd.id);
+        try {
+          this.addChipElement(cmd.defId, cmd.pos, cmd.elemId);
+        }
+        catch (err) {
+          console.error(err)
+        }
         break;
       
       default: {
@@ -115,10 +134,12 @@ export class EditorApp {
     ));
   }
 
-  private addChipElement(spec: BehaviourSpec, pos: Vector2, id?: string) {
-    const behaviour = createBehaviour(spec);
+  private addChipElement(defId: string, pos: Vector2, elemId?: string) {
+    const definition = this.chipLibrary.get(defId);
+
+    const behaviour = createBehaviour(definition.behaviourSpec);
     this.actionDoer.do(new CreateChipElementAction(
-      id || crypto.randomUUID(), behaviour, pos
+      elemId || crypto.randomUUID(), behaviour, pos
     ));
   }
 }

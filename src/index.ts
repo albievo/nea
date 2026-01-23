@@ -2,10 +2,43 @@ import './index.scss';
 
 import { EditorApp } from "./editor/app/EditorApp";
 import { Vector2 } from "./utils/Vector2";
+import { ChipLibrary } from './editor/model/chip/ChipLibrary';
 
 const worldSize = new Vector2(50, 50);
 
-const app = new EditorApp(worldSize);
+const chipLibrary = new ChipLibrary()
+chipLibrary.register([
+  {
+    id: 'and-primitive',
+    behaviourSpec: {
+      kind: 'primitive',
+      type: 'and'
+    }
+  },
+  {
+    id: 'or-primitive',
+    behaviourSpec: {
+      kind: 'primitive',
+      type: 'or'
+    }
+  },
+  {
+    id: 'nand-primitive',
+    behaviourSpec: {
+      kind: 'primitive',
+      type: 'nand'
+    }
+  },
+  {
+    id: 'not-primitive',
+    behaviourSpec: {
+      kind: 'primitive',
+      type: 'not'
+    }
+  }
+]);
+
+const app = new EditorApp(worldSize, chipLibrary);
 app.start();
 
 app.execute({
@@ -34,20 +67,14 @@ app.execute({
 
 app.execute({
   type: 'add-chip-element',
-  behaviour: {
-    kind: 'primitive',
-    type: 'nand'
-  },
   pos: new Vector2(20, 25),
-  id: 'test-nand-chip-1'
+  elemId: 'test-and-chip-1',
+  defId: 'and-primitive'
 })
 
 app.execute({
   type: 'add-chip-element',
-  behaviour: {
-    kind: 'primitive',
-    type: 'nand'
-  },
   pos: new Vector2(20, 30),
-  id: 'test-nand-chip-2'
+  elemId: 'test-not-chip-2',
+  defId: 'not-primitive'
 })
