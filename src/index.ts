@@ -3,6 +3,7 @@ import './index.scss';
 import { EditorApp } from "./editor/app/EditorApp";
 import { Vector2 } from "./utils/Vector2";
 import { ChipLibrary } from './editor/model/chip/ChipLibrary';
+import { EditorUI } from './ui/EditorUI';
 
 const worldSize = new Vector2(50, 50);
 
@@ -13,33 +14,35 @@ chipLibrary.register([
     behaviourSpec: {
       kind: 'primitive',
       type: 'and'
-    }
-  },
-  {
-    id: 'or-primitive',
-    behaviourSpec: {
-      kind: 'primitive',
-      type: 'or'
-    }
+    },
+    name: 'and',
+    icon: './assets/images/chips/and-gate.png'
   },
   {
     id: 'nand-primitive',
     behaviourSpec: {
       kind: 'primitive',
       type: 'nand'
-    }
+    },
+    name: 'nand',
+    icon: './assets/images/chips/nand-gate.png'
   },
   {
     id: 'not-primitive',
     behaviourSpec: {
       kind: 'primitive',
       type: 'not'
-    }
+    },
+    name: 'not',
+    icon: './assets/images/chips/not-gate.png'
   }
 ]);
 
 const app = new EditorApp(worldSize, chipLibrary);
 app.start();
+
+const ui = new EditorUI(app, chipLibrary);
+ui.addChipPreview('and-primitive');
 
 app.execute({
   type: 'add-input-element',

@@ -2,8 +2,9 @@ import { BehaviourSpec } from "./BehaviourSpec";
 
 export type ChipDefinition = {
   id: string;
+  name: string;
   behaviourSpec: BehaviourSpec;
-  icon?: string;
+  icon: string;
 };
 
 export class ChipLibrary {

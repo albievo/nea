@@ -2,6 +2,7 @@ const path = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/index.ts',
@@ -22,6 +23,15 @@ module.exports = {
     // extract and save compiled CSS
     new MiniCssExtractPlugin({
       filename: '[name].css',
+    }),
+
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'src/assets/images/chips'),
+          to: path.resolve(__dirname, 'public/assets/images/chips'),
+        },
+      ],
     }),
   ],
 
