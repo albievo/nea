@@ -158,7 +158,6 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     }
 
     // draw bits for input and output elements
-    if (this.type === NodeType.CHIP) return;
     const centre = this.pos.add(1.5, 1.5);
 
     // draw circle for output
@@ -192,9 +191,12 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     }
 
     // add filter color
+    const filterHex = hexWithTransparency(this.filterColor, this.FILTER_OPACITY);
+    console.log(filterHex);
+
     renderer.drawPolygon(
       cornerPositions, 
-      hexWithTransparency(this.filterColor, this.FILTER_OPACITY)
+      filterHex
     );
   }
 

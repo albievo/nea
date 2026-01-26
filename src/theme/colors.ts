@@ -23,10 +23,14 @@ export function valToColor(val: Value): ColorKey {
   }
 }
 
-export function hexWithTransparency(color: ColorKey, transparency: number) {
-  const clippedTransparency = Math.min(1, Math.max(0, transparency));
-  const decTransparency = Math.floor(clippedTransparency);
-  const hexTransparency = decTransparency.toString(16);
+export function hexWithTransparency(
+  color: ColorKey, transparency: number
+): string {
+  const alpha = Math.round(
+    Math.min(1, Math.max(0, transparency)) * 255
+  )
+    .toString(16)
+    .padStart(2, '0');
 
-  return COLORS[color] + hexTransparency
+  return `${COLORS[color]}${alpha}`;
 }
