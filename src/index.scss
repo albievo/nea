@@ -97,6 +97,10 @@ body {
         display: flex;
         flex-direction: column;
 
+        background-color: rgba(0, 0, 0, 0);
+        border: none;
+        cursor: pointer;
+
         .img-container {
           width: 100%;
           aspect-ratio: 1 / 1;   // forces a square
@@ -109,8 +113,10 @@ body {
           }
         }
 
-        h4 {
+        h3 {
           text-align: center;
+          margin-top: 10px;
+          color: #fff;
         }
       }
     }

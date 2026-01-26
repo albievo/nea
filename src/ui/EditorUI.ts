@@ -9,7 +9,7 @@ export class EditorUI {
     private app: EditorApp,
     private chipLibrary: ChipLibrary
   ) {
-    this.sidebar = new Sidebar();
+    this.sidebar = new Sidebar(this.app);
   }
 
   addChipPreview(chipDefId: string) {

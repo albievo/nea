@@ -2,7 +2,7 @@ import { BoundingBox, Renderable, RenderableKind } from "./renderables/Renderabl
 import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
 import { isGridElementRenderable, isPermWireRenderable, isTempWireRenderable } from "./RenderableTypeGuards";
-import { GridElementRenderable } from "./renderables/GridElementRenderable";
+import { GridElementRenderable } from "./renderables/grid-elements/GridElementRenderable";
 import { Renderer } from "./Renderer";
 import { CellTakenBy, WorkingChip } from "../model/WorkingChip";
 import { InteractionState } from "../controller/InteractionState";
@@ -47,6 +47,9 @@ export class RenderManager {
     }
     if (interactionState.tempWire) {
       interactionState.tempWire.renderable.render(renderer, this.camera);
+    }
+    if (interactionState.ghostElement) {
+      interactionState.ghostElement.renderable.render(renderer, this.camera);
     }
 
     requestAnimationFrame(() => this.frame(

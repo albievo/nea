@@ -1,4 +1,4 @@
-import { GridElementRenderable } from "../GridElementRenderable";
+import { GridElementRenderable } from "../grid-elements/GridElementRenderable";
 import { WireRenderable } from "./WireRenderable";
 import { EventHandlerMap } from "../../../event/eventTypes";
 import { Vector2 } from "../../../../utils/Vector2";

@@ -16,7 +16,9 @@ chipLibrary.register([
       type: 'and'
     },
     name: 'and',
-    icon: './assets/images/chips/and-gate.png'
+    icon: './assets/images/chips/and-gate.png',
+    inputs: 2,
+    outputs: 1
   },
   {
     id: 'nand-primitive',
@@ -25,7 +27,9 @@ chipLibrary.register([
       type: 'nand'
     },
     name: 'nand',
-    icon: './assets/images/chips/nand-gate.png'
+    icon: './assets/images/chips/nand-gate.png',
+    inputs: 2,
+    outputs: 1
   },
   {
     id: 'not-primitive',
@@ -34,7 +38,9 @@ chipLibrary.register([
       type: 'not'
     },
     name: 'not',
-    icon: './assets/images/chips/not-gate.png'
+    icon: './assets/images/chips/not-gate.png',
+    inputs: 1,
+    outputs: 1
   }
 ]);
 
@@ -43,6 +49,8 @@ app.start();
 
 const ui = new EditorUI(app, chipLibrary);
 ui.addChipPreview('and-primitive');
+ui.addChipPreview('not-primitive');
+ui.addChipPreview('nand-primitive');
 
 app.execute({
   type: 'add-input-element',

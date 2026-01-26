@@ -3,7 +3,7 @@ import { WorkingChip } from "../../model/WorkingChip";
 import events from "../../event/events";
 import { NodeType } from "../../model/netlist/Netlist";
 import { RenderManager } from "../../rendering/RenderManager";
-import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
+import { GridElementRenderable } from "../../rendering/renderables/grid-elements/GridElementRenderable";
 import { PermWire } from "./PermWire";
 import { InteractionState } from "../InteractionState";
 import { Value } from "../../model/netlist/Value";

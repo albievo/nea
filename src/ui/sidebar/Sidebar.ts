@@ -1,3 +1,5 @@
+import { EditorApp } from "../../editor/app/EditorApp";
+import { Vector2 } from "../../utils/Vector2";
 import { ChipPreview } from "./ChipPreview";
 import $ from 'jquery';
 
@@ -5,10 +7,12 @@ export class Sidebar {
   private displayedChips = new Map<string, ChipPreview>();
   private $sidebar = $('#chip-selection-box');
 
-  constructor() {
-    const summary = $('#chip-selection-box-title');
-
-    summary.on('keydown', (e) => {
+  constructor(
+    private app: EditorApp
+  ) {
+    // prevent space from opening/closing the sidebar
+    // so it can be used for panning
+    $('#chip-selection-box-title').on('keydown', (e) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
       }
@@ -21,11 +25,19 @@ export class Sidebar {
 
     this.displayedChips.set(preview.definitionId, preview);
 
-    this.addHTMLPreview(preview.name, preview.icon);
+    const chipBtn = this.addHTMLPreview(preview.name, preview.icon);
+
+    chipBtn.on('mousedown', e => {
+      this.app.execute({
+        type: 'add-ghost-chip-element',
+        defId: preview.definitionId,  
+        mousePos: new Vector2(e.clientX, e.clientY)
+      });
+    })
   }
 
-  private addHTMLPreview(name: string, icon: string) {
-    const chipPreview = $("<div>", { class: "chip-preview" });
+  private addHTMLPreview(name: string, icon: string): JQuery<HTMLButtonElement> {
+    const chipPreview = $("<button>", { class: "chip-preview" }) as JQuery<HTMLButtonElement>;
     const imgContainer = $("<div>", { class: "img-container" });
 
     const img = $("<img>", {
@@ -33,7 +45,7 @@ export class Sidebar {
       alt: name
     });
 
-    const title = $("<h4>").text(name.toUpperCase());
+    const title = $("<h3>").text(name.toUpperCase());
 
     // assemble
     imgContainer.append(img);
@@ -41,5 +53,7 @@ export class Sidebar {
     chipPreview.append(title);
 
     $('#chip-selection-box-content').append(chipPreview);
+
+    return chipPreview;
   }
 }

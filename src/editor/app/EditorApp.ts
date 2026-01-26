@@ -13,8 +13,10 @@ import { Command } from "./Command";
 import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
-import { BehaviourSpec, createBehaviour } from "../model/chip/BehaviourSpec";
+import { createBehaviour } from "../model/chip/BehaviourSpec";
 import { ChipLibrary } from "../model/chip/ChipLibrary";
+import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
+import { NodeType } from "../model/netlist/Netlist";
 
 export class EditorApp {
   private camera: Camera;
@@ -115,6 +117,15 @@ export class EditorApp {
         }
         break;
       
+      case 'add-ghost-chip-element':
+        try {
+          this.addGhostChipElement(cmd.defId, cmd.mousePos);
+        }
+        catch (err) {
+          console.error(err)
+        }
+        break;
+            
       default: {
         const _exhaustive: never = cmd;
         throw new Error(`Unknown command: ${String((cmd as any).type)}`);
@@ -141,5 +152,24 @@ export class EditorApp {
     this.actionDoer.do(new CreateChipElementAction(
       elemId || crypto.randomUUID(), behaviour, pos
     ));
+  }
+
+  private addGhostChipElement(defId: string, mousePos: Vector2) {
+    const chipDef = this.chipLibrary.get(defId);
+
+    this.interactionState.ghostElement = {
+      defId,
+      validPosition: true,
+      renderable: new GhostElementRenderable(
+        crypto.randomUUID(),
+        NodeType.CHIP,
+        chipDef.inputs,
+        chipDef.outputs,
+        this.camera.screenToWorld(mousePos),
+        3,
+        'stdElementBackground',
+        true
+      )
+    }
   }
 }

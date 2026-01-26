@@ -1,4 +1,4 @@
-import { Netlist, SerializedNetlist } from "../netlist/Netlist";
+import { Netlist } from "../netlist/Netlist";
 import { Value } from "../netlist/Value";
 import { PrimitiveType, primitiveInformation } from "./primitives";
 

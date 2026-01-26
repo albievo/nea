@@ -1,9 +1,8 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { Chip } from "../../controller/objectControllers.ts/Chip";
 import { PermWire } from "../../controller/objectControllers.ts/PermWire";
-import { GridElementRenderable } from "../../rendering/renderables/GridElementRenderable";
-import { RenderManager } from "../../rendering/RenderManager";
 import { ActionContext, UndoableAction } from "../Action";
+import { GridElementRenderable } from "../../rendering/renderables/grid-elements/GridElementRenderable";
 
 export class MoveElementAction implements UndoableAction {
   undoable: true = true;

@@ -33,8 +33,9 @@ export abstract class Renderable<K extends RenderableKind> {
   }
 }
 
-export type RenderableKind = "grid" | "grid-element" | WireKind;
+export type RenderableKind = "grid" | ElementKind | WireKind;
 export type WireKind = "temp-wire" | "perm-wire";
+export type ElementKind = "grid-element" | "ghost-element"
 
 export interface BoundingBox {
   top: number,

@@ -5,6 +5,8 @@ export type ChipDefinition = {
   name: string;
   behaviourSpec: BehaviourSpec;
   icon: string;
+  inputs: number,
+  outputs: number
 };
 
 export class ChipLibrary {

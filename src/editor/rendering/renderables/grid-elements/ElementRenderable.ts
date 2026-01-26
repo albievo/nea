@@ -1,46 +1,36 @@
-import { Vector2 } from "../../../utils/Vector2";
-import { BoundingBox, Renderable } from "./Renderable";
-import { Renderer } from "../Renderer";
-import { NodeType } from "../../model/netlist/Netlist";
-import { ColorKey, COLORS, valToColor } from "../../../theme/colors";
-import { Value } from "../../model/netlist/Value";
-import { RenderState } from "../RenderManager";
+import { Color, ColorKey, COLORS, hexWithTransparency, valToColor } from "../../../../theme/colors";
+import { Vector2 } from "../../../../utils/Vector2";
+import { NodeType } from "../../../model/netlist/Netlist";
+import { Value } from "../../../model/netlist/Value";
+import { Renderer } from "../../Renderer";
+import { BoundingBox, ElementKind, Renderable } from "../Renderable";
 
-export class GridElementRenderable extends Renderable<'grid-element'> {
-  protected _kind = 'grid-element' as const;
-
-  private type: NodeType;
-
-  private renderState: RenderState
-
-  // in world units
-  private _dims: Vector2;
-  private _pos: Vector2;
-
-  private inputs: number;
-  private outputs: number;
-
+export abstract class ElementRenderable<K extends ElementKind> extends Renderable<K> {
   // -1 means no pin, any other number is the index of the pin
-  private inputPositions!: number[];
-  private outputPositions!: number[];
+  protected inputPositions!: number[];
+  protected outputPositions!: number[];
 
-  private readonly INNER_PIN_RADIUS = 0.3;
+  protected _dims: Vector2;
+
+  protected readonly INNER_PIN_RADIUS = 0.3;
   public readonly OUTER_PIN_RADIUS = 0.375;
 
-  private readonly INNER_INDICATOR_RADIUS = 0.8;
+  protected readonly INNER_INDICATOR_RADIUS = 0.8;
   public readonly OUTER_INDICATOR_RADIUS = 0.875;
-  
-  private color: ColorKey;
 
-  constructor(details: GridElementDetails) {
-    super(details.id);
+  protected abstract filterColor: ColorKey;
+  protected abstract FILTER_OPACITY: number; // 0-1 representing how opaque it should be
     
-    this.inputs = details.inputs;
-    this.outputs = details.outputs;
-    this.color = details.color;
-    this._pos = details.startingPos.copy();
-    this.type = details.type;
-    this.renderState = details.renderState;
+  constructor (
+    id: string,
+    protected type: NodeType,
+    protected inputs: number,
+    protected outputs: number,
+    protected _pos: Vector2,
+    width: number,
+    protected color: ColorKey,
+  ) {
+    super(id);
 
     let yDim: number;
     if ( // hard coded to mske common configurations look nicer
@@ -55,22 +45,10 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       yDim = Math.max(this.inputs, this.outputs)
     }
 
-    this._dims = new Vector2(
-      details.width,
-      yDim
-    );
+    this._dims = new Vector2( width, yDim );
 
     // make position arrays
     this.calcPinPositions();
-  }
-
-  public getBoundingBox(): BoundingBox {
-    return {
-      top: this.pos.y,
-      left: this.pos.x,
-      right: this.pos.x + this.dims.x,
-      bottom: this.pos.y + this.dims.y
-    }
   }
 
   private calcPinPositions() {
@@ -135,15 +113,26 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     }
   }
 
-  protected renderObject(renderer: Renderer) {
-    const color = this.color
+  public getBoundingBox(): BoundingBox {
+    return {
+      top: this.pos.y,
+      left: this.pos.x,
+      right: this.pos.x + this.dims.x,
+      bottom: this.pos.y + this.dims.y
+    }
+  }
 
-    renderer.drawPolygon([
+  protected renderObject(renderer: Renderer) {
+    const color = this.color;
+
+    const cornerPositions = [
       this.pos,
       this.pos.add(this.dims.x, 0),
       this.pos.add(0, this.dims.y),
       this.pos.add(this.dims)
-    ], COLORS[color]);
+    ]
+
+    renderer.drawPolygon(cornerPositions, COLORS[color]);
     // calculate screen radius of pins
     for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
       const yPos = this.pos.y + pinIdx + 0.5;
@@ -152,7 +141,7 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       // draw the inputs
       if (inputIdx !== -1) { // if we should render a pin here
         const centre = new Vector2(this.pos.x, yPos);
-        const val = this.renderState.inputPins.get(this.id)?.get(inputIdx) ?? Value.X;
+        const val = this.getInputNodeValue(inputIdx);
 
         this.renderInputPin(renderer, centre, val);
       }
@@ -162,7 +151,7 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       if (outputIdx !== -1) { // if we should render a pin here
         const xPos = this.pos.x + this.dims.x
         const centre = new Vector2(xPos, yPos);
-        const val = this.renderState.outputPins.get(this.id)?.get(outputIdx) ?? Value.X;
+        const val = this.getOutputNodeValue(outputIdx);
 
         this.renderOutputPin(renderer, centre, val);
       }
@@ -174,16 +163,16 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
 
     // draw circle for output
     if (this.type === NodeType.OUTPUT) {
-      const val = this.renderState.inputPins.get(this.id)?.get(0) ?? Value.X;
+      const val = this.getInputNodeValue(0);
       const color = valToColor(val);
 
       renderer.drawCircle(centre, this.OUTER_INDICATOR_RADIUS, COLORS.outline);
       renderer.drawCircle(centre, this.INNER_INDICATOR_RADIUS, COLORS[color]);
     }
 
-    // draw square for output
+    // draw square for input
     if (this.type === NodeType.INPUT) {
-      const val = this.renderState.outputPins.get(this.id)?.get(0) ?? Value.X;
+      const val = this.getOutputNodeValue(0);
       const color = valToColor(val);
 
       const outerBox: BoundingBox = {
@@ -201,6 +190,12 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
       renderer.drawRectFromBox(outerBox, COLORS.outline);
       renderer.drawRectFromBox(innerBox, COLORS[color]);
     }
+
+    // add filter color
+    renderer.drawPolygon(
+      cornerPositions, 
+      hexWithTransparency(this.filterColor, this.FILTER_OPACITY)
+    );
   }
 
   private renderInputPin(renderer: Renderer, centre: Vector2, state: Value) {
@@ -223,71 +218,8 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
     );
   }
 
-  private getOutputPosIdx(pinIdx: number): number {
-    for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
-      if (this.outputPositions[posIdx] === pinIdx) {
-        return posIdx
-      }
-    }
-    return -1;
-  }
-
-  private getInputPosIdx(pinIdx: number): number {
-    for (let posIdx = 0; posIdx < this.dims.y; posIdx++) {
-      if (this.inputPositions[posIdx] === pinIdx) {
-        return posIdx
-      }
-    }
-    return -1;
-  }
-
-  /**
-   * get the position of the output pin with index
-   */
-  public getOutputPos(pinIdx: number): Vector2 {
-    const outputPosIdx = this.getOutputPosIdx(pinIdx);
-
-    const outputCell = this.pos.add(new Vector2(
-      this.dims.x - 1,
-      outputPosIdx
-    ));
-
-    return outputCell;
-  }
-
-  /**
-   * get the position of the input pin with index
-   */
-  public getInputPos(pinIdx: number): Vector2 {
-    const inputPosIdx = this.getInputPosIdx(pinIdx);
-
-    const inputCell = this.pos.add(new Vector2(
-      0,
-      inputPosIdx
-    ));
-
-    return inputCell;
-  }
-
-  public getOutputPositions(): {pos: number, idx: number}[] {
-    const outputIdxs = [];
-
-    // iterate through potential pin positions
-    for (let pos = 0; pos < this.dims.y; pos++) {
-      // if there is an output pin here
-      const pinAtPos = this.outputPositions[pos];
-      if (pinAtPos !== -1) outputIdxs.push({
-        pos,
-        idx: pinAtPos
-      });
-    }
-
-    return outputIdxs;
-  }
-  
-  public inputAtPos(pos: number) {
-    return this.inputPositions[pos];
-  }
+  protected abstract getInputNodeValue(inputIdx: number): Value;
+  protected abstract getOutputNodeValue(outputIdx: number): Value;
 
   public get pos(): Vector2 {
     return this._pos.fixedCopy();
@@ -301,18 +233,4 @@ export class GridElementRenderable extends Renderable<'grid-element'> {
   private set dims(dims: Vector2) {
     this._dims = dims;
   }
-  public getType() {
-    return this.type;
-  }
-}
-
-interface GridElementDetails {
-  id: string,
-  startingPos: Vector2,
-  inputs: number,
-  outputs: number,
-  width: number, // measured in world units
-  color: ColorKey,
-  type: NodeType,
-  renderState: RenderState
 }

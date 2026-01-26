@@ -2,6 +2,7 @@ import { TempWireRenderable } from "../rendering/renderables/wires/TempWireRende
 import { Vector2 } from "../../utils/Vector2";
 import { InputPin } from "../model/chip/Pins";
 import { Value } from "../model/netlist/Value";
+import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
 
 export interface InteractionState {
   tempWire?: {
@@ -21,5 +22,10 @@ export interface InteractionState {
     mouseDown: Vector2
   }
   onInputBtn?: boolean;
-  inputElements: Map<string, Value>
+  inputElements: Map<string, Value>;
+  ghostElement?: {
+    renderable: GhostElementRenderable;
+    validPosition: boolean;
+    defId: string;
+  }
 }
