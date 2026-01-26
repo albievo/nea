@@ -393,8 +393,6 @@ export class Netlist {
       }
     }
 
-    console.log(state);
-
     return state;
   }
 

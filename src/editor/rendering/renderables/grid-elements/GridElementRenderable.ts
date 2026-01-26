@@ -19,9 +19,9 @@ export class GridElementRenderable extends ElementRenderable<'grid-element'> {
       details.id,
       details.type,
       details.inputs,
-      details.width,
-      details.startingPos.copy(),
       details.outputs,
+      details.startingPos.copy(),
+      details.width,
       details.color
     );
 
