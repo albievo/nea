@@ -5,6 +5,16 @@ export class Sidebar {
   private displayedChips = new Map<string, ChipPreview>();
   private $sidebar = $('#chip-selection-box');
 
+  constructor() {
+    const summary = $('#chip-selection-box-title');
+
+    summary.on('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+      }
+    });
+  }
+
   addChip(preview: ChipPreview) {
     const duplicate = this.displayedChips.has(preview.definitionId)
     if (duplicate) throw new Error(`Duplicate chip id: ${preview.definitionId}`);
