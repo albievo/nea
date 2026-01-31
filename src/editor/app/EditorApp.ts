@@ -171,5 +171,7 @@ export class EditorApp {
         true
       )
     }
+
+    this.cursorHandler.updateCursor();
   }
 }

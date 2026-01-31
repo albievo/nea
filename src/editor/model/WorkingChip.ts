@@ -168,7 +168,7 @@ export class WorkingChip {
         if (
           cellTakenBy &&
           cellTakenBy.type === 'element' &&
-          (id && cellTakenBy.ids[0] !== id)
+          cellTakenBy.ids[0] !== id
         ) {
           return false;
         }

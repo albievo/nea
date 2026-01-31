@@ -123,9 +123,9 @@ export class InteractionController {
         ghostElementInfo.renderable.pos = cell;
         const validPosition = Chip.checkValidPosition(
           this.chip, cell, ghostElementInfo.renderable.dims
-        )
-        console.log(validPosition);
-        ghostElementInfo.renderable.setValidPosition(validPosition)
+        );
+        ghostElementInfo.renderable.setValidPosition(validPosition);
+        ghostElementInfo.validPosition = validPosition;
       }
     }
 
