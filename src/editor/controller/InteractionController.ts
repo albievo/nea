@@ -17,6 +17,8 @@ import { NodeType } from "../model/netlist/Netlist";
 import { BoundingBox } from "../rendering/renderables/Renderable";
 import { Value } from "../model/netlist/Value";
 import { InvertInputAction } from "../actions/action-types/InvertInputAction";
+import { CreateChipElementAction } from "../actions/action-types/CreateElementAction";
+import { ChipLibrary } from "../model/chip/ChipLibrary";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -27,7 +29,8 @@ export class InteractionController {
     private chip: WorkingChip,
     private interactionState: InteractionState,
     private camera: Camera,
-    private cursorHandler: CursorHandler
+    private cursorHandler: CursorHandler,
+    private chipLibrary: ChipLibrary
   ) {
     events.on('mouse-down', e => this.handleMouseDown(e));
     events.on('mouse-move', e => this.handleMouseMove(e));
@@ -244,8 +247,24 @@ export class InteractionController {
     }
 
     const panningInfo = this.interactionState.panning;
-    if (panningInfo) {
+    if (panningInfo) { // if the camera is panning
       this.interactionState.panning = undefined;
+      this.cursorHandler.updateCursor();
+    }
+
+    const ghostElementInfo = this.interactionState.ghostElement;
+    if (ghostElementInfo) { // if there is a ghost element
+      this.interactionState.ghostElement = undefined;
+
+      // if at a valid pos, create a new element there
+      if (ghostElementInfo.validPosition) {
+        const definition = this.chipLibrary.get(ghostElementInfo.defId);
+
+        this.actions.do(new CreateChipElementAction(
+          crypto.randomUUID(), definition, ghostElementInfo.renderable.pos
+        ));
+      }
+
       this.cursorHandler.updateCursor();
     }
   }

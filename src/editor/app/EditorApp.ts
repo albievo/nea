@@ -73,7 +73,8 @@ export class EditorApp {
       this.chip,
       this.interactionState,
       this.camera,
-      this.cursorHandler
+      this.cursorHandler,
+      this.chipLibrary
     );
 
     this.input = new InputManager(
@@ -148,9 +149,8 @@ export class EditorApp {
   private addChipElement(defId: string, pos: Vector2, elemId?: string) {
     const definition = this.chipLibrary.get(defId);
 
-    const behaviour = createBehaviour(definition.behaviourSpec);
     this.actionDoer.do(new CreateChipElementAction(
-      elemId || crypto.randomUUID(), behaviour, pos
+      elemId || crypto.randomUUID(), definition, pos
     ));
   }
 
