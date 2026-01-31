@@ -165,7 +165,7 @@ export class EditorApp {
         NodeType.CHIP,
         chipDef.inputs,
         chipDef.outputs,
-        this.camera.screenToWorld(mousePos),
+        this.camera.screenToWorld(mousePos).applyFunction(Math.floor),
         3,
         'stdElementBackground',
         true

@@ -14,15 +14,15 @@ export class MoveElementAction implements UndoableAction {
   ) { }
 
   do(ctx: ActionContext): void {
+    this.renderable = ctx.renderManager.
+      getGridElementWithId(this.id) ?? undefined;
+    if (!this.renderable) return;
+
     const isValidPosition = Chip.checkValidPosition(
-      ctx.chip, ctx.renderManager, this.id, this.to
+      ctx.chip, this.to, this.renderable.dims, this.id
     );
     if (!isValidPosition) return;
 
-    this.renderable = ctx.renderManager.
-      getGridElementWithId(this.id) ?? undefined;
-    
-    if (!this.renderable) return;
 
     ctx.chip.updateChipPosition(
       this.id,

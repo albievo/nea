@@ -112,10 +112,21 @@ export class InteractionController {
 
     // if the new cell isn't the same as where we were before, 
     // update the last cell and emit the event
+    // and check if we need to move the ghost element
     const cellHasChanged = !cell.equals(this.lastMouseCell)
     if (cellHasChanged) {
       events.emit('mouse-changed-cell', { from: this.lastMouseCell, to: cell });
       this.lastMouseCell = cell;
+
+      const ghostElementInfo = this.interactionState.ghostElement;
+      if (ghostElementInfo) {
+        ghostElementInfo.renderable.pos = cell;
+        const validPosition = Chip.checkValidPosition(
+          this.chip, cell, ghostElementInfo.renderable.dims
+        )
+        console.log(validPosition);
+        ghostElementInfo.renderable.setValidPosition(validPosition)
+      }
     }
 
     // null if nothing there, the elements id if there is an element
@@ -220,7 +231,7 @@ export class InteractionController {
 
     const draggingInfo = this.interactionState.draggingElement;
     if (draggingInfo) { // if an element is being dragged 
-      const endPos = Chip.stopRenderableFollowsMouse(
+      const endPos = Chip.stopGridElementFollowsMouse(
         this.renderManager, draggingInfo.renderableId
       );
       this.actions.do(new MoveElementAction(
@@ -321,7 +332,7 @@ export class InteractionController {
       renderableId: id
     }
 
-    Chip.renderableFollowsMouse(this.chip, this.renderManager, id, offset);
+    Chip.gridElementFollowsMouse(this.chip, this.renderManager, id, offset);
   }
 
   private posIsOnInputBtn(id: string, position: Vector2): boolean {

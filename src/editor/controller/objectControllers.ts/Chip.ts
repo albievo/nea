@@ -63,19 +63,19 @@ export class Chip {
     renderManager.rmvRenderable(id);
   }
 
-  public static renderableFollowsMouse(
+  public static gridElementFollowsMouse(
     model: WorkingChip, renderManager: RenderManager,
     id: string, offset: Vector2
   ) {
+    const element = renderManager.getGridElementWithId(id);
+    if (!element) return;
+
     // attach the listener for the changed cell
-    events.on('mouse-changed-cell', ({ to }) => {
-      const element = renderManager.getGridElementWithId(id);
-      if (!element) return;
-      
+    events.on('mouse-changed-cell', ({ to }) => {      
       const pos = to.subtract(offset);
     
       const isValidPosition = this.checkValidPosition(
-        model, renderManager, id, pos
+        model, pos, element.dims, id
       );
 
       // ---- update to the new position ----
@@ -92,15 +92,9 @@ export class Chip {
   }
 
   public static checkValidPosition(
-    model: WorkingChip, renderManager: RenderManager,
-    id: string, pos: Vector2
+    model: WorkingChip,
+    pos: Vector2, dims: Vector2, id?: string
   ) {
-   // get the renderable
-    const element = renderManager.getGridElementWithId(id);
-    if (!element) return;
-
-    const dims = element.dims;
-
     // ---- calculate whether the new position is valid ----
     // bounding box for where the element would be in its new position
     const boundingBox = {
@@ -110,13 +104,13 @@ export class Chip {
       right: pos.x + dims.x
     }
 
-    return model.isValidPosition(id, boundingBox);
+    return model.isValidPosition(boundingBox, id);
   }
 
   /**
    * @returns where the grid element should end up
    */
-  public static stopRenderableFollowsMouse(
+  public static stopGridElementFollowsMouse(
     renderManager: RenderManager, id: string
   ): Vector2 {
     const element = renderManager.getGridElementWithId(id);

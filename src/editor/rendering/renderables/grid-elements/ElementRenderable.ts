@@ -192,7 +192,6 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     // add filter color
     const filterHex = hexWithTransparency(this.filterColor, this.FILTER_OPACITY);
-    console.log(filterHex);
 
     renderer.drawPolygon(
       cornerPositions, 

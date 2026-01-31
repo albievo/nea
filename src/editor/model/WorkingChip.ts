@@ -151,7 +151,7 @@ export class WorkingChip {
   }
   
   public isValidPosition(
-    id: string, boundingBox: BoundingBox
+    boundingBox: BoundingBox, id?: string
   ) {
     // check the element is within the bounds of the world
     if (boundingBox.top <= 0) return false;
@@ -168,7 +168,7 @@ export class WorkingChip {
         if (
           cellTakenBy &&
           cellTakenBy.type === 'element' &&
-          cellTakenBy.ids[0] !== id
+          (id && cellTakenBy.ids[0] !== id)
         ) {
           return false;
         }

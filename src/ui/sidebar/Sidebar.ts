@@ -28,6 +28,8 @@ export class Sidebar {
     const chipBtn = this.addHTMLPreview(preview.name, preview.icon);
 
     chipBtn.on('mousedown', e => {
+      e.preventDefault();
+
       this.app.execute({
         type: 'add-ghost-chip-element',
         defId: preview.definitionId,  
