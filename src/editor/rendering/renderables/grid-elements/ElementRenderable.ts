@@ -1,4 +1,5 @@
 import { Color, ColorKey, COLORS, hexWithTransparency, valToColor } from "../../../../theme/colors";
+import { loadImage } from "../../../../utils/AssetUtils";
 import { Vector2 } from "../../../../utils/Vector2";
 import { NodeType } from "../../../model/netlist/Netlist";
 import { Value } from "../../../model/netlist/Value";
@@ -20,7 +21,9 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
   protected abstract filterColor: ColorKey;
   protected abstract FILTER_OPACITY: number; // 0-1 representing how opaque it should be
-    
+
+  private icon?: HTMLImageElement;
+
   constructor (
     id: string,
     protected type: NodeType,
@@ -29,9 +32,23 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     protected _pos: Vector2,
     width: number,
     protected color: ColorKey,
+    protected iconPath?: string
   ) {
     super(id);
 
+    this._dims = this.calcDims(width);
+    // make position arrays
+    this.calcPinPositions();
+
+    this.initAssets();
+  }
+
+  public async initAssets() {
+    if (!this.iconPath) return;
+    this.icon = await loadImage(this.iconPath);
+  }
+
+  private calcDims(width: number): Vector2 {
     let yDim: number;
     if ( // hard coded to mske common configurations look nicer
       this.inputs === 2 && this.outputs === 1 ||
@@ -45,10 +62,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       yDim = Math.max(this.inputs, this.outputs)
     }
 
-    this._dims = new Vector2( width, yDim );
-
-    // make position arrays
-    this.calcPinPositions();
+    return new Vector2( width, yDim );
   }
 
   private calcPinPositions() {
@@ -133,6 +147,11 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     ]
 
     renderer.drawPolygon(cornerPositions, COLORS[color]);
+
+    if (this.icon) {
+      renderer.drawImage(this.icon, this.pos, this.dims);
+    }
+
     // calculate screen radius of pins
     for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
       const yPos = this.pos.y + pinIdx + 0.5;

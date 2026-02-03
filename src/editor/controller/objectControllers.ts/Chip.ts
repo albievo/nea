@@ -127,7 +127,7 @@ export class Chip {
 
   public static createChip(
     model: WorkingChip, renderManager: RenderManager,
-    id: string, behaviour: ChipBehaviour, pos: Vector2
+    id: string, behaviour: ChipBehaviour, pos: Vector2, iconPath: string
   ) {
     const element = new GridElementRenderable({
       id: id,

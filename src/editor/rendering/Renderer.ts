@@ -154,6 +154,16 @@ export class Renderer {
     this.ctx.fill();
   }
 
+  public drawImage(
+    img: CanvasImageSource,
+    pos: Vector2, dims: Vector2
+    ) {
+    const screenPos = this.camera.worldPosToScreen(pos);
+    const screenDims = dims.applyFunction(n => this.camera.worldUnitsToScreenPixels(n));
+
+    this.ctx.drawImage(img, screenPos.x, screenPos.y, screenDims.x, screenDims.y);
+  }
+
   public drawRectFromBox(box: BoundingBox, color: string) {
 
     const topLeft = this.camera.worldPosToScreen(new Vector2(box.left, box.top));
