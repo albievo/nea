@@ -22,7 +22,8 @@ export class GridElementRenderable extends ElementRenderable<'grid-element'> {
       details.outputs,
       details.startingPos.copy(),
       details.width,
-      details.color
+      details.color,
+      details.iconPath
     );
 
     this.renderState = details.renderState;
@@ -125,4 +126,5 @@ interface GridElementDetails {
   color: ColorKey,
   type: NodeType,
   renderState: RenderState,
+  iconPath?: string
 }

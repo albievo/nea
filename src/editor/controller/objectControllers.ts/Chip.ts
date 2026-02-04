@@ -127,7 +127,7 @@ export class Chip {
 
   public static createChip(
     model: WorkingChip, renderManager: RenderManager,
-    id: string, behaviour: ChipBehaviour, pos: Vector2, iconPath: string
+    id: string, behaviour: ChipBehaviour, pos: Vector2, iconPath?: string
   ) {
     const element = new GridElementRenderable({
       id: id,
@@ -136,8 +136,9 @@ export class Chip {
       outputs: behaviour.outputs,
       width: 3, // currently hard-coded, could be made more dynamic
       color: 'stdElementBackground',
+      iconPath,
       type: NodeType.CHIP,
-      renderState: renderManager.renderState
+      renderState: renderManager.renderState,
     });
 
     model.addChip(id, pos, element.dims, NodeType.CHIP, behaviour);

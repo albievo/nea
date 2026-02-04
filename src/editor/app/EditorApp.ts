@@ -168,7 +168,8 @@ export class EditorApp {
         this.camera.screenToWorld(mousePos).applyFunction(Math.floor),
         3,
         'stdElementBackground',
-        true
+        true,
+        chipDef.icon
       )
     }
 
