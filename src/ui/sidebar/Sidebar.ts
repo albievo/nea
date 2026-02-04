@@ -17,6 +17,7 @@ export class Sidebar {
         e.preventDefault();
       }
     });
+    this.$sidebar.on('click', () => this.toggleSidebar());
   }
 
   addChip(preview: ChipPreview) {
@@ -54,8 +55,20 @@ export class Sidebar {
     chipPreview.append(imgContainer);
     chipPreview.append(title);
 
-    $('#chip-selection-box-content').append(chipPreview);
+    $('#chip-selection-box-content-chips').append(chipPreview);
 
     return chipPreview;
+  }
+
+  private toggleSidebar() {
+    const open = this.$sidebar.hasClass('open');
+
+    if (open) {
+      this.$sidebar.removeClass('open');
+      this.$sidebar.addClass('closed');
+    } else {
+      this.$sidebar.removeClass('closed');
+      this.$sidebar.addClass('open');
+    }
   }
 }

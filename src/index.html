@@ -11,14 +11,33 @@
   </div>
   <div id="ui">
 
-    <details id="chip-selection-box" open>
-      <summary id="chip-selection-box-title" tabindex="-1">
+    <div id="chip-selection-box" class="open">
+      <button id="chip-selection-box-title" tabindex="-1">
         <h2>Chips Available</h2>
         <span id="chip-selection-box-chev"></span>
-      </summary>
+      </button>
 
-      <div id="chip-selection-box-content"></div>
-    </details>
+      <div id="chip-selection-box-content">
+        <div id="chip-selection-box-content-chips"></div>
+        <div id="chip-selection-box-content-input-output">
+
+          <button class="chip-preview">
+            <div class="img-container">
+              <img src="./assets/images/chips/and-gate.png" alt="input">
+            </div>
+            <h3>INPUT</h3>
+          </button>
+
+          <button class="chip-preview">
+            <div class="img-container">
+              <img src="./assets/images/chips/and-gate.png" alt="output">
+            </div>
+            <h3>OUTPUT</h3>
+          </button>
+
+        </div>
+      </div>
+    </div>
 
   </div>
 </body>
