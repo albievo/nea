@@ -1,4 +1,5 @@
 import { EditorApp } from "../../editor/app/EditorApp";
+import { NodeType } from "../../editor/model/netlist/Netlist";
 import { Vector2 } from "../../utils/Vector2";
 import { ChipPreview } from "./ChipPreview";
 import $ from 'jquery';
@@ -18,6 +19,8 @@ export class Sidebar {
       }
     });
     this.$sidebar.on('click', () => this.toggleSidebar());
+
+    this.addInputOutputCreationListeners();
   }
 
   addChip(preview: ChipPreview) {
@@ -32,10 +35,31 @@ export class Sidebar {
       e.preventDefault();
 
       this.app.execute({
-        type: 'add-ghost-chip-element',
-        defId: preview.definitionId,  
+        type: 'add-ghost-element',
+        details: {
+          type: NodeType.CHIP,
+          defId: preview.definitionId
+        },
         mousePos: new Vector2(e.clientX, e.clientY)
       });
+    })
+  }
+
+  private addInputOutputCreationListeners() {
+    $('input-chip-preview').on('click', e => {
+      this.app.execute({
+        type: 'add-ghost-element',
+        mousePos: new Vector2(e.clientX, e.clientY),
+        details: { type: NodeType.INPUT }
+      })
+    })
+
+    $('output-chip-preview').on('click', e => {
+      this.app.execute({
+        type: 'add-ghost-element',
+        mousePos: new Vector2(e.clientX, e.clientY),
+        details: { type: NodeType.INPUT }
+      })
     })
   }
 

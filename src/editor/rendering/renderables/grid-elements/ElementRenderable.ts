@@ -36,7 +36,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   ) {
     super(id);
 
-    this._dims = this.calcDims(width);
+    this._dims = ElementRenderable.calcDims(this.inputs, this.outputs, width);
     // make position arrays
     this.calcPinPositions();
 
@@ -48,18 +48,18 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     this.icon = await loadImage(this.iconPath);
   }
 
-  private calcDims(width: number): Vector2 {
+  public static calcDims(inputs: number, outputs: number, width: number): Vector2 {
     let yDim: number;
     if ( // hard coded to mske common configurations look nicer
-      this.inputs === 2 && this.outputs === 1 ||
-      this.inputs === 1 && this.outputs === 2 ||
-      this.inputs === 1 && this.outputs === 0 ||
-      this.inputs === 0 && this.outputs === 1
+      inputs === 2 && outputs === 1 ||
+      inputs === 1 && outputs === 2 ||
+      inputs === 1 && outputs === 0 ||
+      inputs === 0 && outputs === 1
     ) {
       yDim = 3
     }
     else {
-      yDim = Math.max(this.inputs, this.outputs)
+      yDim = Math.max(inputs, outputs)
     }
 
     return new Vector2( width, yDim );

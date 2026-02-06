@@ -17,7 +17,7 @@ import { NodeType } from "../model/netlist/Netlist";
 import { BoundingBox } from "../rendering/renderables/Renderable";
 import { Value } from "../model/netlist/Value";
 import { InvertInputAction } from "../actions/action-types/InvertInputAction";
-import { CreateChipElementAction } from "../actions/action-types/CreateElementAction";
+import { CreateChipElementAction, generateCreateElementAction } from "../actions/action-types/CreateElementAction";
 import { ChipLibrary } from "../model/chip/ChipLibrary";
 
 export class InteractionController {
@@ -258,10 +258,10 @@ export class InteractionController {
 
       // if at a valid pos, create a new element there
       if (ghostElementInfo.validPosition) {
-        const definition = this.chipLibrary.get(ghostElementInfo.defId);
-
-        this.actions.do(new CreateChipElementAction(
-          crypto.randomUUID(), definition, ghostElementInfo.renderable.pos
+        this.actions.do(generateCreateElementAction(
+          crypto.randomUUID(),
+          ghostElementInfo.renderable.pos,
+          ghostElementInfo.details
         ));
       }
 

@@ -2,7 +2,8 @@ import { Vector2 } from "../../../utils/Vector2";
 import { Chip } from "../../controller/objectControllers.ts/Chip";
 import { createBehaviour } from "../../model/chip/BehaviourSpec";
 import { ChipBehaviour } from "../../model/chip/ChipBehaviour";
-import { ChipDefinition } from "../../model/chip/ChipLibrary";
+import { ChipDefinition, GenericChipDetails } from "../../model/chip/ChipLibrary";
+import { NodeType } from "../../model/netlist/Netlist";
 import { ActionContext, UndoableAction } from "../Action";
 
 abstract class CreateElementAction implements UndoableAction {
@@ -60,20 +61,40 @@ export class CreateOutputElementAction extends CreateElementAction {
 
 export class CreateChipElementAction extends CreateElementAction {
 
-  constructor(id: string, private definition: ChipDefinition, pos: Vector2) {
+  constructor(id: string, private defId: string, pos: Vector2) {
     super(id, pos);
   }
 
   do(ctx: ActionContext) {
-    console.log(this.definition.icon)
+    const def = ctx.chipLibrary.get(this.defId);
 
     Chip.createChip(
       ctx.chip, ctx.renderManager,
-      this.id, createBehaviour(this.definition.behaviourSpec), this.pos,
-      this.definition.icon
+      this.id, createBehaviour(def.behaviourSpec), this.pos,
+      def.icon
     );
 
     const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);
     ctx.renderManager.updateRenderState(newState);
+  }
+}
+
+export function generateCreateElementAction(
+  id: string, pos: Vector2,
+  details: GenericChipDetails
+): CreateElementAction {
+  switch (details.type) {
+
+    case NodeType.CHIP: return new CreateChipElementAction(
+        id, details.defId, pos
+      );
+
+    case NodeType.INPUT: return new CreateInputElementAction(
+        id, pos
+      );
+    
+    case NodeType.OUTPUT: return new CreateOutputElementAction(
+        id, pos
+      );
   }
 }

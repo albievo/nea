@@ -4,6 +4,7 @@ import { RenderManager } from "../rendering/RenderManager";
 import { WorkingChip } from "../model/WorkingChip";
 import { Camera } from "../rendering/Camera";
 import { InteractionState } from "../controller/InteractionState";
+import { ChipLibrary } from "../model/chip/ChipLibrary";
 
 
 export class ActionDoer {
@@ -15,13 +16,15 @@ export class ActionDoer {
     renderManager: RenderManager,
     chip: WorkingChip,
     camera: Camera,
-    interactionState: InteractionState
+    interactionState: InteractionState,
+    chipLibrary: ChipLibrary
   ) {
     this.ctx = {
       renderManager, 
       chip,
       camera,
-      interactionState
+      interactionState,
+      chipLibrary
     }
   }
 

@@ -14,9 +14,11 @@ import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementA
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
 import { createBehaviour } from "../model/chip/BehaviourSpec";
-import { ChipLibrary } from "../model/chip/ChipLibrary";
+import { ChipLibrary, GenericChipDetails } from "../model/chip/ChipLibrary";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
 import { NodeType } from "../model/netlist/Netlist";
+import { ElementRenderable } from "../rendering/renderables/grid-elements/ElementRenderable";
+import { Chip } from "../controller/objectControllers.ts/Chip";
 
 export class EditorApp {
   private camera: Camera;
@@ -64,7 +66,8 @@ export class EditorApp {
       this.renderManager,
       this.chip,
       this.camera,
-      this.interactionState
+      this.interactionState,
+      this.chipLibrary
     );
 
     this.controller = new InteractionController(
@@ -118,9 +121,9 @@ export class EditorApp {
         }
         break;
       
-      case 'add-ghost-chip-element':
+      case 'add-ghost-element':
         try {
-          this.addGhostChipElement(cmd.defId, cmd.mousePos);
+          this.addGhostElement(cmd.details, cmd.mousePos);
         }
         catch (err) {
           console.error(err)
@@ -147,32 +150,49 @@ export class EditorApp {
   }
 
   private addChipElement(defId: string, pos: Vector2, elemId?: string) {
-    const definition = this.chipLibrary.get(defId);
-
     this.actionDoer.do(new CreateChipElementAction(
-      elemId || crypto.randomUUID(), definition, pos
+      elemId || crypto.randomUUID(), defId, pos
     ));
   }
 
-  private addGhostChipElement(defId: string, mousePos: Vector2) {
-    const chipDef = this.chipLibrary.get(defId);
+  private addGhostElement(details: GenericChipDetails, mousePos: Vector2) {
+    const def = details.type === NodeType.CHIP
+      ? this.chipLibrary.get(details.defId)
+      : undefined;
+    
+    let iconPath: string | undefined;
+    
+    // figure out the number of inputs and outputs
+    let inputs: number;
+    let outputs: number;
+    if (def) { // if we are looking at a chip
+      inputs = def.inputs;
+      outputs = def.outputs;
+      iconPath = def.icon
+    }
+    else {
+      inputs = details.type === NodeType.INPUT ? 0 : 1;
+      outputs = details.type === NodeType.INPUT ? 1 : 0;
+    }
+    
+    const pos = this.camera.screenToWorld(mousePos).applyFunction(Math.floor);
+    const dims = ElementRenderable.calcDims(inputs, outputs, 3)
+    const validPosition = Chip.checkValidPosition(this.chip, pos, dims);
 
     this.interactionState.ghostElement = {
-      defId,
-      validPosition: true,
+      details,
+      validPosition,
       renderable: new GhostElementRenderable(
         crypto.randomUUID(),
-        NodeType.CHIP,
-        chipDef.inputs,
-        chipDef.outputs,
-        this.camera.screenToWorld(mousePos).applyFunction(Math.floor),
+        details.type,
+        inputs,
+        outputs,
+        pos,
         3,
         'stdElementBackground',
-        true,
-        chipDef.icon
+        validPosition,
+        iconPath
       )
     }
-
-    this.cursorHandler.updateCursor();
   }
 }

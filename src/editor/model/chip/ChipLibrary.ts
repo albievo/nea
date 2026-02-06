@@ -1,3 +1,4 @@
+import { NodeType } from "../netlist/Netlist";
 import { BehaviourSpec } from "./BehaviourSpec";
 
 export type ChipDefinition = {
@@ -8,6 +9,11 @@ export type ChipDefinition = {
   inputs: number,
   outputs: number
 };
+
+export type GenericChipDetails =
+  { type: NodeType.CHIP, defId: string } |
+  { type: NodeType.INPUT } |
+  { type: NodeType.OUTPUT }
 
 export class ChipLibrary {
   private definitions = new Map<string, ChipDefinition>();

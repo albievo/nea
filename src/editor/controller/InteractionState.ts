@@ -3,6 +3,8 @@ import { Vector2 } from "../../utils/Vector2";
 import { InputPin } from "../model/chip/Pins";
 import { Value } from "../model/netlist/Value";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
+import { NodeType } from "../model/netlist/Netlist";
+import { GenericChipDetails } from "../model/chip/ChipLibrary";
 
 export interface InteractionState {
   tempWire?: {
@@ -26,6 +28,6 @@ export interface InteractionState {
   ghostElement?: {
     renderable: GhostElementRenderable;
     validPosition: boolean;
-    defId: string;
+    details: GenericChipDetails
   }
 }
