@@ -46,7 +46,9 @@ export class Sidebar {
   }
 
   private addInputOutputCreationListeners() {
-    $('input-chip-preview').on('click', e => {
+    $('.input-chip-preview').on('mousedown', e => {
+      e.preventDefault();
+
       this.app.execute({
         type: 'add-ghost-element',
         mousePos: new Vector2(e.clientX, e.clientY),
@@ -54,11 +56,13 @@ export class Sidebar {
       })
     })
 
-    $('output-chip-preview').on('click', e => {
+    $('.output-chip-preview').on('mousedown', e => {
+      e.preventDefault();
+
       this.app.execute({
         type: 'add-ghost-element',
         mousePos: new Vector2(e.clientX, e.clientY),
-        details: { type: NodeType.INPUT }
+        details: { type: NodeType.OUTPUT }
       })
     })
   }
