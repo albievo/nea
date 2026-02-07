@@ -136,6 +136,8 @@ export class EditorApp {
         throw new Error(`Unknown command: ${String((cmd as any).type)}`);
       }
     }
+
+    this.cursorHandler.updateCursor();
   }
 
   private addInputElement(pos: Vector2, id?: string) {

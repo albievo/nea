@@ -34,14 +34,8 @@ export class Sidebar {
     chipBtn.on('mousedown', e => {
       e.preventDefault();
 
-      this.app.execute({
-        type: 'add-ghost-element',
-        details: {
-          type: NodeType.CHIP,
-          defId: preview.definitionId
-        },
-        mousePos: new Vector2(e.clientX, e.clientY)
-      });
+      const mousePos = new Vector2(e.clientX, e.clientY);
+      this.handleMouseDownOnChip(preview, mousePos);
     })
   }
 
@@ -98,5 +92,16 @@ export class Sidebar {
       this.$sidebar.removeClass('closed');
       this.$sidebar.addClass('open');
     }
+  }
+
+  private handleMouseDownOnChip(chip: ChipPreview, mousePos: Vector2) {
+    this.app.execute({
+      type: 'add-ghost-element',
+      details: {
+        type: NodeType.CHIP,
+        defId: chip.definitionId
+      },
+      mousePos
+    });
   }
 }
