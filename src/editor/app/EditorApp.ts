@@ -19,6 +19,7 @@ import { GhostElementRenderable } from "../rendering/renderables/grid-elements/G
 import { NodeType } from "../model/netlist/Netlist";
 import { ElementRenderable } from "../rendering/renderables/grid-elements/ElementRenderable";
 import { Chip } from "../controller/objectControllers.ts/Chip";
+import { GridElementRenderable } from "../rendering/renderables/grid-elements/GridElementRenderable";
 
 export class EditorApp {
   private camera: Camera;

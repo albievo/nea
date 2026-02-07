@@ -18,7 +18,7 @@ export class Sidebar {
         e.preventDefault();
       }
     });
-    this.$sidebar.on('click', () => this.toggleSidebar());
+    $('#chip-selection-box-title').on('click', () => this.toggleSidebar());
 
     this.addInputOutputCreationListeners();
   }
