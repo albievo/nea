@@ -1,4 +1,5 @@
 import { EditorApp } from "../../editor/app/EditorApp";
+import $ from 'jquery';
 
 export class SaveChipBtn {
   
@@ -9,6 +10,6 @@ export class SaveChipBtn {
   }
 
   private handleClick() {
-    
+
   }
 }

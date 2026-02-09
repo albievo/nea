@@ -1,5 +1,6 @@
 import { EditorApp } from "../editor/app/EditorApp";
 import { ChipLibrary } from "../editor/model/chip/ChipLibrary";
+import { ModalDescriptor, renderEmptyModal } from "./modal.ts/Modal";
 import { SaveChipBtn } from "./save-chip-btn.ts/SaveChipBtn";
 import { Sidebar } from "./sidebar/Sidebar";
 
@@ -22,5 +23,9 @@ export class EditorUI {
       icon: definition.icon,
       name: definition.name
     });
+  }
+
+  addModal(modal: ModalDescriptor) {
+    renderEmptyModal(modal.title);
   }
 }
