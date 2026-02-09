@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { PrimitiveBehaviour, TruthtableBehaviour } from '../../src/editor/model/netlist/ChipBehaviour';
+import { PrimitiveBehaviour, TruthtableBehaviour } from '../../src/editor/model/chip/ChipBehaviour';
 import { Connection } from '../../src/editor/model/netlist/Connection';
 import { Netlist, NetlistNode, NodeType } from '../../src/editor/model/netlist/Netlist';
 import { Value } from '../../src/editor/model/netlist/Value';
