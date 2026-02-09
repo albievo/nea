@@ -1,3 +1,5 @@
+@use './theme/colors.scss' as colors;
+
 html {
   height: 100%;
   margin: 0;
@@ -33,6 +35,8 @@ body {
   height: 100%;
   width: 100%;
 
+  font-family: Arial, Helvetica, sans-serif;
+
   #chip-selection-box {
     position: absolute;
     top: 50px;
@@ -48,7 +52,6 @@ body {
     background-color: rgba(0, 0, 0, 0.55);
     border-radius: 20px;
 
-    font-family: Arial, Helvetica, sans-serif;
     color: white;
 
     &.closed {
@@ -150,5 +153,25 @@ body {
         }
       }
     }
+  }
+
+  #save-chip-btn {
+    position: absolute;
+
+    bottom: 50px;
+    right: 50px;
+
+    padding: 30px 40px 30px 40px;
+
+    background-color: colors.$primary-blue;
+
+    font-size: 1.75rem;
+    color: white;
+    font-weight: 600;
+
+    border: none;
+    border-radius: 30px;
+
+    cursor: pointer;
   }
 }
