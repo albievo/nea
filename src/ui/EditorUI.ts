@@ -1,6 +1,6 @@
 import { EditorApp } from "../editor/app/EditorApp";
 import { ChipLibrary } from "../editor/model/chip/ChipLibrary";
-import { ModalDescriptor, renderEmptyModal } from "./modal.ts/Modal";
+import { ModalDescriptor, renderEmptyModal, renderLoginModal, renderPlainTextModal } from "./modal.ts/Modal";
 import { SaveChipBtn } from "./save-chip-btn.ts/SaveChipBtn";
 import { Sidebar } from "./sidebar/Sidebar";
 
@@ -27,5 +27,20 @@ export class EditorUI {
 
   addModal(modal: ModalDescriptor) {
     renderEmptyModal(modal.title);
+
+    switch (modal.type) {
+      case 'plain-text':
+        renderPlainTextModal(modal.props.text);
+        break;
+
+      case 'log-in':
+        renderLoginModal(modal.props.onSubmit);
+        break;
+
+      default: {
+        const _exhaustive: never = modal;
+        return _exhaustive;
+      }
+    }
   }
 }
