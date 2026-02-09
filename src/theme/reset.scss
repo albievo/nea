@@ -1,0 +1,19 @@
+p,
+h1, h2, h3, h4, h5, h6,
+ul, ol, li,
+nav,
+img,
+div,
+button {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0 0 10px 0;
+}
+
+button {
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+}
