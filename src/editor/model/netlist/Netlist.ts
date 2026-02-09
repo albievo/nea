@@ -6,6 +6,9 @@ import { Queue } from "../../../utils/Queue";
 import { GeneralUtils } from "../../../utils/GeneralUtils";
 import { RenderState } from "../../rendering/RenderManager";
 import { createEmptyRenderState } from "../../rendering/RenderState";
+import { SerializedNetlist } from "./SerializedNetlist";
+import { ChipLibrary, getGenericChipDef } from "../chip/ChipLibrary";
+import { createBehaviour } from "../chip/BehaviourSpec";
 
 export class Netlist {
   private nodes: NetlistNode[];
@@ -396,8 +399,35 @@ export class Netlist {
     return state;
   }
 
-  public static fromSerialized(serialized: SerializedNetlist): Netlist {
-    throw new Error('not yet implemented');
+  public static fromSerialized(
+    serialized: SerializedNetlist,
+    chipLibrary: ChipLibrary
+  ): Netlist {
+    const netlist = new Netlist([], []);
+
+    // add chips to netlist
+    for (const chip of serialized.chips) {
+      // get the behaviour, if there is one
+      const def = getGenericChipDef(chipLibrary, chip.details);
+      const behaviour = def?.behaviourSpec
+        ? createBehaviour(chipLibrary, def.behaviourSpec)
+        : undefined;
+
+      netlist.addNode(new NetlistNode(
+        chip.id, chip.details.type, behaviour
+      ));
+    }
+
+    // add connections to netlist
+    for (const connection of serialized.connections) {
+      const id = connection.id ?? crypto.randomUUID();
+
+      netlist.addConnection(new Connection(
+        id, connection.from, connection.to
+      ));
+    }
+    
+    return netlist;
   }
 }
 
@@ -502,8 +532,4 @@ export interface Signal {
   value: Value,
   from: OutputPin,
   to: InputPin
-}
-
-export interface SerializedNetlist {
-
 }

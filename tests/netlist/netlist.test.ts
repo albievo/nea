@@ -1,10 +1,12 @@
 import { Netlist, NetlistNode, NodeType } from "../../src/editor/model/netlist/Netlist";
-import { PrimitiveBehaviour } from "../../src/editor/model/netlist/ChipBehaviour";
+import { PrimitiveBehaviour } from "../../src/editor/model/chip/ChipBehaviour";
 import { Connection } from "../../src/editor/model/netlist/Connection";
 import { Value } from "../../src/editor/model/netlist/Value";
 import { GeneralUtils } from "../../src/utils/GeneralUtils";
 
 import { randomUUID } from "crypto";
+import { SerializedNetlist } from "../../src/editor/model/netlist/SerializedNetlist";
+import { ChipLibrary } from "../../src/editor/model/chip/ChipLibrary";
 
 
 describe("setting up netlist", () => {
@@ -125,6 +127,133 @@ describe("setting up netlist", () => {
       )
     }).toThrow();
   })
+
+  test('netlist is created from serialized properly', () => {
+    const chipLibrary = new ChipLibrary();
+    chipLibrary.register([{
+      id: 'and-prim',
+      name: 'and',
+      behaviourSpec: {
+        kind: 'primitive',
+        type: 'and'
+      },
+      icon: 'blah',
+      inputs: 2,
+      outputs: 1
+    }, {
+      id: 'not-prim',
+      name: 'not',
+      behaviourSpec: {
+        kind: 'primitive',
+        type: 'not'
+      },
+      icon: 'blah',
+      inputs: 1,
+      outputs: 1
+    }])
+
+    const serialized: SerializedNetlist = {
+      chips: [{
+        id: 'input-1',
+        details: { type: NodeType.INPUT }
+      }, {
+        id: 'input-2',
+        details: { type: NodeType.INPUT }
+      }, {
+        id: 'and-chip',
+        details: { type: NodeType.CHIP, defId: 'and-prim' }
+      }, {
+        id: 'not-chip',
+        details: { type: NodeType.CHIP, defId: 'not-prim' }
+      }, {
+        id: 'output',
+        details: { type: NodeType.OUTPUT }
+      }],
+      connections: [{
+        from: {
+          nodeId: 'input-1',
+          outputIdx: 0
+        },
+        to: {
+          nodeId: 'and-chip',
+          inputIdx: 0
+        }
+      }, {
+        from: {
+          nodeId: 'input-2',
+          outputIdx: 0
+        },
+        to: {
+          nodeId: 'and-chip',
+          inputIdx: 1
+        }
+      }, {
+        from: {
+          nodeId: 'and-chip',
+          outputIdx: 0
+        },
+        to: {
+          nodeId: 'not-chip',
+          inputIdx: 0
+        }
+      }, {
+        from: {
+          nodeId: 'not-chip',
+          outputIdx: 0
+        },
+        to: {
+          nodeId: 'output',
+          inputIdx: 0
+        }
+      }]
+    }
+
+    const netlist = Netlist.fromSerialized(serialized, chipLibrary);
+
+    // relies on netlist evaluation to work normally
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate(new Map([
+          ['input-1', Value.ZERO],
+          ['input-2', Value.ZERO],
+        ])).outputValues,
+        
+        [Value.ONE]
+      )
+    ).toBeTruthy();
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate(new Map([
+          ['input-1', Value.ONE],
+          ['input-2', Value.ZERO],
+        ])).outputValues,
+        
+        [Value.ONE]
+      )
+    ).toBeTruthy();
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate(new Map([
+          ['input-1', Value.ZERO],
+          ['input-2', Value.ONE],
+        ])).outputValues,
+        
+        [Value.ONE]
+      )
+    ).toBeTruthy();
+
+    expect(
+      GeneralUtils.arraysAreEqual(
+        netlist.evaluate(new Map([
+          ['input-1', Value.ONE],
+          ['input-2', Value.ONE],
+        ])).outputValues,
+        
+        [Value.ZERO]
+      )
+    ).toBeTruthy();  })
 })
 
 describe("evaluating a netlist", () => {

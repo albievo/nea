@@ -70,7 +70,7 @@ export class CreateChipElementAction extends CreateElementAction {
 
     Chip.createChip(
       ctx.chip, ctx.renderManager,
-      this.id, createBehaviour(def.behaviourSpec), this.pos,
+      this.id, createBehaviour(ctx.chipLibrary, def.behaviourSpec), this.pos,
       def.icon
     );
 

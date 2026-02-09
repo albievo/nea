@@ -15,6 +15,18 @@ export type GenericChipDetails =
   { type: NodeType.INPUT } |
   { type: NodeType.OUTPUT }
 
+/**
+ * returns undefined if input ot output, or the definition if there 
+ * is one
+ */
+export function getGenericChipDef(
+  chipLibrary: ChipLibrary, dets: GenericChipDetails
+): ChipDefinition | undefined {
+  return dets.type === NodeType.CHIP
+    ? chipLibrary.get(dets.defId)
+    : undefined
+}
+
 export class ChipLibrary {
   private definitions = new Map<string, ChipDefinition>();
 

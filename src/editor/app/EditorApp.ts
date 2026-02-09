@@ -14,7 +14,7 @@ import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementA
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
 import { createBehaviour } from "../model/chip/BehaviourSpec";
-import { ChipLibrary, GenericChipDetails } from "../model/chip/ChipLibrary";
+import { ChipLibrary, GenericChipDetails, getGenericChipDef } from "../model/chip/ChipLibrary";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
 import { NodeType } from "../model/netlist/Netlist";
 import { ElementRenderable } from "../rendering/renderables/grid-elements/ElementRenderable";
@@ -159,9 +159,7 @@ export class EditorApp {
   }
 
   private addGhostElement(details: GenericChipDetails, mousePos: Vector2) {
-    const def = details.type === NodeType.CHIP
-      ? this.chipLibrary.get(details.defId)
-      : undefined;
+    const def = getGenericChipDef(this.chipLibrary, details);
     
     let iconPath: string | undefined;
     
