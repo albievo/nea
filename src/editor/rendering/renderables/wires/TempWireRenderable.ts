@@ -7,14 +7,13 @@ import { Value } from "../../../model/netlist/Value";
 
 export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
-  protected _startingPos: Vector2;
 
   constructor(
     id: string,
     renderState: RenderState,
     fromPos: Vector2
   ) {
-    super(id, renderState);4
+    super(id, renderState);
     this._startingPos = fromPos;
   }
 
