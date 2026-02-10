@@ -53,7 +53,9 @@ ui.addChipPreview('not-primitive');
 ui.addChipPreview('nand-primitive');
 
 ui.addModal({
-  type: 'plain-text',
   title: 'test modal',
-  props: { text: 'please work' }
+  body: {
+    type: 'plain-text',
+    props: { text: 'please work' }
+  }
 })
