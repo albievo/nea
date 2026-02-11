@@ -195,18 +195,21 @@ export class Renderer {
   public getWindowDims(): Vector2 { return this.windowDims }
   public getCamera(): Camera { return this.camera };
 
-  public drawCenteredText(text: string, leftPos: Vector2, height: number, width?: number) {
-    const screenWidth = this.camera.worldUnitsToScreenPixels(width ?? 100);
-    const screenHeight = this.camera.worldUnitsToScreenPixels(height);
+  public drawLabel(text: string, leftPos: Vector2, textSize: number) {
+    const screenTextSize = this.camera.worldUnitsToScreenPixels(textSize);
+    const screenPos = this.camera.worldPosToScreen(leftPos);
 
-    const screenPos = this.camera.worldPosToScreen(leftPos).add(0, screenHeight / 2);
+    const label = $('<div>');
+    label.text(text);
+    label.addClass('label');
 
-    this.ctx.font = `${screenHeight}px Arial`;        // font size + family
-    this.ctx.fillStyle = 'black';        // text color
-    this.ctx.textAlign = 'center';         // horizontal alignment
-    this.ctx.textBaseline = 'alphabetic';// vertical alignment
+    label.css({
+      'font-size': `${screenTextSize}px`,
+      'top': `${screenPos.y}px`,
+      'left': `${screenPos.x}px`
+    });
 
-    this.ctx.fillText(text, screenPos.x, screenPos.y, screenWidth);
+    $('#labels-layer').append(label);
   }
 }
 

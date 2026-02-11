@@ -220,8 +220,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     // render label, if there is one
     if (this.label) {
-      const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
-      renderer.drawCenteredText(this.label, centrePos, 0.5);
+      const leftPos = this.pos.add(0, this.dims.y + 0.5);
+      renderer.drawLabel(this.label, leftPos, 0.5);
     }
   }
 
