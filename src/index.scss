@@ -12,6 +12,8 @@ body {
   margin: 0;
   padding: 0;
 
+  font-family: Arial, Helvetica, sans-serif;
+
   overflow: hidden;
 }
 
@@ -37,7 +39,6 @@ body {
 
     .label-container {
       position: absolute;
-      background-color: coral;
 
       // centres label around its position
       display: flex;
@@ -48,7 +49,11 @@ body {
 
       .label {
         text-align: center;
-        background-color: aqua;
+
+        background-color: rgba(0, 0, 0, 0.55);
+        color: #fff;
+
+        border-radius: 20px;
       }
     }
   }
@@ -59,8 +64,6 @@ body {
   padding: 0;
   height: 100%;
   width: 100%;
-
-  font-family: Arial, Helvetica, sans-serif;
 
   .modal-overlay {
     position: absolute;

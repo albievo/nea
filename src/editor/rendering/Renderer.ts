@@ -197,7 +197,8 @@ export class Renderer {
 
   public drawLabel(
     text: string,
-    centrePos: Vector2, textSize: number, width: number
+    centrePos: Vector2, textSize: number, width: number,
+    verticalPadding: number, horizontalPadding: number
   ) {
     // create label
     const labelContainer = $('<div>')
@@ -208,7 +209,7 @@ export class Renderer {
       .text(text);
 
     // set position and dims
-    this.updateLabel(labelContainer, centrePos, textSize, width);
+    this.updateLabel(labelContainer, centrePos, textSize, width, verticalPadding, horizontalPadding);
 
     labelContainer.append(label)
     $('#labels-layer').append(labelContainer);
@@ -218,10 +219,14 @@ export class Renderer {
 
   public updateLabel(
     $labelContainer: JQuery<HTMLElement>,
-    centrePos: Vector2, textSize: number, width: number
+    centrePos: Vector2, textSize: number, width: number,
+    verticalPadding: number, horizontalPadding: number
   ) {
     const screenTextSize = this.camera.worldUnitsToScreenPixels(textSize);
     const screenPos = this.camera.worldPosToScreen(centrePos);
+
+    const screenVerticalPadding = this.camera.worldUnitsToScreenPixels(verticalPadding);
+    const screenHorizontalPadding = this.camera.worldUnitsToScreenPixels(horizontalPadding);
 
     const screenWidth = this.camera.worldUnitsToScreenPixels(width);
 
@@ -229,8 +234,12 @@ export class Renderer {
       'top': `${screenPos.y}px`,
       'left': `${screenPos.x - screenWidth / 2}px`,
       'width': `${screenWidth}px`,
-
+      
       'font-size': `${screenTextSize}px`,
+    });
+
+    $labelContainer.find('.label').css({
+      'padding': `${screenVerticalPadding}px ${screenHorizontalPadding}px`,
     })
   }
 }

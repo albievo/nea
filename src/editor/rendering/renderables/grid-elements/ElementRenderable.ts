@@ -19,7 +19,9 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   protected readonly INNER_INDICATOR_RADIUS = 0.8;
   public readonly OUTER_INDICATOR_RADIUS = 0.875;
 
-  private readonly LABEL_TEXT_HEIGHT = 0.5;
+  private readonly LABEL_TEXT_HEIGHT = 0.3;
+  private readonly LABEL_VERT_PADDING = 0.1;
+  private readonly LABEL_HOR_PADDING = 0.2
 
   protected abstract filterColor: ColorKey;
   protected abstract FILTER_OPACITY: number; // 0-1 representing how opaque it should be
@@ -255,12 +257,18 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
   private renderLabel(renderer: Renderer) {
     const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
-    return renderer.drawLabel(this.label, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5);
+    return renderer.drawLabel(
+      this.label, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5,
+      this.LABEL_VERT_PADDING, this.LABEL_HOR_PADDING
+    );
   }
 
   private updateLabel(renderer: Renderer) {
     const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
-    renderer.updateLabel(this.$labelContainer, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5);
+    renderer.updateLabel(
+      this.$labelContainer, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5,
+      this.LABEL_VERT_PADDING, this.LABEL_HOR_PADDING
+    );
   }
 
   protected abstract getInputNodeValue(inputIdx: number): Value;
