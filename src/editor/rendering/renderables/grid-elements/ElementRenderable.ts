@@ -19,10 +19,14 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   protected readonly INNER_INDICATOR_RADIUS = 0.8;
   public readonly OUTER_INDICATOR_RADIUS = 0.875;
 
+  private readonly LABEL_TEXT_HEIGHT = 0.5;
+
   protected abstract filterColor: ColorKey;
   protected abstract FILTER_OPACITY: number; // 0-1 representing how opaque it should be
 
   private icon?: HTMLImageElement;
+
+  private $label?: JQuery<HTMLElement>;
 
   constructor (
     id: string,
@@ -220,8 +224,12 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     // render label, if there is one
     if (this.label) {
-      const leftPos = this.pos.add(0, this.dims.y + 0.5);
-      renderer.drawLabel(this.label, leftPos, 0.5);
+      if (!this.$label) { // if there hasn't been a label rendered yet, render it
+        this.$label = this.renderLabel(renderer);
+      }
+      else { // otherwise, just update pos and dims
+        this.updateLabel(renderer);
+      }
     }
   }
 
@@ -243,6 +251,16 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     renderer.drawSemicircle(
       centre, this.INNER_PIN_RADIUS, 'left', COLORS[color]
     );
+  }
+
+  private renderLabel(renderer: Renderer) {
+    const leftPos = this.pos.add(0, this.dims.y + 0.5);
+    return renderer.drawLabel(this.label, leftPos, this.LABEL_TEXT_HEIGHT);
+  }
+
+  private updateLabel(renderer: Renderer) {
+    const leftPos = this.pos.add(0, this.dims.y + 0.5);
+    renderer.updateLabel(this.$label, leftPos, this.LABEL_TEXT_HEIGHT);
   }
 
   protected abstract getInputNodeValue(inputIdx: number): Value;

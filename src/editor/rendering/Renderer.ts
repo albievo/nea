@@ -196,20 +196,28 @@ export class Renderer {
   public getCamera(): Camera { return this.camera };
 
   public drawLabel(text: string, leftPos: Vector2, textSize: number) {
-    const screenTextSize = this.camera.worldUnitsToScreenPixels(textSize);
-    const screenPos = this.camera.worldPosToScreen(leftPos);
-
-    const label = $('<div>');
+    // create label
+    const label = $('<p>');
     label.text(text);
     label.addClass('label');
 
-    label.css({
+    // set position and dims
+    this.updateLabel(label, leftPos, textSize);
+
+    $('#labels-layer').append(label);
+
+    return label;
+  }
+
+  public updateLabel($label: JQuery<HTMLElement>, leftPos: Vector2, textSize: number) {
+    const screenTextSize = this.camera.worldUnitsToScreenPixels(textSize);
+    const screenPos = this.camera.worldPosToScreen(leftPos);
+
+    $label.css({
       'font-size': `${screenTextSize}px`,
       'top': `${screenPos.y}px`,
       'left': `${screenPos.x}px`
     });
-
-    $('#labels-layer').append(label);
   }
 }
 
