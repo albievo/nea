@@ -3,6 +3,7 @@ import { ChipLibrary } from "../editor/model/chip/ChipLibrary";
 import { Modal, ModalDescriptor } from "./modal.ts/Modal";
 import { SaveChipBtn } from "./save-chip-btn.ts/SaveChipBtn";
 import { Sidebar } from "./sidebar/Sidebar";
+import $ from 'jquery';
 
 export class EditorUI {
   private sidebar: Sidebar;
@@ -34,5 +35,23 @@ export class EditorUI {
 
     this.modal = new Modal(dets);
     this.modal.open();
+
+    // add listeners for closing
+    $('.modal-close').on('click', () => this.closeModal());
+    $(document).on('keydown.modalEscapeKeyTracker', e => {
+      if (e.key === 'Escape' || e.key === 'Esc') this.closeModal();
+    });
+  }
+
+  private closeModal() {
+    const modal = this.modal;
+
+    if (!modal) {
+      console.error('no modal to close');
+      return;
+    }
+
+    modal.close();
+    this.modal = undefined;
   }
 }

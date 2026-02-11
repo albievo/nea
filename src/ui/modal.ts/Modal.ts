@@ -18,12 +18,6 @@ export class Modal {
   public open() {
     this.renderEmptyModal(this.dets.title);
     this.renderModalBody(this.dets.body);
-
-    // add listeners for closing
-    $('.modal-close').on('click', () => this.close());
-    $(document).on('keydown.modalEscapeKeyTracker', e => {
-      if (e.key === 'Escape' || e.key === 'Esc') this.close();
-    });
   }
 
   public close() {
