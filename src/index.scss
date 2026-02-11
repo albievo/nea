@@ -35,10 +35,21 @@ body {
 
     pointer-events: none;
 
-    .label {
+    .label-container {
       position: absolute;
-      background-color: aqua;
+      background-color: coral;
 
+      // centres label around its position
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 0px;
+      width: 0px;
+
+      .label {
+        text-align: center;
+        background-color: aqua;
+      }
     }
   }
 }

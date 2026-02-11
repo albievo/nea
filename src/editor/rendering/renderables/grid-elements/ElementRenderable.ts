@@ -26,7 +26,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
   private icon?: HTMLImageElement;
 
-  private $label?: JQuery<HTMLElement>;
+  private $labelContainer?: JQuery<HTMLElement>;
 
   constructor (
     id: string,
@@ -224,8 +224,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     // render label, if there is one
     if (this.label) {
-      if (!this.$label) { // if there hasn't been a label rendered yet, render it
-        this.$label = this.renderLabel(renderer);
+      if (!this.$labelContainer) { // if there hasn't been a label rendered yet, render it
+        this.$labelContainer = this.renderLabel(renderer);
       }
       else { // otherwise, just update pos and dims
         this.updateLabel(renderer);
@@ -254,13 +254,13 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   }
 
   private renderLabel(renderer: Renderer) {
-    const leftPos = this.pos.add(0, this.dims.y + 0.5);
-    return renderer.drawLabel(this.label, leftPos, this.LABEL_TEXT_HEIGHT);
+    const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
+    return renderer.drawLabel(this.label, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5);
   }
 
   private updateLabel(renderer: Renderer) {
-    const leftPos = this.pos.add(0, this.dims.y + 0.5);
-    renderer.updateLabel(this.$label, leftPos, this.LABEL_TEXT_HEIGHT);
+    const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
+    renderer.updateLabel(this.$labelContainer, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5);
   }
 
   protected abstract getInputNodeValue(inputIdx: number): Value;

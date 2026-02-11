@@ -42,8 +42,6 @@ export class RenderManager {
   ) {
     this.renderer.clearCanvas();
 
-    console.log('frame');
-
     for (const renderable of this.renderablesById.values()) {
       renderable.render(renderer, this.camera);
     }

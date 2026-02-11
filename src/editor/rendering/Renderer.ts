@@ -195,29 +195,43 @@ export class Renderer {
   public getWindowDims(): Vector2 { return this.windowDims }
   public getCamera(): Camera { return this.camera };
 
-  public drawLabel(text: string, leftPos: Vector2, textSize: number) {
+  public drawLabel(
+    text: string,
+    centrePos: Vector2, textSize: number, width: number
+  ) {
     // create label
-    const label = $('<p>');
-    label.text(text);
-    label.addClass('label');
+    const labelContainer = $('<div>')
+      .addClass('label-container');
+
+    const label = $('<p>')
+      .addClass('label')
+      .text(text);
 
     // set position and dims
-    this.updateLabel(label, leftPos, textSize);
+    this.updateLabel(labelContainer, centrePos, textSize, width);
 
-    $('#labels-layer').append(label);
+    labelContainer.append(label)
+    $('#labels-layer').append(labelContainer);
 
-    return label;
+    return labelContainer;
   }
 
-  public updateLabel($label: JQuery<HTMLElement>, leftPos: Vector2, textSize: number) {
+  public updateLabel(
+    $labelContainer: JQuery<HTMLElement>,
+    centrePos: Vector2, textSize: number, width: number
+  ) {
     const screenTextSize = this.camera.worldUnitsToScreenPixels(textSize);
-    const screenPos = this.camera.worldPosToScreen(leftPos);
+    const screenPos = this.camera.worldPosToScreen(centrePos);
 
-    $label.css({
-      'font-size': `${screenTextSize}px`,
+    const screenWidth = this.camera.worldUnitsToScreenPixels(width);
+
+    $labelContainer.css({
       'top': `${screenPos.y}px`,
-      'left': `${screenPos.x}px`
-    });
+      'left': `${screenPos.x - screenWidth / 2}px`,
+      'width': `${screenWidth}px`,
+
+      'font-size': `${screenTextSize}px`,
+    })
   }
 }
 
