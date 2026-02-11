@@ -52,10 +52,10 @@ ui.addChipPreview('and-primitive');
 ui.addChipPreview('not-primitive');
 ui.addChipPreview('nand-primitive');
 
-ui.addModal({
-  title: 'test modal',
-  body: {
-    type: 'plain-text',
-    props: { text: 'please work' }
-  }
-})
+// ui.addModal({
+//   title: 'test modal',
+//   body: {
+//     type: 'plain-text',
+//     props: { text: 'please work' }
+//   }
+// })
