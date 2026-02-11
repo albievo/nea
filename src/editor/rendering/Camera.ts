@@ -2,10 +2,9 @@ import events from "../event/events";
 import { Vector2 } from "../../utils/Vector2";
 import $ from 'jquery';
 import { BoundingBox } from "./renderables/Renderable";
-import { InputManager } from "../inputs/InputManager";
 
 export class Camera {
-  private zoom = 3;
+  private zoom = 2;
   private pan!: Vector2; // top-left of screen in world units
   private dppr: number;
 

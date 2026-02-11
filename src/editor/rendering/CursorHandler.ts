@@ -8,7 +8,7 @@ export class CursorHandler {
   ) { }
 
   private setPointer(pointerStyle: string) {
-    $('body').css('cursor', pointerStyle);
+    $('#canvas').css('cursor', pointerStyle);
   }
 
   public updateCursor() {

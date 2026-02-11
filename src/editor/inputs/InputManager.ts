@@ -13,10 +13,10 @@ export class InputManager {
   }
 
   private setListeners() {
-    $(document).on('mousedown', e => this.handleMouseDown(e))
-    $(document).on('mouseup', e => this.handleMouseUp(e))
-    $(document).on('mousemove', e => this.handleMouseMove(e));
-    $(document).on('wheel', e => this.handleWheel(e));
+    $('#canvas').on('mousedown', e => this.handleMouseDown(e))
+    $('#canvas').on('mouseup', e => this.handleMouseUp(e))
+    $('#canvas').on('mousemove', e => this.handleMouseMove(e));
+    $('#canvas').on('wheel', e => this.handleWheel(e));
     $(document).on('keydown.spaceKeyTracker', e => {
       if (e.key === ' ') this.handleSpaceKeyDown();
     });
@@ -25,16 +25,16 @@ export class InputManager {
       const isZ = e.key === 'z' || e.key === 'Z';
 
       if (isCtrl && isZ) this.handleCtrlZ(e);
-    })
+    });
     $(document).on('keydown.redoTracker', (e: JQuery.KeyDownEvent) => {
       const isCtrl = e.ctrlKey || e.metaKey; // meta for macOS Cmd
       const isZ = e.key === 'y' || e.key === 'Y';
 
       if (isCtrl && isZ) this.handleCtrlY(e);
-    })
+    });
     $(window).on('resize', () => {
       events.emit('resize');
-    })
+    });
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
