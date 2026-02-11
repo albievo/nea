@@ -33,10 +33,12 @@ body {
     position: absolute;
     inset: 0 0 0 0;
 
+    pointer-events: none;
+
     .label {
       position: absolute;
       background-color: aqua;
-      
+
     }
   }
 }
