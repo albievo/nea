@@ -194,6 +194,18 @@ export class Renderer {
 
   public getWindowDims(): Vector2 { return this.windowDims }
   public getCamera(): Camera { return this.camera };
+
+  public drawCenteredText(text: string, leftPos: Vector2, width: number) {
+    const screenPos = this.camera.worldPosToScreen(leftPos);
+    const screenWidth = this.camera.worldUnitsToScreenPixels(width)
+    
+    this.ctx.font = '30px Arial';        // font size + family
+    this.ctx.fillStyle = 'black';        // text color
+    this.ctx.textAlign = 'center';         // horizontal alignment
+    this.ctx.textBaseline = 'alphabetic';// vertical alignment
+
+    this.ctx.fillText(text, screenPos.x, screenPos.y, width);
+  }
 }
 
 interface Line {

@@ -32,7 +32,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     protected _pos: Vector2,
     width: number,
     protected color: ColorKey,
-    protected iconPath?: string
+    protected iconPath?: string,
+    private label?: string
   ) {
     super(id);
 
@@ -216,6 +217,11 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       cornerPositions, 
       filterHex
     );
+
+    // render label, if there is one
+    if (this.label) {
+      renderer.drawCenteredText(this.label, this.pos.add(0, this.dims.y + 1), this.dims.x);
+    }
   }
 
   private renderInputPin(renderer: Renderer, centre: Vector2, state: Value) {
