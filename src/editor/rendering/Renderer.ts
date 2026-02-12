@@ -6,6 +6,7 @@ import { Camera } from './Camera';
 import { MathUtils } from '../../utils/MathUtils';
 import { BoundingBox } from './renderables/Renderable';
 import { Color } from '../../theme/colors';
+import editIcon from '../../assets/icons/edit.svg';
 
 export class Renderer {
   private $canvas = $('canvas');
@@ -204,14 +205,29 @@ export class Renderer {
     const labelContainer = $('<div>')
       .addClass('label-container');
 
-    const label = $('<p>')
+    const label = $('<div>')
       .addClass('label')
+    
+    const labelText = $('<div>')
+      .addClass('label-text')
       .text(text);
 
+    const editBtn = $('<button>')
+      .addClass('edit-label-btn')
+
+    editBtn.append(
+      $('<img>').attr({
+        'src': editIcon,
+        'alt': 'edit'
+      })
+    )
+    
     // set position and dims
     this.updateLabel(labelContainer, centrePos, textSize, width, verticalPadding, horizontalPadding);
 
-    labelContainer.append(label)
+    label.append(labelText);
+    label.append(editBtn);
+    labelContainer.append(label);
     $('#labels-layer').append(labelContainer);
 
     return labelContainer;

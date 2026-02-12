@@ -27,7 +27,7 @@ export class Chip {
         color: 'stdElementBackground',
         type: NodeType.INPUT,
         renderState: renderManager.renderState,
-        name: 'test input chip name'
+        name: `Input`
       })
     );
     
@@ -51,7 +51,7 @@ export class Chip {
         color: 'stdElementBackground',
         type: NodeType.OUTPUT,
         renderState: renderManager.renderState,
-        name: 'test output chip name'
+        name: `Output`
       })
     );
   }
