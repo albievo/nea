@@ -61,18 +61,26 @@ body {
 
         border-radius: 1em;
 
+        .label-input {
+          all: unset;      // removes almost all default input styling
+          font: inherit;
+          color: inherit;
+
+          flex: 0 0 auto;
+        }
+
         .edit-label-btn {
           font-size: inherit; 
           height: 1em;
           width: 1em;
 
-          margin-left: 0.5em;
+          margin-left: 0.35em;
 
           display: inline-flex; // makes sizing predictable
           align-items: center;
           justify-content: center;
 
-          border-radius: 0.3rem;
+          border-radius: 30%;
 
           cursor: pointer;
 

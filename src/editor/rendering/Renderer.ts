@@ -208,9 +208,13 @@ export class Renderer {
     const label = $('<div>')
       .addClass('label')
     
-    const labelText = $('<div>')
-      .addClass('label-text')
-      .text(text);
+    const labelInput = $('<input>')
+      .attr({
+        'type': 'text',
+        'class': 'label-input',
+        'value': `${text}`,
+        'name': 'label-input'
+      });
 
     const editBtn = $('<button>')
       .addClass('edit-label-btn')
@@ -221,14 +225,14 @@ export class Renderer {
         'alt': 'edit'
       })
     )
-    
-    // set position and dims
-    this.updateLabel(labelContainer, centrePos, textSize, width, verticalPadding, horizontalPadding);
 
-    label.append(labelText);
+    label.append(labelInput);
     label.append(editBtn);
     labelContainer.append(label);
     $('#labels-layer').append(labelContainer);
+    
+    // set position and dims
+    this.updateLabel(labelContainer, centrePos, textSize, width, verticalPadding, horizontalPadding);
 
     return labelContainer;
   }
@@ -256,7 +260,15 @@ export class Renderer {
 
     $labelContainer.find('.label').css({
       'padding': `${screenVerticalPadding}px ${screenHorizontalPadding}px`,
-    })
+    });
+
+    const $labelInput = $labelContainer.find('.label-input');
+    console.log($labelInput);
+
+    $labelInput.css({'width': '0px'});
+    $labelInput.css({
+      'width': Math.max($labelInput.get(0).scrollWidth, 20) + 'px'
+    });
   }
 }
 
