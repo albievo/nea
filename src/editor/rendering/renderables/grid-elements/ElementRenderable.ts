@@ -5,6 +5,9 @@ import { NodeType } from "../../../model/netlist/Netlist";
 import { Value } from "../../../model/netlist/Value";
 import { Renderer } from "../../Renderer";
 import { BoundingBox, ElementKind, Renderable } from "../Renderable";
+import editIcon from '../../../../assets/icons/edit.svg';
+import $ from 'jquery'
+
 
 export abstract class ElementRenderable<K extends ElementKind> extends Renderable<K> {
   // -1 means no pin, any other number is the index of the pin
@@ -226,12 +229,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     // render label, if there is one
     if (this.label) {
-      if (!this.$labelContainer) { // if there hasn't been a label rendered yet, render it
-        this.$labelContainer = this.renderLabel(renderer);
-      }
-      else { // otherwise, just update pos and dims
-        this.updateLabel(renderer);
-      }
+      this.updateLabel(renderer);
     }
   }
 
@@ -255,16 +253,42 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     );
   }
 
-  private renderLabel(renderer: Renderer) {
+  private renderLabel() {
     const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
-    const labelContainer =  renderer.drawLabel(
-      this.label, this.id,
-      centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5,
-      this.LABEL_VERT_PADDING, this.LABEL_HOR_PADDING
-    );
 
-    labelContainer.find('.edit-label-btn').on('click', () => {
-      const inputEl = labelContainer.find('.label-input').get(0) as HTMLInputElement;
+    // create label
+    this.$labelContainer = $('<div>')
+      .addClass('label-container');
+
+    const label = $('<div>')
+      .addClass('label')
+    
+    const labelInput = $('<input>')
+      .attr({
+        'type': 'text',
+        'class': 'label-input',
+        'value': `${'Input'}`,
+        'name': 'label-input',
+        'data-labels': this.id
+      });
+
+    const editBtn = $('<button>')
+      .addClass('edit-label-btn');
+
+    editBtn.append(
+      $('<img>').attr({
+        'src': editIcon,
+        'alt': 'edit'
+      })
+    )
+
+    label.append(labelInput);
+    label.append(editBtn);
+    this.$labelContainer.append(label);
+    $('#labels-layer').append(this.$labelContainer);
+    
+    editBtn.on('click', () => {
+      const inputEl = this.$labelContainer.find('.label-input').get(0) as HTMLInputElement;
 
       if (inputEl) {
         inputEl.focus();
@@ -272,15 +296,43 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       }
     });
 
-    return labelContainer
+    return this.$labelContainer
   }
 
   private updateLabel(renderer: Renderer) {
+    if (!this.$labelContainer) {
+      this.renderLabel();
+    }
+    const camera = renderer.getCamera();
+
     const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
-    renderer.updateLabel(
-      this.$labelContainer, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5,
-      this.LABEL_VERT_PADDING, this.LABEL_HOR_PADDING
-    );
+
+    const screenTextSize = camera.worldUnitsToScreenPixels(this.LABEL_TEXT_HEIGHT);
+    const screenPos = camera.worldPosToScreen(centrePos);
+
+    const screenVerticalPadding = camera.worldUnitsToScreenPixels(this.LABEL_VERT_PADDING);
+    const screenHorizontalPadding = camera.worldUnitsToScreenPixels(this.LABEL_HOR_PADDING);
+
+    const screenWidth = camera.worldUnitsToScreenPixels(this.dims.x + 1);
+
+    this.$labelContainer.css({
+      'top': `${screenPos.y}px`,
+      'left': `${screenPos.x - screenWidth / 2}px`,
+      'width': `${screenWidth}px`,
+      
+      'font-size': `${screenTextSize}px`,
+    });
+
+    this.$labelContainer.find('.label').css({
+      'padding': `${screenVerticalPadding}px ${screenHorizontalPadding}px`,
+    });
+
+    const $labelInput = this.$labelContainer.find('.label-input');
+
+    $labelInput.css({'width': '0px'});
+    $labelInput.css({
+      'width': Math.max($labelInput.get(0).scrollWidth, 20) + 'px'
+    });
   }
 
   protected abstract getInputNodeValue(inputIdx: number): Value;

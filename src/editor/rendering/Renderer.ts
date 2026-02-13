@@ -6,7 +6,6 @@ import { Camera } from './Camera';
 import { MathUtils } from '../../utils/MathUtils';
 import { BoundingBox } from './renderables/Renderable';
 import { Color } from '../../theme/colors';
-import editIcon from '../../assets/icons/edit.svg';
 
 export class Renderer {
   private $canvas = $('canvas');
@@ -195,81 +194,6 @@ export class Renderer {
 
   public getWindowDims(): Vector2 { return this.windowDims }
   public getCamera(): Camera { return this.camera };
-
-  public drawLabel(
-    text: string, elemId: string,
-    centrePos: Vector2, textSize: number, width: number,
-    verticalPadding: number, horizontalPadding: number
-  ) {
-    // create label
-    const labelContainer = $('<div>')
-      .addClass('label-container');
-
-    const label = $('<div>')
-      .addClass('label')
-    
-    const labelInput = $('<input>')
-      .attr({
-        'type': 'text',
-        'class': 'label-input',
-        'value': `${text}`,
-        'name': 'label-input',
-        'data-labels': elemId
-      });
-
-    const editBtn = $('<button>')
-      .addClass('edit-label-btn');
-
-    editBtn.append(
-      $('<img>').attr({
-        'src': editIcon,
-        'alt': 'edit'
-      })
-    )
-
-    label.append(labelInput);
-    label.append(editBtn);
-    labelContainer.append(label);
-    $('#labels-layer').append(labelContainer);
-    
-    // set position and dims
-    this.updateLabel(labelContainer, centrePos, textSize, width, verticalPadding, horizontalPadding);
-
-    return labelContainer;
-  }
-
-  public updateLabel(
-    $labelContainer: JQuery<HTMLElement>,
-    centrePos: Vector2, textSize: number, width: number,
-    verticalPadding: number, horizontalPadding: number
-  ) {
-    const screenTextSize = this.camera.worldUnitsToScreenPixels(textSize);
-    const screenPos = this.camera.worldPosToScreen(centrePos);
-
-    const screenVerticalPadding = this.camera.worldUnitsToScreenPixels(verticalPadding);
-    const screenHorizontalPadding = this.camera.worldUnitsToScreenPixels(horizontalPadding);
-
-    const screenWidth = this.camera.worldUnitsToScreenPixels(width);
-
-    $labelContainer.css({
-      'top': `${screenPos.y}px`,
-      'left': `${screenPos.x - screenWidth / 2}px`,
-      'width': `${screenWidth}px`,
-      
-      'font-size': `${screenTextSize}px`,
-    });
-
-    $labelContainer.find('.label').css({
-      'padding': `${screenVerticalPadding}px ${screenHorizontalPadding}px`,
-    });
-
-    const $labelInput = $labelContainer.find('.label-input');
-
-    $labelInput.css({'width': '0px'});
-    $labelInput.css({
-      'width': Math.max($labelInput.get(0).scrollWidth, 20) + 'px'
-    });
-  }
 }
 
 interface Line {
