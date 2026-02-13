@@ -217,7 +217,7 @@ export class Renderer {
       });
 
     const editBtn = $('<button>')
-      .addClass('edit-label-btn')
+      .addClass('edit-label-btn');
 
     editBtn.append(
       $('<img>').attr({
