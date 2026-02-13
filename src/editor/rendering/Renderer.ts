@@ -197,7 +197,7 @@ export class Renderer {
   public getCamera(): Camera { return this.camera };
 
   public drawLabel(
-    text: string,
+    text: string, elemId: string,
     centrePos: Vector2, textSize: number, width: number,
     verticalPadding: number, horizontalPadding: number
   ) {
@@ -213,7 +213,8 @@ export class Renderer {
         'type': 'text',
         'class': 'label-input',
         'value': `${text}`,
-        'name': 'label-input'
+        'name': 'label-input',
+        'data-labels': elemId
       });
 
     const editBtn = $('<button>')
@@ -263,7 +264,6 @@ export class Renderer {
     });
 
     const $labelInput = $labelContainer.find('.label-input');
-    console.log($labelInput);
 
     $labelInput.css({'width': '0px'});
     $labelInput.css({

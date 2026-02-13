@@ -35,6 +35,10 @@ export class InputManager {
     $(window).on('resize', () => {
       events.emit('resize');
     });
+
+    $('#labels-layer').on('focusout', '.label-input', e => {
+      this.handleLabelInputSubmit(e);
+    })
   }
 
   private handleMouseDown(event: JQuery.MouseDownEvent) {
@@ -98,6 +102,14 @@ export class InputManager {
     events.emit('ctrl-y');
   }
 
+  private handleLabelInputSubmit(e: JQuery.FocusOutEvent) {
+    const input = e.target as HTMLInputElement;
+
+    events.emit('label-input-submit', {
+      text: input.value,
+      labeledElem: input.getAttribute('data-labels') ?? ''
+    });
+  }
 
   private set space(val: boolean) {
     this._space = val;

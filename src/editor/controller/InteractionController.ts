@@ -46,6 +46,7 @@ export class InteractionController {
     });
     events.on('ctrl-z', () => this.handleUndo());
     events.on('ctrl-y', () => this.handleRedo());
+    events.on('label-input-submit', e => this.handleLabelInputSubmit(e));
   }
 
   /**
@@ -279,6 +280,11 @@ export class InteractionController {
 
   private handleRedo() {
     this.actions.redo();
+  }
+
+  private handleLabelInputSubmit(e: { text: string, labeledElem: string }) {
+    console.log(e.text);
+    console.log(e.labeledElem);
   }
 
   private worldPosIsOnPin(worldPos: Vector2): number | undefined {

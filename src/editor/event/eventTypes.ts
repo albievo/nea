@@ -11,8 +11,9 @@ export type EventPayloads = {
   "mouse-up": { worldPos: Vector2 };
   "mouse-move": { worldPos: Vector2 };
   "wheel": { delta: Vector2, worldPos: Vector2 };
-  'ctrl-z': void;
-  'ctrl-y': void;
+  "ctrl-z": void;
+  "ctrl-y": void;
+  "label-input-submit": { text: string, labeledElem: string};
 };
 
 export type EventTypes = keyof EventPayloads;

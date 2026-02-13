@@ -258,7 +258,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   private renderLabel(renderer: Renderer) {
     const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
     const labelContainer =  renderer.drawLabel(
-      this.label, centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5,
+      this.label, this.id,
+      centrePos, this.LABEL_TEXT_HEIGHT, this.dims.x + 0.5,
       this.LABEL_VERT_PADDING, this.LABEL_HOR_PADDING
     );
 
