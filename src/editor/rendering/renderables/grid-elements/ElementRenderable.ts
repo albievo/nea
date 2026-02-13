@@ -229,7 +229,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     // render label, if there is one
     if (this.label) {
-      this.updateLabel(renderer);
+      this.renderLabel(renderer);
     }
   }
 
@@ -253,10 +253,17 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     );
   }
 
-  private renderLabel() {
-    const centrePos = this.pos.add(this.dims.x / 2, this.dims.y + 0.5);
+  /**
+   * initial rendering of the label
+   */
+  private createLabel() {
 
-    // create label
+    const defaultLabel = this.type === NodeType.INPUT
+      ? 'Input'
+      : 'Output'
+
+    // create label elements
+
     this.$labelContainer = $('<div>')
       .addClass('label-container');
 
@@ -267,8 +274,9 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       .attr({
         'type': 'text',
         'class': 'label-input',
-        'value': `${'Input'}`,
+        'value': `${defaultLabel}`,
         'name': 'label-input',
+        'maxlength': 31,
         'data-labels': this.id
       });
 
@@ -282,11 +290,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       })
     )
 
-    label.append(labelInput);
-    label.append(editBtn);
-    this.$labelContainer.append(label);
-    $('#labels-layer').append(this.$labelContainer);
-    
+    // add element listeners
+
     editBtn.on('click', () => {
       const inputEl = this.$labelContainer.find('.label-input').get(0) as HTMLInputElement;
 
@@ -296,12 +301,28 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       }
     });
 
+    labelInput.on('keydown', (e) => {
+      if (e.key === 'Enter') {
+        labelInput.trigger('blur');
+      }
+    });
+
+    // add elements to DOM
+    
+    label.append(labelInput);
+    label.append(editBtn);
+    this.$labelContainer.append(label);
+    $('#labels-layer').append(this.$labelContainer);
+
     return this.$labelContainer
   }
 
-  private updateLabel(renderer: Renderer) {
+  /**
+   * render the label
+   */
+  private renderLabel(renderer: Renderer) {
     if (!this.$labelContainer) {
-      this.renderLabel();
+      this.createLabel();
     }
     const camera = renderer.getCamera();
 
@@ -333,6 +354,13 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     $labelInput.css({
       'width': Math.max($labelInput.get(0).scrollWidth, 20) + 'px'
     });
+  }
+
+  public setLabel(text: string) {
+    const $labelContainer = this.$labelContainer;
+    if (!$labelContainer) return;
+
+    $labelContainer.find('.label-input').val(text);
   }
 
   protected abstract getInputNodeValue(inputIdx: number): Value;

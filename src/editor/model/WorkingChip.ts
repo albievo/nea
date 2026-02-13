@@ -10,7 +10,8 @@ import { Value } from "./netlist/Value";
 import { RenderState } from "../rendering/RenderManager";
 
 export class WorkingChip {
-  private chipPositionsById = new Map<string, Vector2>;
+  private chipPositionsById = new Map<string, Vector2>();
+  private chipLabelsById = new Map<string, string>();
   private netlist = new Netlist([], []);
   private _availabilityGrid: CellTakenBy[][];
   private _takenInputs = new Map<string, Map<number, boolean>>;
@@ -137,6 +138,7 @@ export class WorkingChip {
     }
 
     this.chipPositionsById.set(id, pos);
+    this.addChipLabel(id, type);
     
     this.addElementToCellInBox(id, {
       top: pos.y, bottom: pos.y + dims.y - 1,
@@ -148,6 +150,24 @@ export class WorkingChip {
     id: string
   ) {
     this.netlist.rmvNode(id);
+  }
+
+  private addChipLabel(id: string, type: NodeType) {
+    if (type === NodeType.CHIP) return;
+    const name = type === NodeType.INPUT ? 'Input' : 'Output'
+    this.chipLabelsById.set(id, name);
+  }
+
+  public setChipLabel(id: string, text: string): string {
+    const isValid = this.validateLabel(text);
+    if (isValid) {
+      this.chipLabelsById.set(id, text);
+    }
+    return this.chipLabelsById.get(id);
+  }
+
+  private validateLabel(text: string): boolean {
+    return text.length > 0 && text.length < 32;
   }
   
   public isValidPosition(

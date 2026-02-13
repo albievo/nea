@@ -283,8 +283,8 @@ export class InteractionController {
   }
 
   private handleLabelInputSubmit(e: { text: string, labeledElem: string }) {
-    console.log(e.text);
-    console.log(e.labeledElem);
+    const labelText = this.chip.setChipLabel(e.labeledElem, e.text);
+    this.renderManager.setElemLabel(e.labeledElem, labelText);
   }
 
   private worldPosIsOnPin(worldPos: Vector2): number | undefined {

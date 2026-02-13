@@ -235,6 +235,13 @@ export class RenderManager {
     this.renderState.inputPins = newState.inputPins;
     this.renderState.outputPins = newState.outputPins;
   }
+
+  public setElemLabel(id: string, text: string) {
+    const elem = this.getGridElementWithId(id);
+    if (!elem) return;
+
+    elem.setLabel(text);
+  }
 }
 
 export type AvailabilityOverlay = Map<`(${number}, ${number})`, CellTakenBy>;
