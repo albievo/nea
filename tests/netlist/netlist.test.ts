@@ -588,7 +588,7 @@ describe ("validating a netlist", () => {
       new NetlistNode('input', NodeType.INPUT)
     ],
     [
-      new Connection('1', { nodeId: 'input', outputIdx: 0}, { nodeId: 'and', inputIdx: 0 })
+      new Connection('1', { nodeId: 'input', outputIdx: 0}, { nodeId: 'chip', inputIdx: 0 })
     ])
 
     const nodeIds = [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()];
@@ -676,5 +676,10 @@ describe ("validating a netlist", () => {
       new NetlistNode('input', NodeType.INPUT),
       new NetlistNode('output', NodeType.OUTPUT)
     ], []);
+
+    expect(inputNetlist.hasInputAndOutput()).toBeFalsy();
+    expect(outputNetlist.hasInputAndOutput()).toBeFalsy();
+    expect(inputOutputNetlist.hasInputAndOutput()).toBeTruthy();
+
   })
 })
