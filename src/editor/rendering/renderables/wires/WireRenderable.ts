@@ -123,6 +123,9 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
       else if (cell.y > this.boundingBox.bottom) {
         this.boundingBox.bottom = cell.y;
       }
+
+      this.boundingBox.bottom += 1;
+      this.boundingBox.right += 1;
     }
 
     this._endingPos = newPath[newPath.length - 1].fixedCopy();
