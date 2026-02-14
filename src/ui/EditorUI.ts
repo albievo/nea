@@ -15,7 +15,7 @@ export class EditorUI {
     private chipLibrary: ChipLibrary
   ) {
     this.sidebar = new Sidebar(this.app);
-    this.saveChipBtn = new SaveChipBtn(this.app);
+    this.saveChipBtn = new SaveChipBtn(this.app, this);
   }
 
   addChipPreview(chipDefId: string) {

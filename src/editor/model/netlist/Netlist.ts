@@ -429,6 +429,41 @@ export class Netlist {
     
     return netlist;
   }
+
+  public fullyConnected(): boolean {
+    for (let nodeIdx = 0; nodeIdx < this.nodes.length; nodeIdx++) {
+      const node = this.nodes[nodeIdx];
+
+      // check inputs are fully connected
+      const inputNum = node.getInputNum();
+      const inputs = this.inputIndex.get(node.getId()) ?? new Map();
+
+      for (let inputIdx = 0; inputIdx < inputNum; inputIdx++) {
+        if (!inputs.has(inputIdx)) {
+          return false
+        }
+      }
+
+      // check outputs are fully connected
+      const outputNum = node.getOutputNum();
+      const outputs = this.outputIndex.get(node.getId()) ?? new Map();
+
+      for (let output = 0; output < outputNum; output++) {
+        if (!outputs.has(output)) {
+          return false; // at least one output not connected
+        }
+      }
+
+      return true; // all outputs connected
+    }
+  }
+
+  public hasInputAndOutput(): boolean {
+    return (
+      this.inputNodeIds.length >= 1 &&
+      this.outputNodeIds.length >= 1
+    )
+  }
 }
 
 export class NetlistNode {

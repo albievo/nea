@@ -13,17 +13,16 @@ import { Command } from "./Command";
 import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
-import { createBehaviour } from "../model/chip/BehaviourSpec";
 import { ChipLibrary, GenericChipDetails, getGenericChipDef } from "../model/chip/ChipLibrary";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
 import { NodeType } from "../model/netlist/Netlist";
 import { ElementRenderable } from "../rendering/renderables/grid-elements/ElementRenderable";
 import { Chip } from "../controller/objectControllers.ts/Chip";
-import { GridElementRenderable } from "../rendering/renderables/grid-elements/GridElementRenderable";
+import { EditorUI } from "../../ui/EditorUI";
 
 export class EditorApp {
   private camera: Camera;
-  private renderer
+  private renderer: Renderer;
   private renderManager: RenderManager;
   private input: InputManager;
   private chip: WorkingChip;
@@ -94,47 +93,35 @@ export class EditorApp {
   }
 
   public execute(cmd: Command) {
-    switch (cmd.type) {
-      case 'add-input-element':
-        try {
+    try {
+      switch (cmd.type) {
+        case 'add-input-element':
           this.addInputElement(cmd.pos, cmd.id);
-        }
-        catch (err) {
-          console.error(err)
-        }
-        break;
+          break;
 
-      case 'add-output-element':
-        try {
+        case 'add-output-element':
           this.addOutputElement(cmd.pos, cmd.id);
-        }
-        catch (err) {
-          console.error(err)
-        }
-        break;
+          break;
 
-      case 'add-chip-element':
-        try {
+        case 'add-chip-element':
           this.addChipElement(cmd.defId, cmd.pos, cmd.elemId);
-        }
-        catch (err) {
-          console.error(err)
-        }
-        break;
-      
-      case 'add-ghost-element':
-        try {
+          break;
+
+        case 'add-ghost-element':
           this.addGhostElement(cmd.details, cmd.mousePos);
+          break;
+        
+        case 'save-current-chip':
+          this.saveCurrentChip(cmd.ui);
+          break;
+
+        default: {
+          const _exhaustive: never = cmd;
+          throw new Error(`Unknown command: ${String((cmd as any).type)}`);
         }
-        catch (err) {
-          console.error(err)
-        }
-        break;
-            
-      default: {
-        const _exhaustive: never = cmd;
-        throw new Error(`Unknown command: ${String((cmd as any).type)}`);
       }
+    } catch (err) {
+      console.error(err);
     }
 
     this.cursorHandler.updateCursor();
@@ -195,5 +182,9 @@ export class EditorApp {
         iconPath
       )
     }
+  }
+
+  private saveCurrentChip(ui: EditorUI) {
+    const valid = this.chip.validate();
   }
 }

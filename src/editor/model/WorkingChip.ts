@@ -227,6 +227,15 @@ export class WorkingChip {
     this.netlist.evaluate(inputs);
     return this.netlist.getRenderState();
   }
+
+  public validate(): string | undefined {
+    if (!this.netlist.fullyConnected()) {
+      return 'Circuit not fully connected: ensure each pin has at least 1 connection'
+    }
+    if (!this.netlist.hasInputAndOutput()) {
+      return 'Circuit must have at least one connection'
+    }
+  }
 }
 
 export interface CellTakenBy {

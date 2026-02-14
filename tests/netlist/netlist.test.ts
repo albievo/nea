@@ -575,3 +575,106 @@ describe("evaluating a netlist", () => {
     ).toBeTruthy();
   })
 })
+
+describe ("validating a netlist", () => {
+  test("netlist correctly checks whether all nodes are connected", () => {
+    const inputNetlist = new Netlist([new NetlistNode('input', NodeType.INPUT)], []);
+    const outputNetlist = new Netlist([new NetlistNode('output', NodeType.OUTPUT)], []);
+    const chipNetlist = new Netlist([
+      new NetlistNode('chip', NodeType.CHIP, new PrimitiveBehaviour('and'))
+    ], []);
+    const oneConnectionNetlist = new Netlist([
+      new NetlistNode('chip', NodeType.CHIP, new PrimitiveBehaviour('and')),
+      new NetlistNode('input', NodeType.INPUT)
+    ],
+    [
+      new Connection('1', { nodeId: 'input', outputIdx: 0}, { nodeId: 'and', inputIdx: 0 })
+    ])
+
+    const nodeIds = [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+    const properNetlist = new Netlist([
+      new NetlistNode(
+        nodeIds[0],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[1],
+        NodeType.INPUT
+      ),
+      new NetlistNode(
+        nodeIds[2],
+        NodeType.CHIP,
+        new PrimitiveBehaviour('and')
+      ),
+      new NetlistNode(
+        nodeIds[3],
+        NodeType.CHIP,
+        new PrimitiveBehaviour('not')
+      ),
+      new NetlistNode(
+        nodeIds[4],
+        NodeType.OUTPUT
+      )
+    ], [
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[0],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 0
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[1],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[2],
+          inputIdx: 1
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[2],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[3],
+          inputIdx: 0
+        }
+      ),
+      new Connection(
+        randomUUID(),
+        {
+          nodeId: nodeIds[3],
+          outputIdx: 0
+        },
+        {
+          nodeId: nodeIds[4],
+          inputIdx: 0
+        }
+      )
+    ]);
+
+    expect(inputNetlist.fullyConnected()).toBeFalsy();
+    expect(outputNetlist.fullyConnected()).toBeFalsy();
+    expect(chipNetlist.fullyConnected()).toBeFalsy();
+    expect(oneConnectionNetlist.fullyConnected()).toBeFalsy();
+    expect(properNetlist.fullyConnected()).toBeTruthy();
+  })
+
+  test("netlists correctly checks whether there is an input and output", () => {
+    const inputNetlist = new Netlist([new NetlistNode('input', NodeType.INPUT)], []);
+    const outputNetlist = new Netlist([new NetlistNode('output', NodeType.OUTPUT)], []);
+    const inputOutputNetlist = new Netlist([
+      new NetlistNode('input', NodeType.INPUT),
+      new NetlistNode('output', NodeType.OUTPUT)
+    ], []);
+  })
+})
