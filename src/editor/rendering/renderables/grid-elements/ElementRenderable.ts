@@ -142,7 +142,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       top: this.pos.y,
       left: this.pos.x,
       right: this.pos.x + this.dims.x,
-      bottom: this.pos.y + this.dims.y
+      bottom: this.pos.y + this.dims.y + 1 // adding 1 accounts for label
     }
   }
 
@@ -231,6 +231,11 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     if (this.label) {
       this.renderLabel(renderer);
     }
+  }
+
+  protected setVisible(visible: boolean) {
+    if (!this.$labelContainer) return;
+    this.$labelContainer.toggle(visible);
   }
 
   private renderInputPin(renderer: Renderer, centre: Vector2, state: Value) {

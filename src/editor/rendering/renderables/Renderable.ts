@@ -1,7 +1,6 @@
 import { Camera } from "../Camera";
 import { Renderer } from "../Renderer";
 import $ from 'jquery';
-import { RenderState } from "../RenderManager";
 
 export abstract class Renderable<K extends RenderableKind> {
   protected $canvas: JQuery<HTMLElement> = $('#canvas');
@@ -20,12 +19,22 @@ export abstract class Renderable<K extends RenderableKind> {
   }
 
   public render(renderer: Renderer, camera: Camera) {
-    const boundingBox = this.getBoundingBox();
-    if (!camera.intersects(boundingBox)) {
-      return;
-    }
+    const visible = camera.intersects(this.getBoundingBox());
+
+    // always apply visibility for persistent elements
+    this.setVisible(visible);
+
+    // only do the expensive work when visible
+    if (!visible) return;
 
     this.renderObject(renderer);
+  }
+
+  /**
+   * set the visibility of persistent elements like DOM objects
+   */
+  protected setVisible(_visible: boolean): void {
+    // default: do nothing
   }
 
   public get kind(): K {
