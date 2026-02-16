@@ -229,11 +229,11 @@ export class WorkingChip {
   }
 
   public validate(): string | undefined {
+    if (!this.netlist.hasInputAndOutput()) {
+      return 'Circuit must have at least one input and one output'
+    }
     if (!this.netlist.fullyConnected()) {
       return 'Circuit not fully connected: ensure each pin has at least 1 connection'
-    }
-    if (!this.netlist.hasInputAndOutput()) {
-      return 'Circuit must have at least one connection'
     }
   }
 }

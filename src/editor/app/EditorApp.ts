@@ -185,6 +185,11 @@ export class EditorApp {
   }
 
   private saveCurrentChip(ui: EditorUI) {
-    const valid = this.chip.validate();
+    const issue = this.chip.validate();
+    
+    if (issue) {
+      const errorText = `Couldn't save chip: ${issue}`
+      ui.renderError(errorText);
+    };
   }
 }

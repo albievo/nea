@@ -50,7 +50,7 @@ export class Modal {
       <div class="modal">
         <div class="modal-title">
           <h2></h2>
-          <button class="modal-close" aria-label="Close modal">
+          <button class="close-btn modal-close" aria-label="Close modal">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
@@ -67,7 +67,6 @@ export class Modal {
     `);
 
     $modal.find('h2').text(title);
-    $modal.find('.modal-close img').attr('src', closeIcon);
 
     $overlay.append($modal);
     $('#ui').append($overlay);

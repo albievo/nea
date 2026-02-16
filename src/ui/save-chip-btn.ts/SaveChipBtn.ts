@@ -12,6 +12,9 @@ export class SaveChipBtn {
   }
 
   private handleClick() {
-    
+    this.app.execute({
+      type: 'save-current-chip',
+      ui: this.ui
+    })
   }
 }
