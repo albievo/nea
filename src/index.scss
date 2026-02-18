@@ -319,7 +319,7 @@ body {
 
     transition: top 500ms;
 
-    // start hidden above the viewport
+    // start hidden above the screen
     transform: translateY(calc(-100% - #{$inset}));
     transition: transform 500ms ease;
     will-change: transform;

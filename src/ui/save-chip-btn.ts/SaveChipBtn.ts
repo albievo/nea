@@ -12,9 +12,13 @@ export class SaveChipBtn {
   }
 
   private handleClick() {
-    this.app.execute({
+    const error = this.app.execute({
       type: 'save-current-chip',
       ui: this.ui
     })
+
+    if (error.errorText) {
+      this.ui.renderError(error.errorText);
+    }
   }
 }

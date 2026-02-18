@@ -20,6 +20,10 @@ import { ElementRenderable } from "../rendering/renderables/grid-elements/Elemen
 import { Chip } from "../controller/objectControllers.ts/Chip";
 import { EditorUI } from "../../ui/EditorUI";
 
+export interface SuccessState {
+  errorText?: string;
+}
+
 export class EditorApp {
   private camera: Camera;
   private renderer: Renderer;
@@ -92,7 +96,7 @@ export class EditorApp {
     ));
   }
 
-  public execute(cmd: Command) {
+  public execute(cmd: Command): SuccessState {
     try {
       switch (cmd.type) {
         case 'add-input-element':
@@ -112,7 +116,7 @@ export class EditorApp {
           break;
         
         case 'save-current-chip':
-          this.saveCurrentChip(cmd.ui);
+          this.saveCurrentChip();
           break;
 
         default: {
@@ -122,9 +126,14 @@ export class EditorApp {
       }
     } catch (err) {
       console.error(err);
+      return {
+        errorText: err
+      }
     }
 
     this.cursorHandler.updateCursor();
+
+    return { }
   }
 
   private addInputElement(pos: Vector2, id?: string) {
@@ -184,12 +193,12 @@ export class EditorApp {
     }
   }
 
-  private saveCurrentChip(ui: EditorUI) {
+  private saveCurrentChip() {
     const issue = this.chip.validate();
     
     if (issue) {
       const errorText = `Couldn't save chip: ${issue}`
-      ui.renderError(errorText);
+      throw new Error(errorText);
     };
   }
 }
