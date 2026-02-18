@@ -233,7 +233,7 @@ export class WorkingChip {
       return 'Circuit must have at least one input and one output'
     }
     if (!this.netlist.fullyConnected()) {
-      return 'Circuit not fully connected: ensure each pin has at least 1 connection'
+      return 'Circuit not fully connected - ensure each pin has at least 1 connection'
     }
   }
 }

@@ -3,8 +3,6 @@ import $ from 'jquery'
 export class ErrorPopup {
   private $popup: JQuery<HTMLElement>;
 
-  private readonly MOVEMENT_TIME = 500;
-
   constructor (
     private text: string
   ) { }
@@ -30,19 +28,26 @@ export class ErrorPopup {
     `);
   
     this.$popup.find('p').text(this.text);
-
     $('#ui').append(this.$popup);
-    this.$popup.css({
-      'transition': `top ${this.MOVEMENT_TIME}ms`
+
+    // ensure the initial (closed) transform is applied before opening
+    requestAnimationFrame(() => {
+      this.$popup.addClass('open');
     });
-    this.$popup.removeClass('closed');
-    this.$popup.addClass('open');
+
+    this.$popup.find('.error-popup-close').on('click', () => this.close());
   }
 
   close() {
-    this.$popup.removeClass('open');
-    this.$popup.addClass('closed');
+    if (!this.$popup) return;
 
-    setTimeout(this.$popup.remove, this.MOVEMENT_TIME);
+    this.$popup.removeClass('open');
+
+    // remove once the transition finishes
+    this.$popup.one('transitionend', (e) => {
+      if ((e.target as HTMLElement) === this.$popup.get(0)) {
+        this.$popup.remove();
+      }
+    });
   }
 }
