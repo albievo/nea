@@ -236,6 +236,10 @@ export class WorkingChip {
       return 'Circuit not fully connected - ensure each pin has at least 1 connection'
     }
   }
+
+  public isStatic(): boolean {
+    return this.netlist.isStatic();
+  }
 }
 
 export interface CellTakenBy {

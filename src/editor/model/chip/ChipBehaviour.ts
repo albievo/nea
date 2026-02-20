@@ -9,6 +9,7 @@ export abstract class ChipBehaviour {
   abstract outputs: number;
 
   abstract evaluate(inputs: Value[]): Value[];
+  abstract isStatic();
 
   protected generateXOutput() {
     return Array.from({ length: this.outputs }, () => Value.X)
@@ -37,6 +38,8 @@ export class PrimitiveBehaviour extends ChipBehaviour {
   readonly inputs: number;
   readonly outputs: number;
 
+  readonly static: boolean;
+
   private evaluationFunction: (input: Value[]) => Value[];
 
   constructor(primitiveId: PrimitiveType) {
@@ -51,10 +54,15 @@ export class PrimitiveBehaviour extends ChipBehaviour {
     this.evaluationFunction = chipInfo.evaluteFunction;
     this.inputs = chipInfo.inputs;
     this.outputs = chipInfo.outputs;
+    this.static = chipInfo.static
   }
 
   evaluate(inputs: Value[]): Value[] {
     return this.evaluationFunction(inputs);
+  }
+
+  isStatic() {
+    return this.static;
   }
 }
 
@@ -173,6 +181,10 @@ export class TruthtableBehaviour extends ChipBehaviour {
 
     return table;
   }
+
+  isStatic() {
+    return true;
+  }
 }
 
 export class NetlistBehaviour extends ChipBehaviour {
@@ -180,6 +192,8 @@ export class NetlistBehaviour extends ChipBehaviour {
 
   readonly inputs: number;
   readonly outputs: number;
+
+  private static?: boolean;
 
   constructor(
     private netlist: Netlist, 
@@ -198,5 +212,13 @@ export class NetlistBehaviour extends ChipBehaviour {
     // Could maybe do something if due to max iteration? 
     // but not super important
     return this.netlist.evaluate(inputsWithIds).outputValues;
+  }
+
+  isStatic() {
+    if (this.static === undefined) {
+      this.static = this.netlist.isStatic();
+    }
+    
+    return this.static
   }
 }

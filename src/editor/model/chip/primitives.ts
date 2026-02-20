@@ -11,7 +11,8 @@ export const primitiveInformation = {
       return [Value.negate(input[0])];
     },
     inputs: 1,
-    outputs: 1
+    outputs: 1,
+    static: true
   },
 
   "and": {
@@ -29,7 +30,8 @@ export const primitiveInformation = {
       return [Value.X];
     },
     inputs: 2,
-    outputs: 1
+    outputs: 1,
+    static: true
   },
 
   "nand": {
@@ -47,7 +49,8 @@ export const primitiveInformation = {
       return [Value.X];
     },
     inputs: 2,
-    outputs: 1
+    outputs: 1,
+    static: true
   },
 
   "or": {
@@ -64,10 +67,12 @@ export const primitiveInformation = {
       return [Value.X];
     },
     inputs: 2,
-    outputs: 1
+    outputs: 1,
+    static: true
   }
 } satisfies Record<string, {
   evaluteFunction: (input: Value[]) => Value[],
   inputs: number,
-  outputs: number
+  outputs: number,
+  static: boolean
 }>

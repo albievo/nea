@@ -197,8 +197,10 @@ export class EditorApp {
     const issue = this.chip.validate();
     
     if (issue) {
-      const errorText = `Couldn't save chip: ${issue}`
+      const errorText = `Couldn't save chip: ${issue}`;
       throw new Error(errorText);
     };
+
+    const isStatic = this.chip.isStatic();
   }
 }

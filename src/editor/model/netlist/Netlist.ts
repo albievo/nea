@@ -9,6 +9,7 @@ import { createEmptyRenderState } from "../../rendering/RenderState";
 import { SerializedNetlist } from "./SerializedNetlist";
 import { ChipLibrary, getGenericChipDef } from "../chip/ChipLibrary";
 import { createBehaviour } from "../chip/BehaviourSpec";
+import { Stack } from "../../../utils/Stack";
 
 export class Netlist {
   private nodes: NetlistNode[];
@@ -464,6 +465,62 @@ export class Netlist {
       this.outputNodeIds.length >= 1
     )
   }
+
+  /**
+   * checks if the netlist is static.
+   * TODO: TEST FUNCTIONco
+   */
+  public isStatic(): boolean {
+    // uses DFS to check for any loops or dynamic nodes
+
+    const visited = new Map<string, boolean>();
+
+    // need to implement max netlist size really
+    const movementStack = new Stack<string>(32_000);
+
+    // iterate through nodes
+    for (let [id, node] of this.nodesById) {
+      // if it has been visited, skip as we know its fine
+      const isVisited = visited.has(id);
+      if (isVisited) continue;
+
+      // empty hash representing all nodes seen so far this iteration
+      const seenThisIter = new Map<string, boolean>();
+
+      // say we have been to this node
+      seenThisIter.set(id, true);
+      movementStack.push(id);
+
+      while (!movementStack.isEmpty()) {
+        // get the next node
+        const currNodeId = movementStack.pop();
+
+        // if we have been here THIS iteration, there is a loop so return false
+        if (seenThisIter.has(currNodeId)) return false;
+        // if we have checked this node already, skip
+        if (visited.has(currNodeId)) continue;
+
+        // if this node is dynamic, return false
+        const currNode = this.nodesById.get(currNodeId);
+        if (!currNode.isStatic()) return false;
+
+        // say we have been to this next
+        seenThisIter.set(currNodeId, true);
+        visited.set(currNodeId, true);
+
+        // add all the next nodes to stack of nodes
+        const nextNodes = this.outputIndex.get(currNodeId);
+        if (!nextNodes) return;
+        for (let connectionsFromPin of nextNodes.values()) {
+          for (let connection of connectionsFromPin) {
+            movementStack.push(connection.getTo().nodeId);
+          }
+        }
+      }
+    }
+
+    return false;
+  }
 }
 
 export class NetlistNode {
@@ -544,6 +601,13 @@ export class NetlistNode {
   }
   public getOutputs(): Value[] {
     return this.outputVals;
+  }
+
+  public isStatic(): boolean {
+    if (!this.chipBehaviour) {
+      return true
+    }
+    return this.chipBehaviour.isStatic()
   }
 }
 
