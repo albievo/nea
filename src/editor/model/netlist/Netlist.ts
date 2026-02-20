@@ -473,53 +473,54 @@ export class Netlist {
   public isStatic(): boolean {
     // uses DFS to check for any loops or dynamic nodes
 
-    const visited = new Map<string, boolean>();
+    // nodes that have been fully processed
+    const done = new Set<string>();
+    // nodes that are currently being explored
+    const inStack = new Set<string>();
 
-    // need to implement max netlist size really
-    const movementStack = new Stack<string>(32_000);
+    // use an explicit stack of frames so we can emulate DFS w/out recursion
+    // 0 means it is open, 1 means it is due to be closed
+    type Frame = { id: string; stage: 0 | 1 };
+    const stack = new Stack<Frame>(32_000);
 
     // iterate through nodes
-    for (let [id, node] of this.nodesById) {
-      // if it has been visited, skip as we know its fine
-      const isVisited = visited.has(id);
-      if (isVisited) continue;
+    for (const [startId] of this.nodesById) {
+      if (done.has(startId)) continue;
 
-      // empty hash representing all nodes seen so far this iteration
-      const seenThisIter = new Map<string, boolean>();
+      stack.push({ id: startId, stage: 0 });
 
-      // say we have been to this node
-      seenThisIter.set(id, true);
-      movementStack.push(id);
-
-      while (!movementStack.isEmpty()) {
+      while (!stack.isEmpty()) {
         // get the next node
-        const currNodeId = movementStack.pop();
+        const frame = stack.pop();
 
-        // if we have been here THIS iteration, there is a loop so return false
-        if (seenThisIter.has(currNodeId)) return false;
-        // if we have checked this node already, skip
-        if (visited.has(currNodeId)) continue;
+        if (frame.stage === 0) {
+          if (inStack.has(frame.id)) return false;
+          if (done.has(frame.id)) continue;
 
-        // if this node is dynamic, return false
-        const currNode = this.nodesById.get(currNodeId);
-        if (!currNode.isStatic()) return false;
+          const node = this.nodesById.get(frame.id);
+          if (!node) continue; // or: return false; if missing nodes should fail
+          if (!node.isStatic()) return false;
 
-        // say we have been to this next
-        seenThisIter.set(currNodeId, true);
-        visited.set(currNodeId, true);
+          inStack.add(frame.id);
+          stack.push({ id: frame.id, stage: 1 });
 
-        // add all the next nodes to stack of nodes
-        const nextNodes = this.outputIndex.get(currNodeId);
-        if (!nextNodes) return;
-        for (let connectionsFromPin of nextNodes.values()) {
-          for (let connection of connectionsFromPin) {
-            movementStack.push(connection.getTo().nodeId);
+          // push children to be processed
+          const nextNodes = this.outputIndex.get(frame.id);
+          if (!nextNodes) continue;
+
+          for (const connectionsFromPin of nextNodes.values()) {
+            for (const connection of connectionsFromPin) {
+              stack.push({ id: connection.getTo().nodeId, stage: 0 });
+            }
           }
+        } else { // frame stage is 1
+          inStack.delete(frame.id);
+          done.add(frame.id);
         }
       }
     }
 
-    return false;
+    return true;
   }
 }
 
