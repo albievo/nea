@@ -468,7 +468,6 @@ export class Netlist {
 
   /**
    * checks if the netlist is static.
-   * TODO: TEST FUNCTIONco
    */
   public isStatic(): boolean {
     // uses DFS to check for any loops or dynamic nodes
@@ -521,6 +520,23 @@ export class Netlist {
     }
 
     return true;
+  }
+
+  public copy(): Netlist {
+    return new Netlist(
+      this.nodes.map(node => node.copy()),
+      this.connections
+    )
+  }
+
+  public generateDefaultIdxToInputId(): Map<number, string> {
+    const entries: [number, string][] = [];
+
+    for (let i = 0; i < this.getInputNum(); i++) {
+      entries.push([i, this.inputNodeIds[i]]);
+    }
+
+    return new Map(entries);
   }
 }
 
@@ -609,6 +625,12 @@ export class NetlistNode {
       return true
     }
     return this.chipBehaviour.isStatic()
+  }
+
+  public copy(): NetlistNode {
+    return new NetlistNode(
+      this.id, this.type, this.chipBehaviour
+    )
   }
 }
 

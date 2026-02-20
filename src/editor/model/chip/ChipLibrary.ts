@@ -1,5 +1,6 @@
-import { NodeType } from "../netlist/Netlist";
-import { BehaviourSpec } from "./BehaviourSpec";
+import { Netlist, NodeType } from "../netlist/Netlist";
+import { BehaviourSpec, createBehaviour } from "./BehaviourSpec";
+import { checkStaticBehavioursAreEquivalent, NetlistBehaviour } from "./ChipBehaviour";
 
 export type ChipDefinition = {
   id: string;
@@ -59,5 +60,40 @@ export class ChipLibrary {
 
   list(): ChipDefinition[] {
     return [...this.definitions.values()];
+  }
+
+  /**
+   * searches primitives in library to check if the netlist's behaviour matches one
+   * 
+   * if one is found, returns the id
+   */
+  findEquivalentStaticPrimitive(netlist: Netlist): string | undefined {
+    if (!netlist.isStatic()) {
+      throw new Error('netlist must be static');
+    }
+    const netlistBehaviour = new NetlistBehaviour(netlist);
+
+    for (let [id, def] of this.definitions) {
+      if (def.behaviourSpec.kind !== 'primitive') {
+        continue;
+      }
+
+      if (
+        netlist.getInputNum() !== def.inputs ||
+        netlist.getOutputNum() !== def.outputs
+      ) {
+        continue;
+      }
+
+      const primBehaviour = createBehaviour(this, def.behaviourSpec);
+
+      const equivalent = checkStaticBehavioursAreEquivalent(netlistBehaviour, primBehaviour);
+
+      if (equivalent) {
+        return id;
+      }
+    }
+
+    return undefined;
   }
 }

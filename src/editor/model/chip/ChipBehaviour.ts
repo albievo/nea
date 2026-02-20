@@ -1,3 +1,4 @@
+import { GeneralUtils } from "../../../utils/GeneralUtils";
 import { Netlist } from "../netlist/Netlist";
 import { Value } from "../netlist/Value";
 import { PrimitiveType, primitiveInformation } from "./primitives";
@@ -143,19 +144,9 @@ export class TruthtableBehaviour extends ChipBehaviour {
     const words = Math.ceil(totalBits / 32);
     const table = new Uint32Array(words); // initialised as 0s
 
-    function makeInputs(inputDecimal: number): Value[] {
-      const arr = new Array<Value>(inputNum);
-      
-      for (let input = 0; input < inputNum; input++) {
-        arr[input] = Value.fromBool(((inputDecimal >> input) & 1) === 1);
-      }
-
-      return arr;
-    }
-
     for (let inputDecimal = 0; inputDecimal < rows; inputDecimal++) {
       // get input array
-      const inputs = makeInputs(inputDecimal);
+      const inputs = makeInputs(inputDecimal, inputNum);
       // get output array
       const inputsWithIds = NetlistBehaviour.addIdsToInputs(inputs, idxToInputId);
       const outputs = netlist.evaluate(inputsWithIds).outputValues;
@@ -195,14 +186,18 @@ export class NetlistBehaviour extends ChipBehaviour {
 
   private static?: boolean;
 
+  private idxToInputId: Map<number, string>;
+
   constructor(
     private netlist: Netlist, 
-    private idxToInputId: Map<number, string>
+    idxToInputId?: Map<number, string>
   ) {
     super();
 
     this.inputs = this.netlist.getInputNum();
     this.outputs = this.netlist.getOutputNum();
+
+    this.idxToInputId = idxToInputId ?? netlist.generateDefaultIdxToInputId();
   }
 
   evaluate(inputs: Value[]): Value[] {
@@ -221,4 +216,52 @@ export class NetlistBehaviour extends ChipBehaviour {
     
     return this.static
   }
+}
+
+/**
+ * max inputs: 20 (otherwise would take too long)
+ * 
+ * only works on static behaviours
+ */
+export function checkStaticBehavioursAreEquivalent(a: ChipBehaviour, b: ChipBehaviour) {
+  if ( // if one isn't static, just say they arent equivalent
+    !a.isStatic() || !b.isStatic()
+  ) {
+    return false
+  }
+  if (
+    a.inputs !== b.inputs ||
+    a.outputs !== b.outputs
+  ) {
+    return false;
+  }
+
+  for (let inputDecimal = 0; inputDecimal < a.inputs; inputDecimal++) {
+    // get input array
+    const inputArr = makeInputs(inputDecimal, a.inputs);
+
+    // check they have the same output
+    if (!GeneralUtils.arraysAreEqual(
+      a.evaluate(inputArr), b.evaluate(inputArr)
+    )) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * convert a decimal representation of the binary input to an array of values
+ * @param inputDecimal the decminal representing the input
+ * @param inputNum the total number of inputs to the behaviour
+ */
+function makeInputs(inputDecimal: number, inputNum: number): Value[] {
+  const arr = new Array<Value>(inputNum);
+  
+  for (let input = 0; input < inputNum; input++) {
+    arr[input] = Value.fromBool(((inputDecimal >> input) & 1) === 1);
+  }
+
+  return arr;
 }

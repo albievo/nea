@@ -240,6 +240,10 @@ export class WorkingChip {
   public isStatic(): boolean {
     return this.netlist.isStatic();
   }
+
+  public getNetlist(): Netlist {
+    return this.netlist.copy();
+  }
 }
 
 export interface CellTakenBy {

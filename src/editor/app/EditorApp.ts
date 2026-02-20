@@ -202,5 +202,11 @@ export class EditorApp {
     };
 
     const isStatic = this.chip.isStatic();
+
+    if (!isStatic) {
+      throw new Error('Currently only saving static chips has been implemented');
+    }
+
+    const equivalent = this.chipLibrary.findEquivalentStaticPrimitive(this.chip.getNetlist().copy());
   }
 }
