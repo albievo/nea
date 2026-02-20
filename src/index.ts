@@ -50,7 +50,6 @@ app.start();
 const ui = new EditorUI(app, chipLibrary);
 ui.addChipPreview('and-primitive');
 ui.addChipPreview('not-primitive');
-ui.addChipPreview('nand-primitive');
 
 // ui.addModal({
 //   title: 'test modal',

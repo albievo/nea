@@ -13,12 +13,13 @@ import { Command } from "./Command";
 import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
-import { ChipLibrary, GenericChipDetails, getGenericChipDef } from "../model/chip/ChipLibrary";
+import { ChipDefinition, ChipLibrary, GenericChipDetails, getGenericChipDef } from "../model/chip/ChipLibrary";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
 import { NodeType } from "../model/netlist/Netlist";
 import { ElementRenderable } from "../rendering/renderables/grid-elements/ElementRenderable";
 import { Chip } from "../controller/objectControllers.ts/Chip";
 import { EditorUI } from "../../ui/EditorUI";
+import { Sidebar } from "../../ui/sidebar/Sidebar";
 
 export interface SuccessState {
   errorText?: string;
@@ -116,7 +117,7 @@ export class EditorApp {
           break;
         
         case 'save-current-chip':
-          this.saveCurrentChip();
+          this.saveCurrentChip(cmd.ui);
           break;
 
         default: {
@@ -193,7 +194,7 @@ export class EditorApp {
     }
   }
 
-  private saveCurrentChip() {
+  private saveCurrentChip(ui: EditorUI) {
     const issue = this.chip.validate();
     
     if (issue) {
@@ -207,6 +208,17 @@ export class EditorApp {
       throw new Error('Currently only saving static chips has been implemented');
     }
 
-    const equivalent = this.chipLibrary.findEquivalentStaticPrimitive(this.chip.getNetlist().copy());
+    const equivalent = this.chipLibrary.findEquivalentStaticPrimitive(
+      this.chip.getNetlist().copy()
+    );
+
+    // if there is a matching primitive, just add it to the sidebar
+    if (equivalent) {
+      ui.addChipPreview(equivalent);
+    }
+    // otherwise... IMPLEMENT
+    else {
+      throw new Error('netlists not yet implemented')
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { Netlist, NodeType } from "../netlist/Netlist";
 import { BehaviourSpec, createBehaviour } from "./BehaviourSpec";
 import { checkStaticBehavioursAreEquivalent, NetlistBehaviour } from "./ChipBehaviour";
+import { PrimitiveType } from "./primitives";
 
 export type ChipDefinition = {
   id: string;
@@ -68,6 +69,8 @@ export class ChipLibrary {
    * if one is found, returns the id
    */
   findEquivalentStaticPrimitive(netlist: Netlist): string | undefined {
+    // assumes primitive input order is irrelevant
+
     if (!netlist.isStatic()) {
       throw new Error('netlist must be static');
     }
