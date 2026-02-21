@@ -8,13 +8,13 @@ import { BoundingBox } from './renderables/Renderable';
 import { Color } from '../../theme/colors';
 
 export class Renderer {
-  private $canvas = $('canvas');
   private ctx: CanvasRenderingContext2D;
   private dpr = WebpageUtils.calculateDevicePixelRatio();
   private windowDims: Vector2;
 
   constructor (
-    private camera: Camera
+    private camera: Camera,
+    private $canvas: JQuery<HTMLElement>
   ) {
     this.windowDims = this.calcWindowDims();
     this.ctx = this.setCtx();

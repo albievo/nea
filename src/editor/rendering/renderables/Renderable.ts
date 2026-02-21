@@ -3,8 +3,6 @@ import { Renderer } from "../Renderer";
 import $ from 'jquery';
 
 export abstract class Renderable<K extends RenderableKind> {
-  protected $canvas: JQuery<HTMLElement> = $('#canvas');
-
   protected abstract _kind: K;
 
   protected abstract renderObject(renderer: Renderer): void;

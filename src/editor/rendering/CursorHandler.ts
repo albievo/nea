@@ -4,11 +4,12 @@ import $ from 'jquery';
 export class CursorHandler {
 
   constructor(
-    private state: InteractionState
+    private state: InteractionState,
+    private $canvas: JQuery<HTMLElement>
   ) { }
 
   private setPointer(pointerStyle: string) {
-    $('#canvas').css('cursor', pointerStyle);
+    this.$canvas.css('cursor', pointerStyle);
   }
 
   public updateCursor() {

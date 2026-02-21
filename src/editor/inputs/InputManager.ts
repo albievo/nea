@@ -7,16 +7,17 @@ export class InputManager {
   private _space: boolean = false;
   
   constructor(
-    private camera: Camera
+    private camera: Camera,
+    private $canvas: JQuery<HTMLElement> 
   ) {
     this.setListeners();
   }
 
   private setListeners() {
-    $('#canvas').on('mousedown', e => this.handleMouseDown(e))
-    $('#canvas').on('mouseup', e => this.handleMouseUp(e))
-    $('#canvas').on('mousemove', e => this.handleMouseMove(e));
-    $('#canvas').on('wheel', e => this.handleWheel(e));
+    this.$canvas.on('mousedown', e => this.handleMouseDown(e))
+    this.$canvas.on('mouseup', e => this.handleMouseUp(e))
+    this.$canvas.on('mousemove', e => this.handleMouseMove(e));
+    this.$canvas.on('wheel', e => this.handleWheel(e));
     $(document).on('keydown.spaceKeyTracker', e => {
       if (e.key === ' ') this.handleSpaceKeyDown();
     });

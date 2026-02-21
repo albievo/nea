@@ -40,15 +40,17 @@ export class EditorApp {
 
   constructor(
     private worldSize: Vector2,
-    private chipLibrary: ChipLibrary
+    private chipLibrary: ChipLibrary,
+    private canvas: JQuery<HTMLElement>
   ) {
     this.camera = new Camera(
-      worldSize,
+      this.worldSize,
       this.dppr
     );
 
     this.renderer = new Renderer(
-      this.camera
+      this.camera,
+      this.canvas
     )
 
     this.chip = new WorkingChip(
@@ -56,7 +58,8 @@ export class EditorApp {
     )
 
     this.cursorHandler = new CursorHandler(
-      this.interactionState
+      this.interactionState,
+      this.canvas
     );
 
     this.renderManager = new RenderManager(
@@ -86,7 +89,8 @@ export class EditorApp {
     );
 
     this.input = new InputManager(
-      this.camera
+      this.camera,
+      this.canvas
     );
   }
 

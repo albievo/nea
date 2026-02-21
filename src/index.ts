@@ -4,6 +4,7 @@ import { EditorApp } from "./editor/app/EditorApp";
 import { Vector2 } from "./utils/Vector2";
 import { ChipLibrary } from './editor/model/chip/ChipLibrary';
 import { EditorUI } from './ui/EditorUI';
+import $ from 'jquery';
 
 const worldSize = new Vector2(50, 50);
 
@@ -44,7 +45,7 @@ chipLibrary.register([
   }
 ]);
 
-const app = new EditorApp(worldSize, chipLibrary);
+const app = new EditorApp(worldSize, chipLibrary, $('#canvas'));
 app.start();
 
 const ui = new EditorUI(app, chipLibrary);
