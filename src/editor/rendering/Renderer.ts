@@ -18,9 +18,9 @@ export class Renderer {
   ) {
     this.windowDims = this.calcWindowDims();
     this.ctx = this.setCtx();
-    this.fitCanvasToPage();
+    this.fitCanvasToContainer();
     events.on('resize', () => {
-      this.fitCanvasToPage();
+      this.fitCanvasToContainer();
     })
   }
 
@@ -39,20 +39,26 @@ export class Renderer {
     return ctx;
   }
 
-  private fitCanvasToPage() {
+  private fitCanvasToContainer() {
     const canvas = this.ctx.canvas;
+    const container = canvas.parentElement;
 
-    const cssWidth = window.innerWidth;
-    const cssHeight = window.innerHeight;
-    // CSS size (layout size — prevents scrollbars)
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+
+    const cssWidth = rect.width;
+    const cssHeight = rect.height;
+
+    // set css layout size
     canvas.style.width = `${cssWidth}px`;
     canvas.style.height = `${cssHeight}px`;
 
-    // Drawing buffer size (actual resolution)
+    // set backing buffer size (scaled for dpr)
     canvas.width = Math.floor(cssWidth * this.dpr);
     canvas.height = Math.floor(cssHeight * this.dpr);
 
-    // Reset transform after resize
+    // reset transform after resize
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   }
 

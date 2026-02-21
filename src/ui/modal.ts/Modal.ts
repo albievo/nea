@@ -185,11 +185,12 @@ export class Modal {
         <div class='form-row'>
           <p>Chip Preview</p>
           <div class='chip-creation-preview'>
-            <canvas class='preview-canvas'
-              width=${this.PREVIEW_CANVAS_WIDTH}
-              height=${canvasHeightPx}
+            <div
+              class='preview-container'
               style="width: ${this.PREVIEW_CANVAS_WIDTH}px; height: ${canvasHeightPx}px;"
-            ></canvas>
+            >
+              <canvas class='preview-canvas'></canvas>
+            </div>
           </div>
         </div>
 
