@@ -4,8 +4,9 @@ import closeIcon from '../../assets/icons/cross.svg';
 export type ModalDescriptor = { title: string, body: ModalBodyDescriptor  }
 
 export type ModalBodyDescriptor = 
-  | { type: 'plain-text', props: { text: string } }
-  | { type: 'log-in', props: { onSubmit: LoginFunction } }
+  | { type: 'plain-text', text: string  }
+  | { type: 'log-in', onSubmit: LoginFunction }
+  | { type: 'text-img', text: string, img: string }
 
 type LoginFunction = (email: string, password: string) => Promise<void>;
 
@@ -28,11 +29,15 @@ export class Modal {
   private renderModalBody(body: ModalBodyDescriptor) {
     switch (body.type) {
       case 'plain-text':
-        this.renderPlainTextModal(body.props.text);
+        this.renderPlainTextModal(body.text);
         break;
 
       case 'log-in':
-        this.renderLoginModal(body.props.onSubmit);
+        this.renderLoginModal(body.onSubmit);
+        break;
+      
+      case 'text-img':
+        this.renderTextImgModal(body.text, body.img)
         break;
 
       default: {
@@ -50,7 +55,7 @@ export class Modal {
       <div class="modal">
         <div class="modal-title">
           <h2></h2>
-          <button class="close-btn modal-close" aria-label="Close modal">
+          <button class="close-btn modal-close click-to-close-modal" aria-label="Close modal">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
@@ -81,4 +86,22 @@ export class Modal {
     throw new Error('not yet implemented');
   }
 
+  private renderTextImgModal(text: string, img: string) {
+    const $body = $('.modal-body');
+    $body.append($(`
+      <p class='text'></p>
+
+      <div class='img-container'>
+        <img src='${img}' alt=''>
+      </div>
+
+      <div class='continue-btn-container'>
+        <button class='continue-btn primary-btn click-to-close-modal'>
+          Continue
+        </button>
+      </div>
+    `));
+
+    $body.find('.text').html(text);
+  }
 }

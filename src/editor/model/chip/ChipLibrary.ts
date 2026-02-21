@@ -67,9 +67,10 @@ export class ChipLibrary {
    * searches primitives in library to check if the netlist's behaviour matches one
    * 
    * if one is found, returns the id
+   * 
+   * assumes primitive input order is irrelevant, fix if adding assymetrical primitives
    */
   findEquivalentStaticPrimitive(netlist: Netlist): string | undefined {
-    // assumes primitive input order is irrelevant
 
     if (!netlist.isStatic()) {
       throw new Error('netlist must be static');

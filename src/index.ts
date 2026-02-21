@@ -51,10 +51,11 @@ const ui = new EditorUI(app, chipLibrary);
 ui.addChipPreview('and-primitive');
 ui.addChipPreview('not-primitive');
 
-// ui.addModal({
-//   title: 'test modal',
-//   body: {
-//     type: 'plain-text',
-//     props: { text: 'please work' }
-//   }
-// })
+ui.addModal({
+  title: 'Chip Saved!',
+  body: {
+    type: 'text-img',
+    text: `You have created an <b>and</b> chip!`,
+    img: 'assets/images/chips/and-gate.png'
+  }
+});

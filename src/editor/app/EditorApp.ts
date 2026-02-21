@@ -215,6 +215,20 @@ export class EditorApp {
     // if there is a matching primitive, just add it to the sidebar
     if (equivalent) {
       ui.addChipPreview(equivalent);
+      const def = this.chipLibrary.get(equivalent);
+
+      const article = ['a', 'e', 'i', 'o', 'u'].includes(def.name[0]) 
+        ? 'an'
+        : 'a'
+
+      ui.addModal({
+        title: 'Chip Saved!',
+        body: {
+          type: 'text-img',
+          text: `You have created ${article} <b>${def.name}</b> chip!`,
+          img: def.icon
+        }
+      });
     }
     // otherwise... IMPLEMENT
     else {

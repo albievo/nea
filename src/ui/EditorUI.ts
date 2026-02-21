@@ -40,7 +40,7 @@ export class EditorUI {
     this.modal.open();
 
     // add listeners for closing
-    $('.modal-close').on('click', () => this.closeModal());
+    $('.click-to-close-modal').on('click', () => this.closeModal());
     $(document).on('keydown.modalEscapeKeyTracker', e => {
       if (e.key === 'Escape' || e.key === 'Esc') this.closeModal();
     });
