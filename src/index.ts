@@ -56,8 +56,13 @@ ui.addModal({
   title: 'Save Chip',
   body: {
     type: 'netlist-chip-creation',
-    inputIdToName: new Map<string, string>(),
-    outputIdToName: new Map<string, string>(),
+    inputIdToName: new Map<string, string>([
+      ['id-a', 'a'],
+      ['id-b', 'b']
+    ]),
+    outputIdToName: new Map<string, string>([
+      ['id-c', 'c']
+    ]),
     onSave: () => null
   }
 });

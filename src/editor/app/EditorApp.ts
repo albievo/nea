@@ -45,7 +45,8 @@ export class EditorApp {
   ) {
     this.camera = new Camera(
       this.worldSize,
-      this.dppr
+      this.dppr,
+      2
     );
 
     this.renderer = new Renderer(

@@ -1,4 +1,11 @@
 import $ from 'jquery';
+import { ElementRenderable } from '../../editor/rendering/renderables/grid-elements/ElementRenderable';
+import { GridElementRenderable } from '../../editor/rendering/renderables/grid-elements/GridElementRenderable';
+import { Vector2 } from '../../utils/Vector2';
+import { NodeType } from '../../editor/model/netlist/Netlist';
+import { Renderer } from '../../editor/rendering/Renderer';
+import { Camera } from '../../editor/rendering/Camera';
+import { WebpageUtils } from '../../utils/WebpageUtils';
 
 export type ModalDescriptor = { title: string, body: ModalBodyDescriptor  }
 
@@ -17,6 +24,8 @@ type LoginFunction = (email: string, password: string) => Promise<void>;
 type SaveNetlistFunction = (inputOrder: string, outputOrder: string) => void;
 
 export class Modal {
+
+  private readonly PREVIEW_CANVAS_WIDTH = 200; // measured in px
 
   constructor(
     private dets: ModalDescriptor
@@ -134,6 +143,13 @@ export class Modal {
     outputIdToName: Map<string, string>,
     onSave: SaveNetlistFunction
   ) {
+    const inputs = inputIdToName.size;
+    const outputs = outputIdToName.size;
+
+    const canvasDimsCells = ElementRenderable.calcDims(inputs, outputs, 3);
+    const cellInPx = this.PREVIEW_CANVAS_WIDTH / canvasDimsCells.x
+    const canvasHeightPx = canvasDimsCells.y * cellInPx;
+
     const $body = $('.modal-body');
     $body.append($(`
       <form id='save-netlist-form'>
@@ -144,8 +160,8 @@ export class Modal {
             id='chip-name'
             class="form-input text-input"
             name="chip-name"
-            type='text
-            max-length='31'
+            type='text'
+            maxLength='31'
             required
           />
         </div>
@@ -168,7 +184,13 @@ export class Modal {
         
         <div class='form-row'>
           <p>Chip Preview</p>
-          <div class='chip-creation-preview'></div>
+          <div class='chip-creation-preview'>
+            <canvas class='preview-canvas'
+              width=${this.PREVIEW_CANVAS_WIDTH}
+              height=${canvasHeightPx}
+              style="width: ${this.PREVIEW_CANVAS_WIDTH}px; height: ${canvasHeightPx}px;"
+            ></canvas>
+          </div>
         </div>
 
         <div class='submit-row'>
@@ -177,6 +199,27 @@ export class Modal {
         </div>
 
       </form>
-    `))
+    `));
+
+    const canvas = $body.find('.preview-canvas');
+
+    const gridElementRenderable = new GridElementRenderable({
+      id: 'preview-element',
+      startingPos: new Vector2(0, 0),
+      inputs, outputs,
+      width: canvasDimsCells.x,
+      color: 'stdElementBackground',
+      type: NodeType.CHIP,
+      renderState: {
+        wires: new Map(),
+        inputPins: new Map(),
+        outputPins: new Map()
+      }
+    });
+
+    const camera = new Camera(canvasDimsCells, 1, 1);
+    const renderer = new Renderer(camera, canvas)
+
+    gridElementRenderable.render(renderer, camera)
   }
 }

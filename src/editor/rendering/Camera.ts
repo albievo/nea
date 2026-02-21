@@ -4,7 +4,6 @@ import $ from 'jquery';
 import { BoundingBox } from "./renderables/Renderable";
 
 export class Camera {
-  private zoom = 2;
   private pan!: Vector2; // top-left of screen in world units
   private dppr: number;
 
@@ -20,7 +19,8 @@ export class Camera {
   private _isPanning: boolean = false;
 
   constructor(
-    worldSize: Vector2, dppr: number
+    worldSize: Vector2, dppr: number,
+    private zoom: number
   ) {
     this.dppr = dppr;
     this.worldSize = worldSize;
