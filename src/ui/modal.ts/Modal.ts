@@ -218,8 +218,10 @@ export class Modal {
       }
     });
 
-    const camera = new Camera(canvasDimsCells, 1, 1);
-    const renderer = new Renderer(camera, canvas)
+    const camera = new Camera(canvas, canvasDimsCells, 1, 1);
+    const renderer = new Renderer(camera, canvas);
+    
+    console.log(camera.worldPosToScreen(new Vector2(0, 0)).toString());
 
     gridElementRenderable.render(renderer, camera)
   }

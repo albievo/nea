@@ -12,15 +12,16 @@ export class Camera {
   private zoomCoeff = 0.0005;
 
   private worldSize: Vector2;
-  private windowDims!: Vector2;
+  private containerDims: Vector2;
 
   readonly baseCellPixels = 48;
 
   private _isPanning: boolean = false;
 
   constructor(
+    private $canvas: JQuery<HTMLElement>,
     worldSize: Vector2, dppr: number,
-    private zoom: number
+    private zoom: number,
   ) {
     this.dppr = dppr;
     this.worldSize = worldSize;
@@ -31,6 +32,7 @@ export class Camera {
     
     //centre camera
     const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
+    console.log(worldUnitsOnScreen.toString());
     this.setPan(
       worldSize.subtract(worldUnitsOnScreen)
         .divide(2)
@@ -43,9 +45,6 @@ export class Camera {
     // mouse position in screen pixels
     const mouseScreen = this.worldPosToScreen(worldPos);
 
-    // just used to check whether there has been a change
-    // const oldZoom = this.zoom;
-
     // compute new zoom
     const rawZoomFactor = 1 + (wheelDelta * this.zoomCoeff);
     this.setZoom(this.zoom * rawZoomFactor);
@@ -54,12 +53,6 @@ export class Camera {
     const newMouseWorld = this.screenToWorld(mouseScreen);
     const delta = newMouseWorld.subtract(worldPos);
     this.setPan(this.pan.subtract(delta));
-
-    // const zoomFactor = this.zoom / oldZoom;
-
-    // if (zoomFactor !== 1) {
-    //   events.emit('zoom', { factor: zoomFactor, screenPos: mouseScreen });
-    // }
   }
 
   public panBy(delta: Vector2) {
@@ -104,9 +97,13 @@ export class Camera {
   }
 
   private fitToScreen() {
-    this.windowDims = new Vector2(
-      $(document).width()!,
-      $(document).height()!
+    const container = this.$canvas.parent;
+
+    const rect = container[0].getBoundingClientRect();
+
+    this.containerDims = new Vector2(
+      rect.width,
+      rect.height
     )
 
     this.minZoom = this.calcMinZoom();
@@ -115,21 +112,21 @@ export class Camera {
   /**calculate how many cells you should be able to see right now*/
   public calcWorldUnitsOnScreen(): Vector2 {
     const cellDim = this.worldUnitsToScreenPixels(1); // CSS px per world unit
-    return this.windowDims.divide(cellDim);
+    return this.containerDims.divide(cellDim);
   }
 
-  public getWindowDims() {
-    return this.windowDims
+  public getContainerDims() {
+    return this.containerDims
   }
 
   private calcMinZoom(): number {
     // how many pixels wide and tall the whole world would be at zoom=1
     const worldPixels = this.worldSize.mult(this.baseCellPixels);
 
-    // how much we must scale (zoom) so that worldPixels fit inside windowDims
+    // how much we must scale (zoom) so that worldPixels fit inside containerDims
     const zoom = new Vector2(
-      this.windowDims.x / worldPixels.x,
-      this.windowDims.y / worldPixels.y
+      this.containerDims.x / worldPixels.x,
+      this.containerDims.y / worldPixels.y
     );
 
     return Math.max(zoom.x, zoom.y);
@@ -165,8 +162,8 @@ export class Camera {
     
     const isLeft = screenPos.x < 0;
     const isAbove = screenPos.y < 0;
-    const isRight = screenPos.x > this.windowDims.x;
-    const isBelow = screenPos.y > this.windowDims.y;
+    const isRight = screenPos.x > this.containerDims.x;
+    const isBelow = screenPos.y > this.containerDims.y;
 
     return !(isLeft || isAbove || isRight || isBelow);
   }

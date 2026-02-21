@@ -41,22 +41,15 @@ export class Renderer {
 
   private fitCanvasToContainer() {
     const canvas = this.ctx.canvas;
-    const container = canvas.parentElement;
-
-    if (!container) return;
-
-    const rect = container.getBoundingClientRect();
-
-    const cssWidth = rect.width;
-    const cssHeight = rect.height;
+    const dims = this.camera.getContainerDims();
 
     // set css layout size
-    canvas.style.width = `${cssWidth}px`;
-    canvas.style.height = `${cssHeight}px`;
+    canvas.style.width = `${dims.x}px`;
+    canvas.style.height = `${dims.y}px`;
 
     // set backing buffer size (scaled for dpr)
-    canvas.width = Math.floor(cssWidth * this.dpr);
-    canvas.height = Math.floor(cssHeight * this.dpr);
+    canvas.width = Math.floor(dims.x * this.dpr);
+    canvas.height = Math.floor(dims.y * this.dpr);
 
     // reset transform after resize
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
@@ -70,7 +63,7 @@ export class Renderer {
   }
 
   public clearCanvas() {
-    const windowDims = this.camera.getWindowDims();
+    const windowDims = this.camera.getContainerDims();
     //clear the canvas
     this.ctx.clearRect(0, 0, windowDims.x, windowDims.y);
   }

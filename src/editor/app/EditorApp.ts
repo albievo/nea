@@ -44,6 +44,7 @@ export class EditorApp {
     private canvas: JQuery<HTMLElement>
   ) {
     this.camera = new Camera(
+      this.canvas,
       this.worldSize,
       this.dppr,
       2
