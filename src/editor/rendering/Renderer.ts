@@ -114,7 +114,7 @@ export class Renderer {
       const fromScreen = this.camera.worldPosToScreen(line.from);
       const toScreen = this.camera.worldPosToScreen(line.to);
 
-      this.ctx.moveTo(fromScreen.x, toScreen.y);
+      this.ctx.moveTo(fromScreen.x, fromScreen.y);
       this.ctx.lineTo(toScreen.x, toScreen.y);
     }
 
