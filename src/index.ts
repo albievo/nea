@@ -52,10 +52,11 @@ ui.addChipPreview('and-primitive');
 ui.addChipPreview('not-primitive');
 
 ui.addModal({
-  title: 'Chip Saved!',
+  title: 'Save Chip',
   body: {
-    type: 'text-img',
-    text: `You have created an <b>and</b> chip!`,
-    img: 'assets/images/chips/and-gate.png'
+    type: 'netlist-chip-creation',
+    inputIdToName: new Map<string, string>(),
+    outputIdToName: new Map<string, string>(),
+    onSave: () => null
   }
 });

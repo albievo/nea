@@ -187,6 +187,69 @@ body {
             font-size: 1.5em;
           }
         }
+
+        form {
+          margin: 0 20px;
+
+          display: flex;
+          flex-direction: column;
+
+          gap: 10px;
+
+          $font-size: 1.5em;
+
+          .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+
+            label, p {
+              font-size: $font-size;
+
+              .red-ask {
+                color: colors.$error-red;
+              }
+            }
+
+            .upload-btn {
+              width: 100%;
+              border-radius: 20px;
+              font-weight: 800;
+            }
+            
+            .form-input {
+              width: 100%;
+              border-radius: 10px;
+            }
+
+            .text-input {
+              font-size: 1.25em;
+
+              padding: 20px;
+
+              color: rgb(72, 72, 72);
+
+              border-radius: 10px;
+              border-width: 1px;
+              border-color: rgb(72, 72, 72);
+            }
+          }
+
+          .submit-row {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+
+            width: 100%;
+
+            .cancel-btn,
+            .submit-btn {
+              flex: 1;
+              font-size: $font-size;
+              min-width: 300px;
+            }
+          }
+        }
       }
     }
   }
@@ -387,21 +450,51 @@ body {
     }
   }
 
-  .primary-btn {
+  .primary-btn,
+  .secondary-btn,
+  .grey-btn {
     padding: 20px;
-
     border-radius: 20px;
 
-    color: white;
     font-family: Arial, Helvetica, sans-serif;
 
-    background-color: colors.$primary-blue;
     transition: background-color 100ms;
 
     cursor: pointer;
+  }
+
+  .primary-btn {
+    color: white;
+
+    background-color: colors.$primary-blue;
 
     &:hover {
       background-color: colors.$secondary-blue;
     }
+  }
+
+  .secondary-btn {
+    border-width: 1px;
+    border-style: solid;
+    border-color: colors.$primary-blue;
+
+    color: colors.$primary-blue;
+
+    background-color: rgba(0, 0, 0, 0);
+
+    transition: color 100ms, border-color 100ms;
+
+    &:hover {
+      background-color: colors.$secondary-blue;
+      border-color: colors.$secondary-blue;
+      color: white;
+    }
+  }
+
+  .grey-btn {
+    background-color: colors.$dark-grey;
+    color: white;
+
+    text-align: center;
   }
 }

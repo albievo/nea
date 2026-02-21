@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import closeIcon from '../../assets/icons/cross.svg';
 
 export type ModalDescriptor = { title: string, body: ModalBodyDescriptor  }
 
@@ -7,8 +6,15 @@ export type ModalBodyDescriptor =
   | { type: 'plain-text', text: string  }
   | { type: 'log-in', onSubmit: LoginFunction }
   | { type: 'text-img', text: string, img: string }
+  | { type: 'saved-chip', chipName: string, img: string }
+  | { type: 'netlist-chip-creation',
+      inputIdToName: Map<string, string>,
+      outputIdToName: Map<string, string>,
+      onSave: SaveNetlistFunction
+    }
 
 type LoginFunction = (email: string, password: string) => Promise<void>;
+type SaveNetlistFunction = (inputOrder: string, outputOrder: string) => void;
 
 export class Modal {
 
@@ -38,6 +44,18 @@ export class Modal {
       
       case 'text-img':
         this.renderTextImgModal(body.text, body.img)
+        break;
+      
+      case 'saved-chip':
+        this.renderSavedChipModal(body.chipName, body.img);
+        break;
+      
+      case 'netlist-chip-creation':
+        this.renderNetlistChipCreationModal(
+          body.inputIdToName,
+          body.outputIdToName,
+          body.onSave
+        )
         break;
 
       default: {
@@ -103,5 +121,62 @@ export class Modal {
     `));
 
     $body.find('.text').html(text);
+  }
+
+  private renderSavedChipModal(name: string, img: string) {
+    const msg = `<b>${name}</b> chip saved succesfully`;
+
+    this.renderTextImgModal(msg, img);
+  }
+
+  private renderNetlistChipCreationModal(
+    inputIdToName: Map<string, string>,
+    outputIdToName: Map<string, string>,
+    onSave: SaveNetlistFunction
+  ) {
+    const $body = $('.modal-body');
+    $body.append($(`
+      <form id='save-netlist-form'>
+
+        <div class='form-row'>
+          <label for='chip-name'>Chip Name <span class='red-ask'>*</span></label>
+          <input
+            id='chip-name'
+            class="form-input text-input"
+            name="chip-name"
+            type='text
+            max-length='31'
+            required
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="chip-image">Chip Icon</label>
+          <label for="chip-image" class="upload-btn grey-btn">
+            +
+          </label>
+
+          <input
+            id="chip-image"
+            class="form-input img-input"
+            name="chip-image"
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            hidden
+          />
+        </div>
+        
+        <div class='form-row'>
+          <p>Chip Preview</p>
+          <div class='chip-creation-preview'></div>
+        </div>
+
+        <div class='submit-row'>
+          <button class="cancel-btn click-to-close-modal secondary-btn" type="button">Cancel</button>
+          <button class="submit-btn primary-btn" type="submit">Save Chip</button>
+        </div>
+
+      </form>
+    `))
   }
 }

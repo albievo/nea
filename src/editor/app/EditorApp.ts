@@ -217,15 +217,11 @@ export class EditorApp {
       ui.addChipPreview(equivalent);
       const def = this.chipLibrary.get(equivalent);
 
-      const article = ['a', 'e', 'i', 'o', 'u'].includes(def.name[0]) 
-        ? 'an'
-        : 'a'
-
       ui.addModal({
         title: 'Chip Saved!',
         body: {
-          type: 'text-img',
-          text: `You have created ${article} <b>${def.name}</b> chip!`,
+          type: 'saved-chip',
+          chipName: def.name,
           img: def.icon
         }
       });
