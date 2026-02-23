@@ -97,7 +97,7 @@ export class Camera {
   }
 
   private fitToScreen() {
-    const container = this.$canvas.parent;
+    const container = this.$canvas.parent();
 
     const rect = container[0].getBoundingClientRect();
 
