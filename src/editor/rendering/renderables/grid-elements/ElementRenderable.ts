@@ -7,6 +7,7 @@ import { Renderer } from "../../Renderer";
 import { BoundingBox, ElementKind, Renderable } from "../Renderable";
 import editIcon from '../../../../assets/icons/edit.svg';
 import $ from 'jquery'
+import { Camera } from "../../Camera";
 
 
 export abstract class ElementRenderable<K extends ElementKind> extends Renderable<K> {
@@ -25,6 +26,9 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   private readonly LABEL_TEXT_HEIGHT = 0.3;
   private readonly LABEL_VERT_PADDING = 0.1;
   private readonly LABEL_HOR_PADDING = 0.2
+
+  private readonly NAME_TEXT_HEIGHT = 0.3
+  private readonly NAME_LINE_HEIGHT = 0.3
 
   protected abstract filterColor: ColorKey;
   protected abstract FILTER_OPACITY: number; // 0-1 representing how opaque it should be
@@ -369,12 +373,14 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     console.log(`rendering name: ${this.name}`);
 
     const center = this.pos.add(this.dims.divide(2));
+    const fontSize = 
 
     renderer.drawCenteredText(this.name, center, {
       maxWidth: this.dims.x,
-      lineHeight: 0.3,
-      font: '16px Arial',
-      color: COLORS.white
+      lineHeight: this.NAME_LINE_HEIGHT,
+      font: 'Arial',
+      color: COLORS.white,
+      fontSize: this.NAME_TEXT_HEIGHT
     });
   }
 

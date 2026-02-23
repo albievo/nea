@@ -185,6 +185,9 @@ export class Renderer {
     // save so settings don't impact other drawes
     this.ctx.save();
 
+    const fontSize = this.camera.worldUnitsToScreenPixels(opts.fontSize);
+    this.ctx.font = `${fontSize}px ${opts.font}`
+
     if (opts.font) this.ctx.font = opts.font;
     this.ctx.fillStyle = opts.color ?? '#000';
 
@@ -317,8 +320,9 @@ const directionRotations: Record<Direction, RotationRange> = {
 };
 
 type TextOptions = {
-  font?: string;              // e.g. "16px Arial"
+  font: string;              // e.g. "Arial"
   color?: string;             // fillStyle
   maxWidth: number;           // in world units
-  lineHeight: number          // in world units
+  lineHeight: number     ;     // in world units
+  fontSize: number;           // in world units
 };
