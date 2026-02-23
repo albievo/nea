@@ -57,8 +57,8 @@ ui.addModal({
   body: {
     type: 'netlist-chip-creation',
     inputIdToName: new Map<string, string>([
-      ['id-a', 'a'],
-      ['id-b', 'b']
+      ['id-a-1', 'a'],
+      ['id-a-2', 'a']
     ]),
     outputIdToName: new Map<string, string>([
       ['id-c', 'c']

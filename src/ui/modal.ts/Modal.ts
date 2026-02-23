@@ -9,6 +9,7 @@ import draggable from '../../assets/icons/draggable.svg';
 import 'select2/dist/css/select2.css';
 import 'select2';
 import { cropImageToAspect } from '../../utils/AssetUtils';
+import { NetlistBehaviour } from '../../editor/model/chip/ChipBehaviour';
 
 (window as any).$ = $;
 (window as any).jQuery = $;
@@ -27,7 +28,7 @@ export type ModalBodyDescriptor =
     }
 
 type LoginFunction = (email: string, password: string) => Promise<void>;
-type SaveNetlistFunction = (inputOrder: string, outputOrder: string) => void;
+type SaveNetlistFunction = (name: string, inputOrder: string[], outputOrder: string[]) => void;
 
 export class Modal {
 
@@ -282,6 +283,7 @@ export class Modal {
     }
 
     // -- add dynamic update listeners --
+    // add listener for changed name
     const $chipNameInput = $('#chip-name');
     $chipNameInput.on('input', () => {
       const name = $chipNameInput.val() as string;
@@ -290,10 +292,9 @@ export class Modal {
       gridElementRenderable.render(renderer, camera);
     })
 
+    // add listener for changed icon
     const $chipImgInput = $('#chip-image')
     $chipImgInput.on('change', () => {
-      console.log('chamghe');
-
       const input = $chipImgInput.get(0) as HTMLInputElement;
       if (!input.files || input.files.length === 0) {
         console.log('input cancelled');
@@ -307,9 +308,19 @@ export class Modal {
       gridElementRenderable.updateIcon(filePath).then(() =>
         gridElementRenderable.render(renderer, camera)
       );
+    });
 
-      console.log(filePath);
-    })
+    // add submit listener
+    const $form = $('#save-netlist-form');
+    $form.on('submit', e => {
+      e.preventDefault();
+
+      onSave(
+        $chipImgInput.val() as string,
+        $('#input-item-order').val() as string[],
+        $('#output-item-order').val() as string[],
+      )
+    });
   }
 }
 
@@ -321,8 +332,18 @@ function buildUniqueSelectGroup(params: {
   selectClass: string;
   hidden: HTMLInputElement;
   placeholder: string;
+  // Optional, but recommended for Select2 inside modals
+  $dropdownParent?: JQuery<HTMLElement>;
 }) {
-  const { $container, items, slotCount, selectClass, hidden, placeholder } = params;
+  const {
+    $container,
+    items,
+    slotCount,
+    selectClass,
+    hidden,
+    placeholder,
+    $dropdownParent
+  } = params;
 
   // selected id per slot (null until chosen)
   const selectedBySlot: (string | null)[] = Array.from({ length: slotCount }, () => null);
@@ -334,16 +355,21 @@ function buildUniqueSelectGroup(params: {
 
     const $row = $(`
       <div class="order-row">
-        <select id="${selectId}" class="${selectClass}" style="width: 100%"></select>
+        <select
+          id="${selectId}"
+          class="${selectClass}"
+          style="width: 100%"
+          required
+        ></select>
       </div>
     `);
 
     const $select = $row.find('select');
 
-    // placeholder option
-    $select.append(`<option></option>`);
+    // Placeholder option MUST have value=""
+    $select.append(`<option value=""></option>`);
 
-    // options
+    // Options
     for (const item of items) {
       $select.append($(`<option value="${item.id}"></option>`).text(item.text));
     }
@@ -352,12 +378,19 @@ function buildUniqueSelectGroup(params: {
   }
 
   // init Select2 after DOM is present
-  $container.find(`select.${selectClass}`).select2({
+  const select2Opts: any = {
     placeholder,
-    allowClear: true,
+    allowClear: false,
     width: 'resolve',
-    minimumResultsForSearch: Infinity
-  });
+    minimumResultsForSearch: Infinity,
+  };
+
+  if ($dropdownParent && $dropdownParent.length) {
+    select2Opts.dropdownParent = $dropdownParent;
+  }
+
+  const $selects = $container.find(`select.${selectClass}`);
+  $selects.select2(select2Opts);
 
   function updateHidden() {
     hidden.value = JSON.stringify(selectedBySlot);
@@ -366,28 +399,45 @@ function buildUniqueSelectGroup(params: {
   function refreshDisabledOptions() {
     const chosen = new Set(selectedBySlot.filter((v): v is string => Boolean(v)));
 
-    $container.find(`select.${selectClass}`).each((idx, el) => {
+    $selects.each((idx, el) => {
       const current = selectedBySlot[idx];
 
       $(el).find('option').each((_, opt) => {
-        const value = (opt as HTMLOptionElement).value;
-        if (!value) return; // skip placeholder
+        const option = opt as HTMLOptionElement;
+        const value = option.value;
 
-        const disable = chosen.has(value) && value !== current;
-        (opt as HTMLOptionElement).disabled = disable;
+        // skip placeholder
+        if (!value) return;
+
+        option.disabled = chosen.has(value) && value !== current;
       });
-
-      // tell Select2 to re-render disabled states
-      $(el).trigger('change.select2');
     });
   }
 
-  // wire changes
-  $container.find(`select.${selectClass}`).on('change', function () {
-    const slotIdx = Number((this as HTMLSelectElement).id.split('-').pop());
-    const v = (this as HTMLSelectElement).value || null;
+  function validateAllSelected(): boolean {
+    return selectedBySlot.every((v) => typeof v === 'string' && v.length > 0);
+  }
 
+  function focusFirstEmpty() {
+    const idx = selectedBySlot.findIndex(v => !v);
+    if (idx === -1) return;
+
+    const $first = $selects.eq(idx);
+    $first.trigger('focus');
+    // open dropdown to guide user
+    $first.select2('open');
+  }
+
+  // wire changes
+  $selects.on('change', function () {
+    const id = (this as HTMLSelectElement).id;
+    const slotIdxStr = id.split('-').pop();
+    const slotIdx = slotIdxStr ? Number(slotIdxStr) : NaN;
+    if (!Number.isFinite(slotIdx)) return;
+
+    const v = (this as HTMLSelectElement).value || null;
     selectedBySlot[slotIdx] = v;
+
     refreshDisabledOptions();
     updateHidden();
   });
@@ -396,5 +446,11 @@ function buildUniqueSelectGroup(params: {
   refreshDisabledOptions();
   updateHidden();
 
-  return { selectedBySlot, refreshDisabledOptions, updateHidden };
+  return {
+    selectedBySlot,
+    refreshDisabledOptions,
+    updateHidden,
+    validateAllSelected,
+    focusFirstEmpty,
+  };
 }
