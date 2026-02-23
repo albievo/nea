@@ -169,14 +169,17 @@ export class EditorApp {
     // figure out the number of inputs and outputs
     let inputs: number;
     let outputs: number;
+    let name: string;
     if (def) { // if we are looking at a chip
       inputs = def.inputs;
       outputs = def.outputs;
-      iconPath = def.icon
+      name = def.name
+      iconPath = def.icon;
     }
     else {
       inputs = details.type === NodeType.INPUT ? 0 : 1;
       outputs = details.type === NodeType.INPUT ? 1 : 0;
+      name = details.type === NodeType.INPUT ? 'Input' : 'Output'
     }
     
     const pos = this.camera.screenToWorld(mousePos).applyFunction(Math.floor);
@@ -194,6 +197,7 @@ export class EditorApp {
         pos,
         3,
         'stdElementBackground',
+        name,
         validPosition,
         iconPath
       )

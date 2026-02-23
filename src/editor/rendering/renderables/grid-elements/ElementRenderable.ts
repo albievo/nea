@@ -162,7 +162,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     if (this.icon) {
       renderer.drawImage(this.icon, this.pos, this.dims);
     }
-    else {
+    else if (this.type === NodeType.CHIP) {
       this.renderName(renderer, 'white')
     }
 
@@ -368,6 +368,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   private renderName(renderer: Renderer, color: ColorKey) {
     const center = this.pos.add(this.dims.divide(2));
 
+    console.log(`name: ${this.name}`)
     renderer.drawCenteredText(this.name, center, {
       maxWidth: this.dims.x,
       lineHeight: 0.3,

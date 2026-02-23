@@ -21,10 +21,11 @@ export class GhostElementRenderable extends ElementRenderable<'ghost-element'> {
     _pos: Vector2,
     width: number,
     color: ColorKey,
+    name: string,
     private validPosition: boolean,
     iconPath?: string
   ) {
-    super(id, type, inputs, outputs, _pos, width, color, iconPath);
+    super(id, type, inputs, outputs, _pos, width, color, name, iconPath);
 
     this.filterColor = this.getFilterColor();
   }

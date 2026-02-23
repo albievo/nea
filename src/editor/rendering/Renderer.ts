@@ -194,6 +194,7 @@ export class Renderer {
     const maxWidth = this.camera.worldUnitsToScreenPixels(opts.maxWidth);
     const lineHeight = this.camera.worldUnitsToScreenPixels(opts.lineHeight);
 
+    console.log(`text: ${text}`);
     const lines = this.wrapTextToWidth(text, maxWidth);
 
     const totalHeight = lines.length * lineHeight;

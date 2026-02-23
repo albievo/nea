@@ -266,5 +266,10 @@ export class Modal {
 
       pinIdx += 1;
     }
+
+    // -- add dynamic update listeners --
+    // $('#chip-name').on('keydown', () => {
+    //   gridElementRenderable.
+    // })
   }
 }
