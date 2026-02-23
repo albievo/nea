@@ -8,6 +8,7 @@ import { Camera } from '../../editor/rendering/Camera';
 import draggable from '../../assets/icons/draggable.svg';
 import 'select2/dist/css/select2.css';
 import 'select2';
+import { cropImageToAspect } from '../../utils/AssetUtils';
 
 (window as any).$ = $;
 (window as any).jQuery = $;
@@ -287,6 +288,26 @@ export class Modal {
       console.log(name);
       gridElementRenderable.updateName(name);
       gridElementRenderable.render(renderer, camera);
+    })
+
+    const $chipImgInput = $('#chip-image')
+    $chipImgInput.on('change', () => {
+      console.log('chamghe');
+
+      const input = $chipImgInput.get(0) as HTMLInputElement;
+      if (!input.files || input.files.length === 0) {
+        console.log('input cancelled');
+        return; // user cancelled
+      }
+
+      const file = input.files[0];
+      cropImageToAspect(file, canvasDimsCells.x / canvasDimsCells.y);
+      const filePath = URL.createObjectURL(file);
+
+      gridElementRenderable.updateIcon(filePath);
+      gridElementRenderable.render(renderer, camera);
+
+      console.log(filePath);
     })
   }
 }

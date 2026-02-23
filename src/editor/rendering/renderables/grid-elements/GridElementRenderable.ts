@@ -121,6 +121,10 @@ export class GridElementRenderable extends ElementRenderable<'grid-element'> {
   public updateName(name: string) {
     this.name = name;
   }
+
+  public updateIcon(img: string) {
+    this.iconPath = img;
+  }
 }
 
 interface GridElementDetails {
