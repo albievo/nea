@@ -41,8 +41,9 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     protected _pos: Vector2,
     width: number,
     protected color: ColorKey,
+    private name: string,
     protected iconPath?: string,
-    private label?: string
+    private label?: string,
   ) {
     super(id);
 
@@ -160,6 +161,9 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     if (this.icon) {
       renderer.drawImage(this.icon, this.pos, this.dims);
+    }
+    else {
+      this.renderName(renderer, 'white')
     }
 
     // calculate screen radius of pins
@@ -358,6 +362,17 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     $labelInput.css({'width': '0px'});
     $labelInput.css({
       'width': Math.max($labelInput.get(0).scrollWidth, 20) + 'px'
+    });
+  }
+
+  private renderName(renderer: Renderer, color: ColorKey) {
+    const center = this.pos.add(this.dims.divide(2));
+
+    renderer.drawCenteredText(this.name, center, {
+      maxWidth: this.dims.x,
+      lineHeight: 0.3,
+      font: '16px Arial',
+      color: COLORS.white
     });
   }
 

@@ -61,7 +61,11 @@ export class CreateOutputElementAction extends CreateElementAction {
 
 export class CreateChipElementAction extends CreateElementAction {
 
-  constructor(id: string, private defId: string, pos: Vector2) {
+  constructor(
+    id: string,
+    private defId: string,
+    pos: Vector2
+  ) {
     super(id, pos);
   }
 
@@ -70,7 +74,9 @@ export class CreateChipElementAction extends CreateElementAction {
 
     Chip.createChip(
       ctx.chip, ctx.renderManager,
-      this.id, createBehaviour(ctx.chipLibrary, def.behaviourSpec), this.pos,
+      this.id, def.name,
+      createBehaviour(ctx.chipLibrary, def.behaviourSpec),
+      this.pos,
       def.icon
     );
 

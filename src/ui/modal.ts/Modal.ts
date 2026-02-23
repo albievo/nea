@@ -218,7 +218,8 @@ export class Modal {
         wires: new Map(),
         inputPins: new Map(),
         outputPins: new Map()
-      }
+      },
+      name: 'Chip Name'
     });
 
     const camera = new Camera(canvas, canvasDimsCells, 1, 1);

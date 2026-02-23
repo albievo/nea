@@ -175,6 +175,95 @@ export class Renderer {
     this.ctx.fillRect(topLeft.x, topLeft.y, w, h);
   }
 
+  public drawCenteredText(
+    text: string,
+    worldCentre: Vector2,
+    opts: TextOptions
+  ) {
+    const centre = this.camera.worldPosToScreen(worldCentre);
+
+    // save so settings don't impact other drawes
+    this.ctx.save();
+
+    if (opts.font) this.ctx.font = opts.font;
+    this.ctx.fillStyle = opts.color ?? '#000';
+
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+
+    const maxWidth = this.camera.worldUnitsToScreenPixels(opts.maxWidth);
+    const lineHeight = this.camera.worldUnitsToScreenPixels(opts.lineHeight);
+
+    const lines = this.wrapTextToWidth(text, maxWidth);
+
+    const totalHeight = lines.length * lineHeight;
+
+    // y position of the first line's baseline (middle-baseline per line)
+    let y = centre.y - (totalHeight / 2) + (lineHeight / 2);
+
+    for (const line of lines) {
+      this.ctx.fillText(line, centre.x, y, maxWidth);
+      y += lineHeight;
+    }
+
+    this.ctx.restore();
+  }
+
+  /** Wrap text into lines that fit within maxWidth (screen pixels). */
+  private wrapTextToWidth(text: string, maxWidth: number): string[] {
+    const lines: string[] = [];
+
+    const words = text.split(/\s+/).filter(Boolean);
+
+    // Empty paragraph -> blank line
+    let current = words[0];
+
+    for (let wordIdx = 1; wordIdx < words.length; wordIdx++) {
+      const next = `${current} ${words[wordIdx]}`;
+      if (this.ctx.measureText(next).width <= maxWidth) {
+        current = next;
+      } else {
+        // If even a single word is too wide, hard-break that word.
+        if (this.ctx.measureText(words[wordIdx]).width > maxWidth) {
+          lines.push(current);
+          lines.push(...this.breakLongWord(words[wordIdx], maxWidth));
+          current = '';
+        } else {
+          lines.push(current);
+          current = words[wordIdx];
+        }
+      }
+
+      if (current !== '') lines.push(current);
+    }
+
+    return lines;
+  }
+
+  /** Break a very long word into chunks that fit maxWidth. */
+  private breakLongWord(word: string, maxWidth: number): string[] {
+    const parts: string[] = [];
+    let start = 0;
+
+    while (start < word.length) {
+      let end = start + 1;
+
+      // Grow end until it no longer fits
+      while (end <= word.length) {
+        const slice = word.slice(start, end);
+        if (this.ctx.measureText(slice).width > maxWidth) break;
+        end++;
+      }
+
+      // end is now 1 past the last fitting char, so step back
+      const safeEnd = Math.max(start + 1, end - 1);
+      parts.push(word.slice(start, safeEnd));
+      start = safeEnd;
+    }
+
+    return parts;
+  }
+
   public getScreenBoundingBox(): BoundingBox {
     const pan = this.camera.getPan();
     const dims = this.camera.calcWorldUnitsOnScreen();
@@ -213,4 +302,11 @@ const directionRotations: Record<Direction, RotationRange> = {
   right: { start: -Math.PI / 2, end: Math.PI / 2, anticlockwise: false },
   down:  { start: 0, end: Math.PI, anticlockwise: false },
   left:  { start: Math.PI / 2, end: -Math.PI / 2, anticlockwise: false },
+};
+
+type TextOptions = {
+  font?: string;              // e.g. "16px Arial"
+  color?: string;             // fillStyle
+  maxWidth: number;           // in world units
+  lineHeight: number          // in world units
 };

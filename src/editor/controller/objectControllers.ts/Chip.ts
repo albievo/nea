@@ -27,7 +27,8 @@ export class Chip {
         color: 'stdElementBackground',
         type: NodeType.INPUT,
         renderState: renderManager.renderState,
-        name: `Input`
+        name: `Input`,
+        label: 'Input'
       })
     );
     
@@ -51,7 +52,8 @@ export class Chip {
         color: 'stdElementBackground',
         type: NodeType.OUTPUT,
         renderState: renderManager.renderState,
-        name: `Output`
+        name: `Output`,
+        label: 'Output'
       })
     );
   }
@@ -129,7 +131,10 @@ export class Chip {
 
   public static createChip(
     model: WorkingChip, renderManager: RenderManager,
-    id: string, behaviour: ChipBehaviour, pos: Vector2, iconPath?: string
+    id: string, name: string, 
+    behaviour: ChipBehaviour,
+    pos: Vector2,
+    iconPath?: string
   ) {
     const element = new GridElementRenderable({
       id: id,
@@ -141,6 +146,7 @@ export class Chip {
       iconPath,
       type: NodeType.CHIP,
       renderState: renderManager.renderState,
+      name
     });
 
     model.addChip(id, pos, element.dims, NodeType.CHIP, behaviour);
