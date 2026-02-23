@@ -233,6 +233,50 @@ body {
               border-width: 1px;
               border-color: rgb(72, 72, 72);
             }
+
+            .chip-creation-preview {
+              display: flex;
+              flex-direction: row;
+
+              justify-content: center;
+
+              .sortable-list {
+                position: relative;
+
+                margin: 0 10px;
+                list-style: none;
+
+                li {
+                  position: absolute;
+                  transform: translateY(-50%);
+
+                  display: flex;
+                  align-items: center;
+
+                  $font-size: 1.25em;
+                  font-size: $font-size;
+
+                  box-shadow: 0 0 2px rgba(0, 0, 0, 0.55);
+                  cursor: move;
+
+                  img {
+                    height: calc($font-size);
+                    width: auto;
+                  }
+                }
+              }
+
+              #input-order-sortable-list li {
+                right: 0;
+
+                padding-right: 10px;
+              }
+              #output-order-sortable-list li {
+                left: 0;
+
+                padding-left: 10px;
+              }
+            }
           }
 
           .submit-row {

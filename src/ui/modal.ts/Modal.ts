@@ -5,7 +5,7 @@ import { Vector2 } from '../../utils/Vector2';
 import { NodeType } from '../../editor/model/netlist/Netlist';
 import { Renderer } from '../../editor/rendering/Renderer';
 import { Camera } from '../../editor/rendering/Camera';
-import { WebpageUtils } from '../../utils/WebpageUtils';
+import draggable from '../../assets/icons/draggable.svg';
 
 export type ModalDescriptor = { title: string, body: ModalBodyDescriptor  }
 
@@ -185,12 +185,14 @@ export class Modal {
         <div class='form-row'>
           <p>Chip Preview</p>
           <div class='chip-creation-preview'>
+            <ul id='input-order-sortable-list' class='sortable-list'></ul>
             <div
               class='preview-container'
               style="width: ${this.PREVIEW_CANVAS_WIDTH}px; height: ${canvasHeightPx}px;"
             >
               <canvas class='preview-canvas'></canvas>
             </div>
+            <ul id='output-order-sortable-list' class='sortable-list'></ul>
           </div>
         </div>
 
@@ -202,6 +204,7 @@ export class Modal {
       </form>
     `));
 
+    // -- render preview grid element to canvas --
     const canvas = $body.find('.preview-canvas');
 
     const gridElementRenderable = new GridElementRenderable({
@@ -221,8 +224,46 @@ export class Modal {
     const camera = new Camera(canvas, canvasDimsCells, 1, 1);
     const renderer = new Renderer(camera, canvas);
     
-    console.log(camera.worldPosToScreen(new Vector2(0, 0)).toString());
+    gridElementRenderable.render(renderer, camera);
 
-    gridElementRenderable.render(renderer, camera)
+    // -- add items to sortable lists --
+    for (let [id, name] of inputIdToName) {
+      $('#input-order-sortable-list').append($(`
+        <li class='input-${id}' data-id='${id}'>
+          <img src='${draggable}'>
+          <p>${name}</p>
+        </li>
+      `));
+    }
+    for (let [id, name] of outputIdToName) {
+      $('#output-order-sortable-list').append($(`
+        <li class='output-${id}' data-id='${id}'>
+          <p>${name}</p>
+          <img src='${draggable}'>
+
+        </li>
+      `));
+    }
+
+    // -- make list items align with inputs and outputs --
+    let pinIdx = 0;
+    for (let id of inputIdToName.keys()) {
+      const cellPos = gridElementRenderable.getInputPos(pinIdx);
+      const screenPos = camera.worldPosToScreen(cellPos.add(0, 0.5));
+
+      $(`.input-${id}`).css({ 'top': `${screenPos.y}px` });
+
+      pinIdx += 1;
+    }
+
+    pinIdx = 0;
+    for (let id of outputIdToName.keys()) {
+      const cellPos = gridElementRenderable.getOutputPos(pinIdx);
+      const screenPos = camera.worldPosToScreen(cellPos.add(0, 0.5));
+
+      $(`.output-${id}`).css({ 'top': `${screenPos.y}px` });
+
+      pinIdx += 1;
+    }
   }
 }
