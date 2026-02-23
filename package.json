@@ -14,8 +14,9 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/jquery": "^3.5.33",
+    "@types/select2": "^4.0.63",
     "copy-webpack-plugin": "^13.0.1",
-    "css-loader": "^7.1.2",
+    "css-loader": "^7.1.4",
     "html-loader": "^5.1.0",
     "html-webpack-plugin": "^5.6.3",
     "jest": "^29.7.0",
@@ -32,6 +33,7 @@
     "webpack-dev-server": "^5.2.1"
   },
   "dependencies": {
+    "select2": "^4.1.0-rc.0",
     "sortablejs": "^1.15.7"
   }
 }

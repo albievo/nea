@@ -6,6 +6,11 @@ import { NodeType } from '../../editor/model/netlist/Netlist';
 import { Renderer } from '../../editor/rendering/Renderer';
 import { Camera } from '../../editor/rendering/Camera';
 import draggable from '../../assets/icons/draggable.svg';
+import 'select2/dist/css/select2.css';
+import 'select2';
+
+(window as any).$ = $;
+(window as any).jQuery = $;
 
 export type ModalDescriptor = { title: string, body: ModalBodyDescriptor  }
 
@@ -185,14 +190,18 @@ export class Modal {
         <div class='form-row'>
           <p>Chip Preview</p>
           <div class='chip-creation-preview'>
-            <ul id='input-order-sortable-list' class='sortable-list'></ul>
+            <div id="input-order-selects" class="order-selects"></div>
+            <input type="hidden" name="input-item-order" id="input-item-order" />
+
             <div
               class='preview-container'
               style="width: ${this.PREVIEW_CANVAS_WIDTH}px; height: ${canvasHeightPx}px;"
             >
               <canvas class='preview-canvas'></canvas>
             </div>
-            <ul id='output-order-sortable-list' class='sortable-list'></ul>
+
+            <div id="output-order-selects" class="order-selects"></div>
+            <input type="hidden" name="output-item-order" id="output-item-order" />
           </div>
         </div>
 
@@ -227,44 +236,48 @@ export class Modal {
     
     gridElementRenderable.render(renderer, camera);
 
-    // -- add items to sortable lists --
-    for (let [id, name] of inputIdToName) {
-      $('#input-order-sortable-list').append($(`
-        <li class='input-${id}' data-id='${id}'>
-          <img src='${draggable}'>
-          <p>${name}</p>
-        </li>
-      `));
-    }
-    for (let [id, name] of outputIdToName) {
-      $('#output-order-sortable-list').append($(`
-        <li class='output-${id}' data-id='${id}'>
-          <p>${name}</p>
-          <img src='${draggable}'>
+    // --- build Select2 dropdowns (one per slot) ---
 
-        </li>
-      `));
-    }
+    const inputItems = Array.from(inputIdToName.entries()).map(([id, text]) => ({ id, text }));
+    const outputItems = Array.from(outputIdToName.entries()).map(([id, text]) => ({ id, text }));
+
+    // build inputs
+    const inputHidden = document.getElementById('input-item-order') as HTMLInputElement;
+    buildUniqueSelectGroup({
+      $container: $('#input-order-selects'),
+      items: inputItems,
+      slotCount: inputItems.length,
+      selectClass: 'input-order-select',
+      hidden: inputHidden,
+      placeholder: 'Input'
+    });
+
+    // build outputs
+    const outputHidden = document.getElementById('output-item-order') as HTMLInputElement;
+    buildUniqueSelectGroup({
+      $container: $('#output-order-selects'),
+      items: outputItems,
+      slotCount: outputItems.length,
+      selectClass: 'output-order-select',
+      hidden: outputHidden,
+      placeholder: 'Output'
+    });
 
     // -- make list items align with inputs and outputs --
-    let pinIdx = 0;
-    for (let id of inputIdToName.keys()) {
+    for (let pinIdx = 0; pinIdx < inputIdToName.size; pinIdx++) {
       const cellPos = gridElementRenderable.getInputPos(pinIdx);
       const screenPos = camera.worldPosToScreen(cellPos.add(0, 0.5));
 
-      $(`.input-${id}`).css({ 'top': `${screenPos.y}px` });
-
-      pinIdx += 1;
+      $(`#input-order-select-${pinIdx}`).parent()
+        .css({ 'top': `${screenPos.y}px` });
     }
 
-    pinIdx = 0;
-    for (let id of outputIdToName.keys()) {
+    for (let pinIdx = 0; pinIdx < outputIdToName.size; pinIdx++) {
       const cellPos = gridElementRenderable.getOutputPos(pinIdx);
       const screenPos = camera.worldPosToScreen(cellPos.add(0, 0.5));
 
-      $(`.output-${id}`).css({ 'top': `${screenPos.y}px` });
-
-      pinIdx += 1;
+      $(`#output-order-select-${pinIdx}`).parent()
+        .css({ 'top': `${screenPos.y}px` });
     }
 
     // -- add dynamic update listeners --
@@ -276,4 +289,90 @@ export class Modal {
       gridElementRenderable.render(renderer, camera);
     })
   }
+}
+
+
+function buildUniqueSelectGroup(params: {
+  $container: JQuery<HTMLElement>;
+  items: { id: string; text: string }[];
+  slotCount: number;
+  selectClass: string;
+  hidden: HTMLInputElement;
+  placeholder: string;
+}) {
+  const { $container, items, slotCount, selectClass, hidden, placeholder } = params;
+
+  // selected id per slot (null until chosen)
+  const selectedBySlot: (string | null)[] = Array.from({ length: slotCount }, () => null);
+
+  $container.empty();
+
+  for (let slotIdx = 0; slotIdx < slotCount; slotIdx++) {
+    const selectId = `${selectClass}-${slotIdx}`;
+
+    const $row = $(`
+      <div class="order-row">
+        <select id="${selectId}" class="${selectClass}" style="width: 100%"></select>
+      </div>
+    `);
+
+    const $select = $row.find('select');
+
+    // placeholder option
+    $select.append(`<option></option>`);
+
+    // options
+    for (const item of items) {
+      $select.append($(`<option value="${item.id}"></option>`).text(item.text));
+    }
+
+    $container.append($row);
+  }
+
+  // init Select2 after DOM is present
+  $container.find(`select.${selectClass}`).select2({
+    placeholder,
+    allowClear: true,
+    width: 'resolve',
+    minimumResultsForSearch: Infinity
+  });
+
+  function updateHidden() {
+    hidden.value = JSON.stringify(selectedBySlot);
+  }
+
+  function refreshDisabledOptions() {
+    const chosen = new Set(selectedBySlot.filter((v): v is string => Boolean(v)));
+
+    $container.find(`select.${selectClass}`).each((idx, el) => {
+      const current = selectedBySlot[idx];
+
+      $(el).find('option').each((_, opt) => {
+        const value = (opt as HTMLOptionElement).value;
+        if (!value) return; // skip placeholder
+
+        const disable = chosen.has(value) && value !== current;
+        (opt as HTMLOptionElement).disabled = disable;
+      });
+
+      // tell Select2 to re-render disabled states
+      $(el).trigger('change.select2');
+    });
+  }
+
+  // wire changes
+  $container.find(`select.${selectClass}`).on('change', function () {
+    const slotIdx = Number((this as HTMLSelectElement).id.split('-').pop());
+    const v = (this as HTMLSelectElement).value || null;
+
+    selectedBySlot[slotIdx] = v;
+    refreshDisabledOptions();
+    updateHidden();
+  });
+
+  // initial
+  refreshDisabledOptions();
+  updateHidden();
+
+  return { selectedBySlot, refreshDisabledOptions, updateHidden };
 }

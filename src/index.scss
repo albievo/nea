@@ -240,41 +240,26 @@ body {
 
               justify-content: center;
 
-              .sortable-list {
+              .order-selects {
                 position: relative;
 
+                min-width: 100px;
+
                 margin: 0 10px;
-                list-style: none;
 
-                li {
+                .order-row {
                   position: absolute;
+
                   transform: translateY(-50%);
-
-                  display: flex;
-                  align-items: center;
-
-                  $font-size: 1.25em;
-                  font-size: $font-size;
-
-                  box-shadow: 0 0 2px rgba(0, 0, 0, 0.55);
-                  cursor: move;
-
-                  img {
-                    height: calc($font-size);
-                    width: auto;
-                  }
+                  width: 100%;
                 }
               }
 
-              #input-order-sortable-list li {
+              #input-order-selects .order-row {
                 right: 0;
-
-                padding-right: 10px;
               }
-              #output-order-sortable-list li {
+              #output-order-selects .order-row {
                 left: 0;
-
-                padding-left: 10px;
               }
             }
           }

@@ -48,6 +48,13 @@ module.exports = {
           },
         },
       },
+      { // CSS files
+        test: /\.css$/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+        ],
+      },
       { // SCSS files
         test: /\.scss$/, // match SCSS files
         use: [
