@@ -271,6 +271,7 @@ export class Modal {
     const $chipNameInput = $('#chip-name');
     $chipNameInput.on('input', () => {
       const name = $chipNameInput.val() as string;
+      console.log(name);
       gridElementRenderable.updateName(name);
       gridElementRenderable.render(renderer, camera);
     })

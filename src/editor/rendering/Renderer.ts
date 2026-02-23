@@ -194,7 +194,6 @@ export class Renderer {
     const maxWidth = this.camera.worldUnitsToScreenPixels(opts.maxWidth);
     const lineHeight = this.camera.worldUnitsToScreenPixels(opts.lineHeight);
 
-    console.log(`text: ${text}`);
     const lines = this.wrapTextToWidth(text, maxWidth);
 
     const totalHeight = lines.length * lineHeight;
@@ -215,27 +214,39 @@ export class Renderer {
     const lines: string[] = [];
 
     const words = text.split(/\s+/).filter(Boolean);
+    if (words.length === 0) return lines;
 
-    // Empty paragraph -> blank line
     let current = words[0];
 
     for (let wordIdx = 1; wordIdx < words.length; wordIdx++) {
-      const next = `${current} ${words[wordIdx]}`;
+      const word = words[wordIdx];
+      const next = `${current} ${word}`;
+
       if (this.ctx.measureText(next).width <= maxWidth) {
+        // Still fits on current line
         current = next;
       } else {
-        // If even a single word is too wide, hard-break that word.
-        if (this.ctx.measureText(words[wordIdx]).width > maxWidth) {
-          lines.push(current);
-          lines.push(...this.breakLongWord(words[wordIdx], maxWidth));
-          current = '';
+        // Current line is complete
+        lines.push(current);
+
+        // If the single word itself is too wide, hard-break it
+        if (this.ctx.measureText(word).width > maxWidth) {
+          const broken = this.breakLongWord(word, maxWidth);
+
+          // All but last chunk become full lines
+          lines.push(...broken.slice(0, -1));
+
+          // Last chunk continues as current
+          current = broken[broken.length - 1];
         } else {
-          lines.push(current);
-          current = words[wordIdx];
+          current = word;
         }
       }
+    }
 
-      if (current !== '') lines.push(current);
+    // Push final line
+    if (current !== '') {
+      lines.push(current);
     }
 
     return lines;

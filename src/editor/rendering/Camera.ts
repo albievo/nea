@@ -32,7 +32,6 @@ export class Camera {
     
     //centre camera
     const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
-    console.log(worldUnitsOnScreen.toString());
     this.setPan(
       worldSize.subtract(worldUnitsOnScreen)
         .divide(2)

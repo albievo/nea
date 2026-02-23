@@ -366,9 +366,10 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   }
 
   private renderName(renderer: Renderer, color: ColorKey) {
+    console.log(`rendering name: ${this.name}`);
+
     const center = this.pos.add(this.dims.divide(2));
 
-    console.log(`name: ${this.name}`)
     renderer.drawCenteredText(this.name, center, {
       maxWidth: this.dims.x,
       lineHeight: 0.3,
