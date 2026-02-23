@@ -59,7 +59,10 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   }
 
   public async initAssets() {
-    if (!this.iconPath) return;
+    if (!this.iconPath) {
+      this.icon = undefined;
+      return;
+    };
     this.icon = await loadImage(this.iconPath);
   }
 

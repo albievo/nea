@@ -122,8 +122,9 @@ export class GridElementRenderable extends ElementRenderable<'grid-element'> {
     this.name = name;
   }
 
-  public updateIcon(img: string) {
+  public async updateIcon(img: string): Promise<void> {
     this.iconPath = img;
+    return this.initAssets();
   }
 }
 

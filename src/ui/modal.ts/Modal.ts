@@ -304,8 +304,9 @@ export class Modal {
       cropImageToAspect(file, canvasDimsCells.x / canvasDimsCells.y);
       const filePath = URL.createObjectURL(file);
 
-      gridElementRenderable.updateIcon(filePath);
-      gridElementRenderable.render(renderer, camera);
+      gridElementRenderable.updateIcon(filePath).then(() =>
+        gridElementRenderable.render(renderer, camera)
+      );
 
       console.log(filePath);
     })
