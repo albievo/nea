@@ -268,8 +268,11 @@ export class Modal {
     }
 
     // -- add dynamic update listeners --
-    // $('#chip-name').on('keydown', () => {
-    //   gridElementRenderable.
-    // })
+    const $chipNameInput = $('#chip-name');
+    $chipNameInput.on('input', () => {
+      const name = $chipNameInput.val() as string;
+      gridElementRenderable.updateName(name);
+      gridElementRenderable.render(renderer, camera);
+    })
   }
 }

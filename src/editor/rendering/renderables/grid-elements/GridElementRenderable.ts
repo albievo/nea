@@ -118,9 +118,9 @@ export class GridElementRenderable extends ElementRenderable<'grid-element'> {
     return this.type;
   }
 
-  // public updateName(name: string) {
-  //   this.name = name;
-  // }
+  public updateName(name: string) {
+    this.name = name;
+  }
 }
 
 interface GridElementDetails {

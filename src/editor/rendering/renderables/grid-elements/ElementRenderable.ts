@@ -41,7 +41,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     protected _pos: Vector2,
     width: number,
     protected color: ColorKey,
-    private name: string,
+    protected name: string,
     protected iconPath?: string,
     private label?: string,
   ) {
