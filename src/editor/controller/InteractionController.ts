@@ -73,6 +73,9 @@ export class InteractionController {
         onOutputPin,
         cell.add(1, 0)
       ); // create a temporary wire
+
+      this.updateTempWire(cell);
+
       this.cursorHandler.updateCursor();
     }
     else if (this.interactionState.onInputBtn) {
@@ -174,54 +177,7 @@ export class InteractionController {
 
     // check whether we should be activating an input pin
     if (this.interactionState.tempWire && cellHasChanged) {
-      // check if we are next to or on an input pin
-      const elementToTheLeft = this.chip.cellHasElement(cell.subtract(1, 0));
-      const elementToTheRight = this.chip.cellHasElement(cell.add(1, 0));
-
-      // the id of the element that we are to the left of.
-      // undefined if there isn't one
-      let onLeftOfElement: string;
-      if (onElement && !elementToTheLeft) { // if we are on the left of an element
-        onLeftOfElement = onElement;
-      }
-      else if (!onElement && elementToTheRight) { // if we are 1 to the left of an element
-        onLeftOfElement = elementToTheRight;
-      }
-
-      if (onLeftOfElement) { // if we are next to or on an input pin
-        // find the input pin idx at this position
-        const elementPos = this.renderManager.getPositionOfElement(
-          onLeftOfElement
-        );
-        const cellsFromTop = cell.y - elementPos.y;
-        const inputAtPosition = this.renderManager.inputPinAtPos(
-          onLeftOfElement, cellsFromTop
-        );
-
-        // if there is an input pin, and it hasn't already been used activate it
-        if (
-          inputAtPosition !== -1 &&
-          !this.chip.isInputTaken(onLeftOfElement, inputAtPosition)
-        ) {
-          this.interactionState.activeInputPin = {
-            nodeId: onLeftOfElement,
-            inputIdx: inputAtPosition
-          }
-
-          const newEndpoint = this.renderManager.getPosOfInputPin(onLeftOfElement, inputAtPosition)
-            .subtract(1, 0);
-
-
-          this.updateTempWirePath(
-            this.interactionState.tempWire.renderable,
-            newEndpoint,
-            true
-          );
-        }
-      }
-      else { // if we arent next to or on an input pin
-        this.interactionState.activeInputPin = undefined;
-      }
+      this.updateTempWire(cell);
     }
   }
 
@@ -395,5 +351,58 @@ export class InteractionController {
       position.y > bb.top    &&
       position.y < bb.bottom
     )
+  }
+
+  private updateTempWire(mouseCell: Vector2) {
+    const onElement = this.interactionState.onElement;
+
+    // check if we are next to or on an input pin
+    const elementToTheLeft = this.chip.cellHasElement(mouseCell.subtract(1, 0));
+    const elementToTheRight = this.chip.cellHasElement(mouseCell.add(1, 0));
+
+    // the id of the element that we are to the left of.
+    // undefined if there isn't one
+    let onLeftOfElement: string;
+    if (onElement && !elementToTheLeft) { // if we are on the left of an element
+      onLeftOfElement = onElement;
+    }
+    else if (!onElement && elementToTheRight) { // if we are 1 to the left of an element
+      onLeftOfElement = elementToTheRight;
+    }
+
+    if (onLeftOfElement) { // if we are next to or on an input pin
+      // find the input pin idx at this position
+      const elementPos = this.renderManager.getPositionOfElement(
+        onLeftOfElement
+      );
+      const cellsFromTop = mouseCell.y - elementPos.y;
+      const inputAtPosition = this.renderManager.inputPinAtPos(
+        onLeftOfElement, cellsFromTop
+      );
+
+      // if there is an input pin, and it hasn't already been used activate it
+      if (
+        inputAtPosition !== -1 &&
+        !this.chip.isInputTaken(onLeftOfElement, inputAtPosition)
+      ) {
+        this.interactionState.activeInputPin = {
+          nodeId: onLeftOfElement,
+          inputIdx: inputAtPosition
+        }
+
+        const newEndpoint = this.renderManager.getPosOfInputPin(onLeftOfElement, inputAtPosition)
+          .subtract(1, 0);
+
+
+        this.updateTempWirePath(
+          this.interactionState.tempWire.renderable,
+          newEndpoint,
+          true
+        );
+      }
+    }
+    else { // if we arent next to or on an input pin
+      this.interactionState.activeInputPin = undefined;
+    }
   }
 }
