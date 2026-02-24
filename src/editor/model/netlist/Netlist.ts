@@ -574,8 +574,6 @@ export class Netlist {
   }
 
   public copy(): Netlist {
-    console.log('copying netlist');
-
     return new Netlist(
       this.nodes.map(node => node.copy()),
       this.connections
@@ -712,9 +710,7 @@ export class NetlistNode {
   }
 
   public copy(): NetlistNode {
-    console.log(this.id, this.det, this.chipLibrary);
-    
-    return new NetlistNode(
+      return new NetlistNode(
       this.id, this.det, this.chipLibrary
     )
   }

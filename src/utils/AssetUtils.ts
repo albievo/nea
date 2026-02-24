@@ -32,12 +32,12 @@ export function cropImageToAspect(file: File, aspectRatio: number) {
       let offsetY = 0;
 
       if (originalRatio > aspectRatio) {
-        // Image too wide → crop width
+        // Image too wide -> crop width
         cropHeight = originalHeight;
         cropWidth = cropHeight * aspectRatio;
         offsetX = (originalWidth - cropWidth) / 2;
       } else {
-        // Image too tall → crop height
+        // Image too tall -> crop height
         cropWidth = originalWidth;
         cropHeight = cropWidth / aspectRatio;
         offsetY = (originalHeight - cropHeight) / 2;
@@ -55,21 +55,6 @@ export function cropImageToAspect(file: File, aspectRatio: number) {
         offsetX, offsetY, cropWidth, cropHeight,
         0, 0, cropWidth, cropHeight
       );
-
-      // Convert to Blob (preferred over dataURL)
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-
-        console.log('Cropped blob:', blob);
-
-        // Example: preview
-        const previewUrl = URL.createObjectURL(blob);
-        console.log(previewUrl);
-
-        // If uploading to Firebase Storage:
-        // uploadBytes(storageRef, blob);
-
-      }, 'image/png');
     };
 
     img.src = reader.result as string;

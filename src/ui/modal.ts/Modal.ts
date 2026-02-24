@@ -277,23 +277,24 @@ export class Modal {
         .css({ 'top': `${screenPos.y}px` });
     }
 
+    let chipImgPath: string;
+
     // -- add dynamic update listeners --
     // add listener for changed name
     const $chipNameInput = $('#chip-name');
     $chipNameInput.on('input', () => {
       const name = $chipNameInput.val() as string;
-      console.log(name);
       gridElementRenderable.updateName(name);
       gridElementRenderable.render(renderer, camera);
+      // update chip image
+      chipImgPath = (canvas.get(0) as HTMLCanvasElement).toDataURL('image/png');
     })
 
     // add listener for changed icon
     const $chipImgInput = $('#chip-image')
-    let chipImgPath: string;
     $chipImgInput.on('change', () => {
       const input = $chipImgInput.get(0) as HTMLInputElement;
       if (!input.files || input.files.length === 0) {
-        console.log('input cancelled');
         return; // user cancelled
       }
 
@@ -301,11 +302,11 @@ export class Modal {
       cropImageToAspect(file, canvasDimsCells.x / canvasDimsCells.y);
       const filePath = URL.createObjectURL(file);
 
-      gridElementRenderable.updateIcon(filePath).then(() =>
-        gridElementRenderable.render(renderer, camera)
-      );
-
-      chipImgPath = filePath;
+      gridElementRenderable.updateIcon(filePath).then(() => {
+        gridElementRenderable.render(renderer, camera);
+        // update chip image
+        chipImgPath = (canvas.get(0) as HTMLCanvasElement).toDataURL('image/png');
+      });
     });
 
     // add submit listener
