@@ -35,6 +35,13 @@ export abstract class Renderable<K extends RenderableKind> {
     // default: do nothing
   }
 
+  /**
+   * delete persistent elements like DOM elemnts
+   */
+  public deletePersistent(): void {
+    // default: do nothing
+  }
+
   public get kind(): K {
     return this._kind;
   }

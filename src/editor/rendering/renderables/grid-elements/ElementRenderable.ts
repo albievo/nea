@@ -391,6 +391,10 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     $labelContainer.find('.label-input').val(text);
   }
 
+  public deletePersistent(): void {
+    this.$labelContainer.remove();
+  }
+
   protected abstract getInputNodeValue(inputIdx: number): Value;
   protected abstract getOutputNodeValue(outputIdx: number): Value;
 

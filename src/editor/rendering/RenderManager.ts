@@ -77,8 +77,10 @@ export class RenderManager {
   public rmvRenderable(id: string) {
     const renderable = this.renderablesById.get(id);
     if (!renderable) {
-      return
+      return;
     }
+
+    renderable.deletePersistent();
 
     if (renderable.kind === 'perm-wire') {
       GeneralUtils.removeValue(this._permWires, id);
