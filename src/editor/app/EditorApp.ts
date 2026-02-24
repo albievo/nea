@@ -278,6 +278,15 @@ export class EditorApp {
 
             ui.addChipPreview(id);
             ui.closeModal();
+
+            ui.addModal({
+              title: 'Chip Saved!',
+              body: {
+                type: 'saved-chip',
+                chipName: def.name,
+                img: def.icon
+              }
+            });
           }
         }
       })

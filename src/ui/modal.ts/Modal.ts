@@ -289,6 +289,7 @@ export class Modal {
 
     // add listener for changed icon
     const $chipImgInput = $('#chip-image')
+    let chipImgPath: string;
     $chipImgInput.on('change', () => {
       const input = $chipImgInput.get(0) as HTMLInputElement;
       if (!input.files || input.files.length === 0) {
@@ -303,6 +304,8 @@ export class Modal {
       gridElementRenderable.updateIcon(filePath).then(() =>
         gridElementRenderable.render(renderer, camera)
       );
+
+      chipImgPath = filePath;
     });
 
     // add submit listener
@@ -313,9 +316,11 @@ export class Modal {
       const inputOrder = JSON.parse($('#input-item-order').val() as string);
       const outputOrder = JSON.parse($('#output-item-order').val() as string);
 
+      console.log($chipImgInput.val());
+
       onSave(
         $chipNameInput.val() as string,
-        $chipImgInput.val() as string,
+        chipImgPath ?? '',
         inputOrder,
         outputOrder,
       )
