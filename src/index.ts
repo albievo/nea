@@ -51,18 +51,3 @@ app.start();
 const ui = new EditorUI(app, chipLibrary);
 ui.addChipPreview('and-primitive');
 ui.addChipPreview('not-primitive');
-
-ui.addModal({
-  title: 'Save Chip',
-  body: {
-    type: 'netlist-chip-creation',
-    inputIdToName: new Map<string, string>([
-      ['id-a-1', 'a'],
-      ['id-a-2', 'a']
-    ]),
-    outputIdToName: new Map<string, string>([
-      ['id-c', 'c']
-    ]),
-    onSave: () => null
-  }
-});

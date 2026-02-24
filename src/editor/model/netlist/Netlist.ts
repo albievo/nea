@@ -574,6 +574,8 @@ export class Netlist {
   }
 
   public copy(): Netlist {
+    console.log('copying netlist');
+
     return new Netlist(
       this.nodes.map(node => node.copy()),
       this.connections
@@ -628,8 +630,8 @@ export class NetlistNode {
   constructor(id: string, det: GenericChipDetails, chipLibrary: ChipLibrary) {
     this.id = id;
     this.type = det.type;
-
-    
+    this.det = det;
+    this.chipLibrary = chipLibrary;
 
     if (det.type === NodeType.CHIP) {
       this.chipBehaviour = createBehaviour(
@@ -710,6 +712,8 @@ export class NetlistNode {
   }
 
   public copy(): NetlistNode {
+    console.log(this.id, this.det, this.chipLibrary);
+    
     return new NetlistNode(
       this.id, this.det, this.chipLibrary
     )
