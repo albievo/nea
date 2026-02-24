@@ -310,11 +310,14 @@ export class Modal {
     $form.on('submit', e => {
       e.preventDefault();
 
+      const inputOrder = JSON.parse($('#input-item-order').val() as string);
+      const outputOrder = JSON.parse($('#output-item-order').val() as string);
+
       onSave(
         $chipNameInput.val() as string,
         $chipImgInput.val() as string,
-        $('#input-item-order').val() as string[],
-        $('#output-item-order').val() as string[],
+        inputOrder,
+        outputOrder,
       )
     });
   }
