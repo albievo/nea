@@ -119,17 +119,18 @@ export class Netlist {
     this.outputIndex.set(connection.getFrom().nodeId, nodeMap);
   }
   private addConnectionToInputIndex(connection: Connection): void {
-    const existing = this.inputIndex
-      .get(connection.getTo().nodeId)
-      ?.get(connection.getTo().inputIdx);
+    const existingNodeMap = this.inputIndex
+      .get(connection.getTo().nodeId);
+    
+    const existingInput = existingNodeMap?.get(connection.getTo().inputIdx);
 
     // if there is already a connection to the input, throw an error
-    if (existing) {
+    if (existingInput) {
       throw new Error("Input pin already has a connection");
     }
 
     // otherwise, create a new entry for that output
-    const nodeMap = new Map<number, Connection>()
+    const nodeMap = existingNodeMap ?? new Map<number, Connection>()
     nodeMap.set(connection.getTo().inputIdx, connection)
 
     this.inputIndex.set(connection.getTo().nodeId, nodeMap);
@@ -484,6 +485,8 @@ export class Netlist {
 
   public fullyConnected(): boolean {
     for (let nodeIdx = 0; nodeIdx < this.nodes.length; nodeIdx++) {
+      console.log(nodeIdx);
+
       const node = this.nodes[nodeIdx];
 
       // check inputs are fully connected
@@ -491,6 +494,8 @@ export class Netlist {
       const inputs = this.inputIndex.get(node.getId()) ?? new Map();
 
       for (let inputIdx = 0; inputIdx < inputNum; inputIdx++) {
+        console.log(`checking input ${inputIdx}`);
+        console.log(inputs);
         if (!inputs.has(inputIdx)) {
           return false
         }
@@ -501,13 +506,14 @@ export class Netlist {
       const outputs = this.outputIndex.get(node.getId()) ?? new Map();
 
       for (let output = 0; output < outputNum; output++) {
+        console.log(`checking output ${output}`)
         if (!outputs.has(output)) {
           return false; // at least one output not connected
         }
       }
-
-      return true; // all outputs connected
     }
+
+    return true; // all outputs connected
   }
 
   public hasInputAndOutput(): boolean {
