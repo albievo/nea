@@ -46,7 +46,7 @@ export class EditorUI {
     });
   }
 
-  private closeModal() {
+  closeModal() {
     const modal = this.modal;
 
     if (!modal) {

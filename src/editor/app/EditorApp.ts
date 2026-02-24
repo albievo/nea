@@ -275,6 +275,9 @@ export class EditorApp {
             }
 
             this.chipLibrary.register(def);
+
+            ui.addChipPreview(id);
+            ui.closeModal();
           }
         }
       })
