@@ -10,6 +10,7 @@ import { GeneralUtils } from "../../utils/GeneralUtils";
 import { PermWireRenderable } from "./renderables/wires/PermWireRenderable";
 import { Value } from "../model/netlist/Value";
 import { createEmptyRenderState } from "./RenderState";
+import { GridRenderable } from "./renderables/GridRenderable";
 
 export class RenderManager {
   private renderablesById = new Map<string, Renderable<RenderableKind>>();
@@ -18,6 +19,8 @@ export class RenderManager {
   public previewAvailabilityOverlay: AvailabilityOverlay = new Map<`(${number}, ${number})`, CellTakenBy>();
 
   public renderState: RenderState;
+  
+  private gridRenderable?: GridRenderable;
 
   constructor(
     private worldSize: Vector2,
@@ -42,14 +45,17 @@ export class RenderManager {
   ) {
     this.renderer.clearCanvas();
 
-    for (const renderable of this.renderablesById.values()) {
-      renderable.render(renderer, this.camera);
-    }
+    this.gridRenderable.render(renderer, this.camera)
     if (interactionState.tempWire) {
       interactionState.tempWire.renderable.render(renderer, this.camera);
     }
     if (interactionState.ghostElement) {
       interactionState.ghostElement.renderable.render(renderer, this.camera);
+    }
+
+    for (const renderable of this.renderablesById.values()) {
+      if (renderable.kind === 'grid') continue;
+      renderable.render(renderer, this.camera);
     }
 
     requestAnimationFrame(() => this.frame(
@@ -69,6 +75,10 @@ export class RenderManager {
     const existing = this.renderablesById.get(id);
     if (existing) {
       throw new Error('id is already in use');
+    }
+
+    if (renderable instanceof GridRenderable) {
+      this.gridRenderable = renderable;
     }
     
     this.renderablesById.set(id, renderable);
@@ -159,6 +169,15 @@ export class RenderManager {
     }
 
     return element.inputAtPos(pos);
+  }
+
+  public getPosOfInputPin(nodeId: string, pinIdx: number): Vector2 {
+    const element = this.getGridElementWithId(nodeId);
+    if (!element) {
+      return Vector2.zeroes;
+    }
+    
+    return element.getInputPos(pinIdx);
   }
 
   public getGridElementWithId(id: string): GridElementRenderable | null {

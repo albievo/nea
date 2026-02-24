@@ -180,7 +180,7 @@ export class InteractionController {
 
       // the id of the element that we are to the left of.
       // undefined if there isn't one
-      let onLeftOfElement;
+      let onLeftOfElement: string;
       if (onElement && !elementToTheLeft) { // if we are on the left of an element
         onLeftOfElement = onElement;
       }
@@ -207,6 +207,16 @@ export class InteractionController {
             nodeId: onLeftOfElement,
             inputIdx: inputAtPosition
           }
+
+          const newEndpoint = this.renderManager.getPosOfInputPin(onLeftOfElement, inputAtPosition)
+            .subtract(1, 0);
+
+
+          this.updateTempWirePath(
+            this.interactionState.tempWire.renderable,
+            newEndpoint,
+            true
+          );
         }
       }
       else { // if we arent next to or on an input pin
@@ -321,14 +331,22 @@ export class InteractionController {
 
   private updateTempWirePath(
     wire: TempWireRenderable,
-    endCell: Vector2
+    endCell: Vector2,
+    endConnector?: boolean
   ) {
+    endConnector = endConnector ?? false;
+
     const path = Wire.computePath(
       wire.startingPos,
       endCell,
       this.chip.availabilityGrid,
       this.renderManager.previewAvailabilityOverlay
     );
+
+    if (endConnector) {
+      path.push(endCell.add(1, 0));
+    }
+
     wire.setPath(path);
   }
 
