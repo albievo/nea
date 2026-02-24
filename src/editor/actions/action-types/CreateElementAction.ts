@@ -1,8 +1,6 @@
 import { Vector2 } from "../../../utils/Vector2";
 import { Chip } from "../../controller/objectControllers.ts/Chip";
-import { createBehaviour } from "../../model/chip/BehaviourSpec";
-import { ChipBehaviour } from "../../model/chip/ChipBehaviour";
-import { ChipDefinition, GenericChipDetails } from "../../model/chip/ChipLibrary";
+import { GenericChipDetails } from "../../model/chip/ChipLibrary";
 import { NodeType } from "../../model/netlist/Netlist";
 import { ActionContext, UndoableAction } from "../Action";
 

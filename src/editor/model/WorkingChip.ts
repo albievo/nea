@@ -153,6 +153,14 @@ export class WorkingChip {
     id: string
   ) {
     this.netlist.rmvNode(id);
+
+    for (let x = 0; x < this.worldSize.y; x++) {
+      for (let y = 0; y < this._availabilityGrid.length; y++) {
+        if (this._availabilityGrid[y][x].ids.includes(id)) {
+          this.rmvElementFromCell(new Vector2(x, y))
+        }
+      }
+    }
   }
 
   private addChipLabel(id: string, type: NodeType) {
