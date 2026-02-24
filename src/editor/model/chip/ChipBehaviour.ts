@@ -187,10 +187,12 @@ export class NetlistBehaviour extends ChipBehaviour {
   private static?: boolean;
 
   private idxToInputId: Map<number, string>;
+  private idToOutputIdx: Map<string, number>;
 
   constructor(
     private netlist: Netlist, 
-    idxToInputId?: Map<number, string>
+    idxToInputId?: Map<number, string>,
+    idToOutputIdx?: Map<string, number>
   ) {
     super();
 
@@ -198,6 +200,7 @@ export class NetlistBehaviour extends ChipBehaviour {
     this.outputs = this.netlist.getOutputNum();
 
     this.idxToInputId = idxToInputId ?? netlist.generateDefaultIdxToInputId();
+    this.idToOutputIdx = idToOutputIdx ?? netlist.generateDefaultIdToOutputIdx();
   }
 
   evaluate(inputs: Value[]): Value[] {
@@ -206,7 +209,14 @@ export class NetlistBehaviour extends ChipBehaviour {
     // currently ignores output reason.
     // Could maybe do something if due to max iteration? 
     // but not super important
-    return this.netlist.evaluate(inputsWithIds).outputValues;
+    const outputValues = this.netlist.evaluate(inputsWithIds).outputValues;
+    const valueArr = Array.from({ length: this.outputs }, () => Value.X);
+    for (const [id, val] of outputValues) {
+      const outputIdx = this.idToOutputIdx.get(id);
+      valueArr[outputIdx] = val;
+    }
+
+    return valueArr;
   }
 
   isStatic() {

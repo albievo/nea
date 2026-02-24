@@ -8,6 +8,8 @@ import { InputPin, OutputPin } from "./chip/Pins";
 import { Connection } from "./netlist/Connection";
 import { Value } from "./netlist/Value";
 import { RenderState } from "../rendering/RenderManager";
+import { SerializedNetlist } from "./netlist/SerializedNetlist";
+import { ChipLibrary, GenericChipDetails } from "./chip/ChipLibrary";
 
 export class WorkingChip {
   private chipPositionsById = new Map<string, Vector2>();
@@ -17,7 +19,8 @@ export class WorkingChip {
   private _takenInputs = new Map<string, Map<number, boolean>>;
 
   constructor(
-    public worldSize: Vector2
+    public worldSize: Vector2,
+    private chipLibrary: ChipLibrary
   ) {
     this._availabilityGrid = GeneralUtils.createMatrixOfVals(
       () => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x
@@ -126,11 +129,11 @@ export class WorkingChip {
 
   public addChip(
     id: string, pos: Vector2, dims: Vector2,
-    type: NodeType, behaviour?: ChipBehaviour
+    dets: GenericChipDetails
   ) {
     try {
       this.netlist.addNode(new NetlistNode(
-        id, type, behaviour
+        id, dets, this.chipLibrary
       ))
     } catch (err) {
       console.error(err);
@@ -138,7 +141,7 @@ export class WorkingChip {
     }
 
     this.chipPositionsById.set(id, pos);
-    this.addChipLabel(id, type);
+    this.addChipLabel(id, dets.type);
     
     this.addElementToCellInBox(id, {
       top: pos.y, bottom: pos.y + dims.y - 1,
@@ -243,6 +246,40 @@ export class WorkingChip {
 
   public getNetlist(): Netlist {
     return this.netlist.copy();
+  }
+
+  public inputIdsToName(): Map<string, string> {
+    const map = new Map<string, string>();
+
+    for (const inputId of this.netlist.getInputNodes()) {
+      const name = this.chipLabelsById.get(inputId);
+      map.set(inputId, name);
+    }
+
+    return map;
+  }
+
+  public outputIdsToName(): Map<string, string> {
+    const map = new Map<string, string>();
+
+    for (const outputId of this.netlist.getOutputNodes()) {
+      const name = this.chipLabelsById.get(outputId);
+      map.set(outputId, name);
+    }
+
+    return map;
+  }
+
+  public getSerializedNetlist(): SerializedNetlist {
+    return this.netlist.serialize();
+  }
+
+  public inputNum() {
+    return this.netlist.getInputNum();
+  }
+
+  public outputNum() {
+    return this.netlist.getOutputNum();
   }
 }
 

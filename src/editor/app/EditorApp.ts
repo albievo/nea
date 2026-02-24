@@ -20,6 +20,7 @@ import { ElementRenderable } from "../rendering/renderables/grid-elements/Elemen
 import { Chip } from "../controller/objectControllers.ts/Chip";
 import { EditorUI } from "../../ui/EditorUI";
 import { Sidebar } from "../../ui/sidebar/Sidebar";
+import { NetlistBehaviour } from "../model/chip/ChipBehaviour";
 
 export interface SuccessState {
   errorText?: string;
@@ -56,7 +57,8 @@ export class EditorApp {
     )
 
     this.chip = new WorkingChip(
-      worldSize
+      worldSize,
+      chipLibrary
     )
 
     this.cursorHandler = new CursorHandler(
@@ -236,9 +238,46 @@ export class EditorApp {
         }
       });
     }
-    // otherwise... IMPLEMENT
+    // otherwise, save the netlist
     else {
-      throw new Error('netlists not yet implemented')
+      const inputIdToName = this.chip.inputIdsToName();
+      const outputIdToName = this.chip.outputIdsToName();
+
+      ui.addModal({
+        title: 'Save Chip',
+        body: {
+          type: 'netlist-chip-creation',
+          inputIdToName,
+          outputIdToName,
+          onSave: (
+            name: string, icon: string,
+            inputOrder: string[], outputOrder: string[]
+          ) => {
+            const idxToInputId = new Map<number, string>(
+              inputOrder.map((value, index) => [index, value])
+            );
+            const idToOutputIdx = new Map<string, number>(
+              outputOrder.map((value, index) => [value, index])
+            );
+
+            const id = crypto.randomUUID();
+
+            const def: ChipDefinition = {
+              id, name, icon,
+              behaviourSpec: {
+                kind: 'netlist',
+                serialized: this.chip.getSerializedNetlist(),
+                idxToInputId,
+                idToOutputIdx
+              },
+              inputs: this.chip.inputNum(),
+              outputs: this.chip.outputNum()
+            }
+
+            this.chipLibrary.register(def);
+          }
+        }
+      })
     }
   }
 }

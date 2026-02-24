@@ -16,6 +16,11 @@ export class GeneralUtils {
     );
   }
 
+  static createArrOfVals<T>(factory: () => T, n): T[] {
+    return Array.from({ length: n }, () => factory());
+
+  }
+
   static objectIsEmpty(object: Object) {
     return (Object.keys(object).length === 0);
   }

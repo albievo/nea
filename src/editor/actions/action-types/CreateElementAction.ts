@@ -70,14 +70,9 @@ export class CreateChipElementAction extends CreateElementAction {
   }
 
   do(ctx: ActionContext) {
-    const def = ctx.chipLibrary.get(this.defId);
-
     Chip.createChip(
-      ctx.chip, ctx.renderManager,
-      this.id, def.name,
-      createBehaviour(ctx.chipLibrary, def.behaviourSpec),
-      this.pos,
-      def.icon
+      ctx.chip, ctx.renderManager, ctx.chipLibrary,
+      this.id, this.defId, this.pos,
     );
 
     const newState = ctx.chip.updateNetlist(ctx.interactionState.inputElements);

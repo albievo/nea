@@ -5,14 +5,9 @@ import { Vector2 } from '../../utils/Vector2';
 import { NodeType } from '../../editor/model/netlist/Netlist';
 import { Renderer } from '../../editor/rendering/Renderer';
 import { Camera } from '../../editor/rendering/Camera';
-import draggable from '../../assets/icons/draggable.svg';
 import 'select2/dist/css/select2.css';
 import 'select2';
 import { cropImageToAspect } from '../../utils/AssetUtils';
-import { NetlistBehaviour } from '../../editor/model/chip/ChipBehaviour';
-
-(window as any).$ = $;
-(window as any).jQuery = $;
 
 export type ModalDescriptor = { title: string, body: ModalBodyDescriptor  }
 
@@ -28,7 +23,7 @@ export type ModalBodyDescriptor =
     }
 
 type LoginFunction = (email: string, password: string) => Promise<void>;
-type SaveNetlistFunction = (name: string, inputOrder: string[], outputOrder: string[]) => void;
+type SaveNetlistFunction = (name: string, icon: string, inputOrder: string[], outputOrder: string[]) => void;
 
 export class Modal {
 
@@ -316,6 +311,7 @@ export class Modal {
       e.preventDefault();
 
       onSave(
+        $chipNameInput.val() as string,
         $chipImgInput.val() as string,
         $('#input-item-order').val() as string[],
         $('#output-item-order').val() as string[],

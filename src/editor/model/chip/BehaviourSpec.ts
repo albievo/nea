@@ -7,7 +7,11 @@ import { PrimitiveType } from "./primitives";
 export type BehaviourSpec = 
   | { kind: "primitive"; type: PrimitiveType }
   | { kind: "truthtable"; table: number[]; inputs: number, outputs: number }
-  | { kind: "netlist"; serialized: SerializedNetlist; idxToInputId: Map<number, string>};
+  | { kind: "netlist";
+      serialized: SerializedNetlist;
+      idxToInputId: Map<number, string>,
+      idToOutputIdx: Map<string, number>
+    };
 
 export type BehaviourKind = 'primitive' | 'truthtable' | 'netlist';
 

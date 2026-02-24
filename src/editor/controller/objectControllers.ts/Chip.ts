@@ -8,13 +8,14 @@ import { PermWire } from "./PermWire";
 import { InteractionState } from "../InteractionState";
 import { Value } from "../../model/netlist/Value";
 import { ChipBehaviour } from "../../model/chip/ChipBehaviour";
+import { ChipLibrary } from "../../model/chip/ChipLibrary";
 
 export class Chip {
   public static createInputChip(
     model: WorkingChip, renderManager: RenderManager, interactionState: InteractionState,
     id: string, pos: Vector2
   ) {
-    model.addChip(id, pos, new Vector2(3, 3), NodeType.INPUT);
+    model.addChip(id, pos, new Vector2(3, 3), { type: NodeType.INPUT });
 
     // add renderable to render manager
     renderManager.addRenderable(
@@ -39,7 +40,7 @@ export class Chip {
     model: WorkingChip, renderManager: RenderManager,
     id: string, pos: Vector2
   ) {
-    model.addChip(id, pos, new Vector2(3, 3), NodeType.OUTPUT);
+    model.addChip(id, pos, new Vector2(3, 3), { type: NodeType.OUTPUT });
 
     // add renderable to render manager
     renderManager.addRenderable(
@@ -130,26 +131,26 @@ export class Chip {
   }
 
   public static createChip(
-    model: WorkingChip, renderManager: RenderManager,
-    id: string, name: string, 
-    behaviour: ChipBehaviour,
-    pos: Vector2,
-    iconPath?: string
+    model: WorkingChip, renderManager: RenderManager, chipLibrary: ChipLibrary,
+    id: string, defId: string,
+    pos: Vector2
   ) {
+    const def = chipLibrary.get(defId);
+
     const element = new GridElementRenderable({
       id: id,
       startingPos: pos,
-      inputs: behaviour.inputs,
-      outputs: behaviour.outputs,
+      inputs: def.inputs,
+      outputs: def.outputs,
       width: 3, // currently hard-coded, could be made more dynamic
       color: 'stdElementBackground',
-      iconPath,
+      iconPath: def.icon,
       type: NodeType.CHIP,
       renderState: renderManager.renderState,
-      name
+      name: def.name
     });
 
-    model.addChip(id, pos, element.dims, NodeType.CHIP, behaviour);
+    model.addChip(id, pos, element.dims, { type: NodeType.CHIP, defId });
 
     // add renderable to render manager
     renderManager.addRenderable(
