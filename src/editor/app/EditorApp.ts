@@ -168,8 +168,6 @@ export class EditorApp {
   }
 
   private addGhostElement(details: GenericChipDetails, mousePos: Vector2) {
-    console.log('adding ghost element');
-
     const def = getGenericChipDef(this.chipLibrary, details);
     
     let iconPath: string | undefined;
@@ -224,63 +222,45 @@ export class EditorApp {
 
     const isStatic = this.chip.isStatic();
 
-    if (!isStatic) {
-      throw new Error('Currently only saving static chips has been implemented');
+    try {
+      if (this.trySaveAsEquivalentPrimitive(ui, isStatic)) {
+        return;
+      }
+      this.createSaveNetlistModal(ui, isStatic);
+    } finally {
+      this.reset();
     }
-
-    const equivalent = this.chipLibrary.findEquivalentStaticPrimitive(
-      this.chip.getNetlist().copy()
-    );
-
-    // if there is a matching primitive, just add it to the sidebar
-    if (equivalent) {
-      const def = this.chipLibrary.get(equivalent);
-
-      ui.saveChip(def);
-    }
-    // otherwise, save the netlist
-    else {
-      const inputIdToName = this.chip.inputIdsToName();
-      const outputIdToName = this.chip.outputIdsToName();
-
-      ui.addModal({
-        title: 'Save Chip',
-        body: {
-          type: 'netlist-chip-creation',
-          inputIdToName,
-          outputIdToName,
-          onSave: (
-            name: string, icon: string,
-            inputOrder: string[], outputOrder: string[]
-          ) => {
-            this.saveStaticNonPrimitive(
-              ui, name, icon, inputOrder, outputOrder
-            );
-          }
-        }
-      })
-    }
-
-    this.reset();
   }
 
-  private createStaticDef(
+  private trySaveAsEquivalentPrimitive(
+    ui: EditorUI, isStatic: boolean
+  ): boolean {
+    if (!isStatic) return false;
+
+    const equivalentId = this.chipLibrary.findEquivalentStaticPrimitive(
+      this.chip.getNetlist().copy()
+    );
+    if (!equivalentId) return false;
+
+    ui.saveChip(this.chipLibrary.get(equivalentId));
+    return true;
+  }
+
+  private createDef(
     name: string, icon: string,
     chip: WorkingChip,
     idxToInputId: Map<number, string>,
-    idToOutputIdx: Map<string, number>
+    idToOutputIdx: Map<string, number>,
+    isStatic: boolean
   ): ChipDefinition {
-    if (chip.inputNum() <= 20) {
+    if (isStatic && chip.inputNum() <= 20) {
       return this.createTruthTableDef(
         name, icon, chip, idxToInputId, idToOutputIdx
       )
     }
-
-    else {
-      return this.createNetlistDef(
-        name, icon, chip, idxToInputId, idToOutputIdx
-      )
-    }
+    return this.createNetlistDef(
+      name, icon, chip, idxToInputId, idToOutputIdx
+    )
   }
 
   private createNetlistDef (
@@ -331,9 +311,10 @@ export class EditorApp {
     }
   }
 
-  private saveStaticNonPrimitive(
+  private finaliseSaveChip(
     ui: EditorUI, name: string, icon: string,
-    inputOrder: string[], outputOrder: string[]
+    inputOrder: string[], outputOrder: string[],
+    isStatic: boolean
   ) {
     // create maps between idx and ids
     const idxToInputId = new Map<number, string>(
@@ -344,8 +325,8 @@ export class EditorApp {
     );
 
     // create chip definition
-    const def = this.createStaticDef(
-      name, icon, this.chip, idxToInputId, idToOutputIdx
+    const def = this.createDef(
+      name, icon, this.chip, idxToInputId, idToOutputIdx, isStatic
     );
 
     // register chip
@@ -361,5 +342,40 @@ export class EditorApp {
     this.chip.reset();
     emptyInteractionState(this.interactionState);
     this.actionDoer.reset();
+  }
+
+  private createSaveNetlistModal(
+    ui: EditorUI, isStatic: boolean
+  ) {
+    const inputIdToName = this.chip.inputIdsToName();
+    const outputIdToName = this.chip.outputIdsToName();
+
+    ui.addModal({
+      title: 'Save Chip',
+      body: {
+        type: 'netlist-chip-creation',
+        inputIdToName,
+        outputIdToName,
+        onSave: this.handleSaveNetlist(ui, isStatic),
+      }
+    });
+  }
+
+  private handleSaveNetlist(ui: EditorUI, isStatic: boolean) {
+    return (
+      name: string,
+      icon: string,
+      inputOrder: string[],
+      outputOrder: string[]
+    ) => {
+      this.finaliseSaveChip(
+        ui,
+        name,
+        icon,
+        inputOrder,
+        outputOrder,
+        isStatic
+      );
+    };
   }
 }
