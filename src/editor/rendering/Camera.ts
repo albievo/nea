@@ -31,11 +31,7 @@ export class Camera {
     this.zoom = this.boundZoom(this.zoom);
     
     //centre camera
-    const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
-    this.setPan(
-      worldSize.subtract(worldUnitsOnScreen)
-        .divide(2)
-    );
+    this.setToCentre();
 
     events.on('resize', () => this.handleResize());
   }
@@ -74,6 +70,17 @@ export class Camera {
     return this.zoom * this.baseCellPixels;
   }
 
+  public reset() {
+    this.setToCentre();
+  }
+
+  private setToCentre() {
+    const worldUnitsOnScreen = this.calcWorldUnitsOnScreen();
+    this.setPan(
+      this.worldSize.subtract(worldUnitsOnScreen)
+        .divide(2)
+    );
+  }
 
   public worldUnitsToScreenPixels(units: number) {
     return units * this.calcScaleFactor();

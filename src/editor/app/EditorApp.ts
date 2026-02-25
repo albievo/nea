@@ -32,7 +32,7 @@ export class EditorApp {
   private renderManager: RenderManager;
   private input: InputManager;
   private chip: WorkingChip;
-  private interactionState: InteractionState = { inputElements: new Map<string, Value>() };
+  private interactionState: InteractionState;
   private actionDoer: ActionDoer;
   private controller: InteractionController;
   private cursorHandler: CursorHandler;
@@ -44,6 +44,8 @@ export class EditorApp {
     private chipLibrary: ChipLibrary,
     private canvas: JQuery<HTMLElement>
   ) {
+    this.interactionState = this.emptyInteractionState();
+
     this.camera = new Camera(
       this.canvas,
       this.worldSize,
@@ -245,28 +247,15 @@ export class EditorApp {
             name: string, icon: string,
             inputOrder: string[], outputOrder: string[]
           ) => {
-            // create maps between idx and ids
-            const idxToInputId = new Map<number, string>(
-              inputOrder.map((value, index) => [index, value])
+            this.saveStaticNonPrimitive(
+              ui, name, icon, inputOrder, outputOrder
             );
-            const idToOutputIdx = new Map<string, number>(
-              outputOrder.map((value, index) => [value, index])
-            );
-
-            // create chip definition
-            const def = this.createStaticDef(
-              name, icon, this.chip, idxToInputId, idToOutputIdx
-            );
-
-            // register chip
-            this.chipLibrary.register(def);
-
-            ui.closeModal();
-            ui.saveChip(def);
           }
         }
       })
     }
+
+    this.reset();
   }
 
   private createStaticDef(
@@ -334,5 +323,41 @@ export class EditorApp {
         outputs: chip.outputNum()
       }
     }
+  }
+
+  private saveStaticNonPrimitive(
+    ui: EditorUI, name: string, icon: string,
+    inputOrder: string[], outputOrder: string[]
+  ) {
+    // create maps between idx and ids
+    const idxToInputId = new Map<number, string>(
+      inputOrder.map((value, index) => [index, value])
+    );
+    const idToOutputIdx = new Map<string, number>(
+      outputOrder.map((value, index) => [value, index])
+    );
+
+    // create chip definition
+    const def = this.createStaticDef(
+      name, icon, this.chip, idxToInputId, idToOutputIdx
+    );
+
+    // register chip
+    this.chipLibrary.register(def);
+
+    ui.closeModal();
+    ui.saveChip(def);
+  }
+
+  private emptyInteractionState(): InteractionState {
+    return { inputElements: new Map<string, Value>() };
+  }
+
+  private reset() {
+    this.camera.reset();
+    this.renderManager.reset(this.worldSize);
+    this.chip.getSerializedNetlist();
+    this.interactionState = this.emptyInteractionState();
+    this.actionDoer.reset();
   }
 }

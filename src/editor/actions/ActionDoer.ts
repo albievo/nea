@@ -65,4 +65,9 @@ export class ActionDoer {
     action.do(this.ctx);
     this.undoStack.push(action);
   }
+
+  public reset() {
+    this.undoStack = new Stack<UndoableAction>(32);
+    this.redoStack = new Stack<UndoableAction>(32);
+  }
 }

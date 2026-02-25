@@ -263,6 +263,17 @@ export class RenderManager {
 
     elem.setLabel(text);
   }
+
+  public reset(worldSize: Vector2) {
+    for (const [id, renderable] of this.renderablesById) {
+      renderable.deletePersistent();
+    }
+    this.renderablesById.clear();
+    this.addRenderable(new GridRenderable(
+      crypto.randomUUID(),
+      worldSize
+    ));
+  }
 }
 
 export type AvailabilityOverlay = Map<`(${number}, ${number})`, CellTakenBy>;

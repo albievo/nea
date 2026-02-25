@@ -22,8 +22,12 @@ export class WorkingChip {
     public worldSize: Vector2,
     private chipLibrary: ChipLibrary
   ) {
-    this._availabilityGrid = GeneralUtils.createMatrixOfVals(
-      () => ({ type: undefined, ids: [] }), worldSize.y, worldSize.x
+    this._availabilityGrid = this.createEmptyAvailabilityGrid();
+  }
+
+  private createEmptyAvailabilityGrid(){
+    return GeneralUtils.createMatrixOfVals(
+      () => ({ type: undefined, ids: [] }), this.worldSize.y, this.worldSize.x
     );
   }
 
@@ -288,6 +292,14 @@ export class WorkingChip {
 
   public outputNum() {
     return this.netlist.getOutputNum();
+  }
+
+  public reset() {
+    this.chipLabelsById.clear();
+    this.chipPositionsById.clear();
+    this.netlist = new Netlist([], []);
+    this._availabilityGrid = this.createEmptyAvailabilityGrid();
+    this._takenInputs.clear();
   }
 }
 
