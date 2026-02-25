@@ -6,7 +6,7 @@ import { WebpageUtils } from "../../utils/WebpageUtils";
 import { Renderer } from "../rendering/Renderer";
 import { WorkingChip } from "../model/WorkingChip";
 import { InteractionController } from "../controller/InteractionController";
-import { InteractionState } from "../controller/InteractionState";
+import { createEmptyInteractionState, emptyInteractionState, InteractionState } from "../controller/InteractionState";
 import { ActionDoer } from "../actions/ActionDoer";
 import { GridRenderable } from "../rendering/renderables/GridRenderable";
 import { Command } from "./Command";
@@ -44,7 +44,7 @@ export class EditorApp {
     private chipLibrary: ChipLibrary,
     private canvas: JQuery<HTMLElement>
   ) {
-    this.interactionState = this.emptyInteractionState();
+    this.interactionState = createEmptyInteractionState();
 
     this.camera = new Camera(
       this.canvas,
@@ -108,6 +108,8 @@ export class EditorApp {
   }
 
   public execute(cmd: Command): SuccessState {
+    console.log(`executing: ${cmd.type}`);
+
     try {
       switch (cmd.type) {
         case 'add-input-element':
@@ -166,6 +168,8 @@ export class EditorApp {
   }
 
   private addGhostElement(details: GenericChipDetails, mousePos: Vector2) {
+    console.log('adding ghost element');
+
     const def = getGenericChipDef(this.chipLibrary, details);
     
     let iconPath: string | undefined;
@@ -206,6 +210,8 @@ export class EditorApp {
         iconPath
       )
     }
+
+    console.log(this.interactionState);
   }
 
   private saveCurrentChip(ui: EditorUI) {
@@ -349,15 +355,11 @@ export class EditorApp {
     ui.saveChip(def);
   }
 
-  private emptyInteractionState(): InteractionState {
-    return { inputElements: new Map<string, Value>() };
-  }
-
   private reset() {
     this.camera.reset();
     this.renderManager.reset(this.worldSize);
     this.chip.getSerializedNetlist();
-    this.interactionState = this.emptyInteractionState();
+    emptyInteractionState(this.interactionState);
     this.actionDoer.reset();
   }
 }

@@ -31,3 +31,11 @@ export interface InteractionState {
     details: GenericChipDetails
   }
 }
+
+export function emptyInteractionState(state: InteractionState) {
+  Object.assign(state, createEmptyInteractionState);
+}
+
+export function createEmptyInteractionState(): InteractionState {
+  return { inputElements: new Map<string, Value>() }
+}
