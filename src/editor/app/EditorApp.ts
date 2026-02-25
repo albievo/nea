@@ -15,7 +15,7 @@ import { CursorHandler } from "../rendering/CursorHandler";
 import { Value } from "../model/netlist/Value";
 import { ChipDefinition, ChipLibrary, GenericChipDetails, getGenericChipDef } from "../model/chip/ChipLibrary";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
-import { NodeType } from "../model/netlist/Netlist";
+import { Netlist, NodeType } from "../model/netlist/Netlist";
 import { ElementRenderable } from "../rendering/renderables/grid-elements/ElementRenderable";
 import { Chip } from "../controller/objectControllers.ts/Chip";
 import { EditorUI } from "../../ui/EditorUI";
@@ -108,8 +108,6 @@ export class EditorApp {
   }
 
   public execute(cmd: Command): SuccessState {
-    console.log(`executing: ${cmd.type}`);
-
     try {
       switch (cmd.type) {
         case 'add-input-element':
@@ -168,6 +166,8 @@ export class EditorApp {
   }
 
   private addGhostElement(details: GenericChipDetails, mousePos: Vector2) {
+    console.log('adding ghost element');
+
     const def = getGenericChipDef(this.chipLibrary, details);
     
     let iconPath: string | undefined;
@@ -209,7 +209,7 @@ export class EditorApp {
       )
     }
 
-    console.log(this.interactionState);
+    console.log(this.interactionState.ghostElement);
   }
 
   private saveCurrentChip(ui: EditorUI) {
@@ -226,7 +226,7 @@ export class EditorApp {
       if (this.trySaveAsEquivalentPrimitive(ui, isStatic)) {
         return;
       }
-      this.createSaveNetlistModal(ui, isStatic);
+      this.createSaveNetlistModal(ui, this.chip.getNetlist(), isStatic);
     } finally {
       this.reset();
     }
@@ -248,24 +248,24 @@ export class EditorApp {
 
   private createDef(
     name: string, icon: string,
-    chip: WorkingChip,
+    netlist: Netlist,
     idxToInputId: Map<number, string>,
     idToOutputIdx: Map<string, number>,
     isStatic: boolean
   ): ChipDefinition {
-    if (isStatic && chip.inputNum() <= 20) {
+    if (isStatic && netlist.getInputNum() <= 20) {
       return this.createTruthTableDef(
-        name, icon, chip, idxToInputId, idToOutputIdx
+        name, icon, netlist, idxToInputId, idToOutputIdx
       )
     }
     return this.createNetlistDef(
-      name, icon, chip, idxToInputId, idToOutputIdx
+      name, icon, netlist, idxToInputId, idToOutputIdx
     )
   }
 
   private createNetlistDef (
     name: string, icon: string,
-    chip: WorkingChip,
+    netlist: Netlist,
     idxToInputId: Map<number, string>,
     idToOutputIdx: Map<string, number>
   ): ChipDefinition {
@@ -273,11 +273,11 @@ export class EditorApp {
 
     return {
       id, name, icon,
-      inputs: chip.inputNum(),
-      outputs: chip.outputNum(),
+      inputs: netlist.getInputNum(),
+      outputs: netlist.getInputNum(),
       behaviourSpec: {
         kind: 'netlist',
-        serialized: chip.getSerializedNetlist(),
+        serialized: netlist.serialize(),
         idxToInputId,
         idToOutputIdx
       }
@@ -286,33 +286,32 @@ export class EditorApp {
 
   private createTruthTableDef(
     name: string, icon: string,
-    chip: WorkingChip,
+    netlist: Netlist,
     idxToInputId: Map<number, string>,
     idToOutputIdx: Map<string, number>
   ): ChipDefinition {
-    console.log('creating truth table');
-
     const id = crypto.randomUUID();
 
     const truthTable = TruthtableBehaviour.buildTruthtable(
-      chip.getNetlist(), idxToInputId, idToOutputIdx
+      netlist, idxToInputId, idToOutputIdx
     );
 
     return {
       id, name, icon,
-      inputs: chip.inputNum(),
-      outputs: chip.outputNum(),
+      inputs: netlist.getInputNum(),
+      outputs: netlist.getOutputNum(),
       behaviourSpec: {
         kind: 'truthtable',
         table: truthTable,
-        inputs: chip.inputNum(),
-        outputs: chip.outputNum()
+        inputs: netlist.getInputNum(),
+        outputs: netlist.getOutputNum()
       }
     }
   }
 
   private finaliseSaveChip(
-    ui: EditorUI, name: string, icon: string,
+    ui: EditorUI, netlist: Netlist,
+    name: string, icon: string,
     inputOrder: string[], outputOrder: string[],
     isStatic: boolean
   ) {
@@ -326,7 +325,7 @@ export class EditorApp {
 
     // create chip definition
     const def = this.createDef(
-      name, icon, this.chip, idxToInputId, idToOutputIdx, isStatic
+      name, icon, netlist, idxToInputId, idToOutputIdx, isStatic
     );
 
     // register chip
@@ -345,7 +344,7 @@ export class EditorApp {
   }
 
   private createSaveNetlistModal(
-    ui: EditorUI, isStatic: boolean
+    ui: EditorUI, netlist: Netlist, isStatic: boolean
   ) {
     const inputIdToName = this.chip.inputIdsToName();
     const outputIdToName = this.chip.outputIdsToName();
@@ -356,20 +355,21 @@ export class EditorApp {
         type: 'netlist-chip-creation',
         inputIdToName,
         outputIdToName,
-        onSave: this.handleSaveNetlist(ui, isStatic),
+        onSave: this.handleSaveNetlist(ui, netlist, isStatic),
       }
     });
   }
 
-  private handleSaveNetlist(ui: EditorUI, isStatic: boolean) {
+  private handleSaveNetlist(ui: EditorUI, netlist: Netlist, isStatic: boolean) {
     return (
       name: string,
       icon: string,
       inputOrder: string[],
-      outputOrder: string[]
+      outputOrder: string[],
     ) => {
       this.finaliseSaveChip(
         ui,
+        netlist,
         name,
         icon,
         inputOrder,

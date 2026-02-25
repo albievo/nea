@@ -45,12 +45,14 @@ export class RenderManager {
   ) {
     this.renderer.clearCanvas();
 
-    this.gridRenderable.render(renderer, this.camera)
+    this.gridRenderable.render(renderer, this.camera);
+
     if (interactionState.tempWire) {
       interactionState.tempWire.renderable.render(renderer, this.camera);
     }
     if (interactionState.ghostElement) {
       interactionState.ghostElement.renderable.render(renderer, this.camera);
+      console.log('rendering ghost element');
     }
 
     for (const renderable of this.renderablesById.values()) {

@@ -298,9 +298,7 @@ export class WorkingChip {
     this.chipLabelsById.clear();
     this.chipPositionsById.clear();
     this.netlist = new Netlist([], []);
-    const ag = this._availabilityGrid
     GeneralUtils.fillMatrixWith(this._availabilityGrid, { ids: [] });
-    console.log(ag);
     this._takenInputs.clear();
   }
 }
