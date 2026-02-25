@@ -254,7 +254,7 @@ export class EditorApp {
             );
 
             // create chip definition
-            const def = this.createNetlistDef(
+            const def = this.createStaticDef(
               name, icon, this.chip, idxToInputId, idToOutputIdx
             );
 
