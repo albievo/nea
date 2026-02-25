@@ -28,4 +28,12 @@ export class GeneralUtils {
   static removeValue<T>(arr: T[], value: T): T[] {
     return arr.filter(item => item !== value);
   }
+
+  static fillMatrixWith<T>(mat: T[][], val: T) {
+    for (let rowIdx = 0; rowIdx < mat.length; rowIdx++) {
+      for (let colIdx = 0; colIdx < mat[0].length; colIdx++) {
+        mat[rowIdx][colIdx] = val
+      }
+    }
+  }
 }

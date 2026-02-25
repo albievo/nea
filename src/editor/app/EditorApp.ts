@@ -358,7 +358,7 @@ export class EditorApp {
   private reset() {
     this.camera.reset();
     this.renderManager.reset(this.worldSize);
-    this.chip.getSerializedNetlist();
+    this.chip.reset();
     emptyInteractionState(this.interactionState);
     this.actionDoer.reset();
   }
