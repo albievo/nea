@@ -1,5 +1,5 @@
 import { EditorApp } from "../editor/app/EditorApp";
-import { ChipLibrary } from "../editor/model/chip/ChipLibrary";
+import { ChipDefinition, ChipLibrary } from "../editor/model/chip/ChipLibrary";
 import { ErrorPopup } from "./error-popup/ErrorPopup";
 import { Modal, ModalDescriptor } from "./modal.ts/Modal";
 import { SaveChipBtn } from "./save-chip-btn.ts/SaveChipBtn";
@@ -62,5 +62,19 @@ export class EditorUI {
     const popup = new ErrorPopup(text);
     popup.open();
     setTimeout(() => popup.close(), this.ERROR_TEXT_DURATION)
+  }
+
+  saveChip(def: ChipDefinition) {
+    this.addChipPreview(def.id);
+
+    this.closeModal();
+    this.addModal({
+      title: 'Chip Saved!',
+      body: {
+        type: 'saved-chip',
+        chipName: def.name,
+        img: def.icon
+      }
+    });
   }
 }

@@ -485,8 +485,6 @@ export class Netlist {
 
   public fullyConnected(): boolean {
     for (let nodeIdx = 0; nodeIdx < this.nodes.length; nodeIdx++) {
-      console.log(nodeIdx);
-
       const node = this.nodes[nodeIdx];
 
       // check inputs are fully connected
@@ -494,8 +492,6 @@ export class Netlist {
       const inputs = this.inputIndex.get(node.getId()) ?? new Map();
 
       for (let inputIdx = 0; inputIdx < inputNum; inputIdx++) {
-        console.log(`checking input ${inputIdx}`);
-        console.log(inputs);
         if (!inputs.has(inputIdx)) {
           return false
         }
@@ -506,7 +502,6 @@ export class Netlist {
       const outputs = this.outputIndex.get(node.getId()) ?? new Map();
 
       for (let output = 0; output < outputNum; output++) {
-        console.log(`checking output ${output}`)
         if (!outputs.has(output)) {
           return false; // at least one output not connected
         }

@@ -317,8 +317,6 @@ export class Modal {
       const inputOrder = JSON.parse($('#input-item-order').val() as string);
       const outputOrder = JSON.parse($('#output-item-order').val() as string);
 
-      console.log($chipImgInput.val());
-
       onSave(
         $chipNameInput.val() as string,
         chipImgPath ?? '',

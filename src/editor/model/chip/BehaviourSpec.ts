@@ -6,7 +6,7 @@ import { PrimitiveType } from "./primitives";
 
 export type BehaviourSpec = 
   | { kind: "primitive"; type: PrimitiveType }
-  | { kind: "truthtable"; table: number[]; inputs: number, outputs: number }
+  | { kind: "truthtable"; table: Uint32Array; inputs: number, outputs: number }
   | { kind: "netlist";
       serialized: SerializedNetlist;
       idxToInputId: Map<number, string>,

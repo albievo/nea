@@ -69,12 +69,12 @@ export class PrimitiveBehaviour extends ChipBehaviour {
 
 export class TruthtableBehaviour extends ChipBehaviour {
   kind = "truthtable";
-  private truthtable: number[];
+  private truthtable: Uint32Array;
 
   readonly inputs: number;
   readonly outputs: number;
 
-  constructor(truthtable: number[], inputNum: number, outputNum: number) {
+  constructor(truthtable: Uint32Array, inputNum: number, outputNum: number) {
     super();
     this.truthtable = truthtable;
     this.inputs = inputNum;
@@ -130,7 +130,11 @@ export class TruthtableBehaviour extends ChipBehaviour {
   /**
    * Assumes netlist is static
    */
-  static buildTruthtable(netlist: Netlist, idxToInputId: Map<number, string>): Uint32Array {
+  static buildTruthtable(
+    netlist: Netlist,
+    idxToInputId: Map<number, string>,
+    idToOutputIdx: Map<string, number>
+  ): Uint32Array {
     const inputNum = netlist.getInputNum();
     const outputNum = netlist.getOutputNum();
 
@@ -152,9 +156,9 @@ export class TruthtableBehaviour extends ChipBehaviour {
       const outputs = netlist.evaluate(inputsWithIds).outputValues;
 
       // iterate through output array
-      for (let outputIdx = 0; outputIdx < outputNum; outputIdx++) {
+      for (const [outputId, outputIdx] of idToOutputIdx) {
         // convert value to bit
-        const bit = outputs[outputIdx] === Value.ONE
+        const bit = outputs.get(outputId) === Value.ONE
           ? 1
           : 0;
 

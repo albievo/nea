@@ -20,7 +20,7 @@ import { ElementRenderable } from "../rendering/renderables/grid-elements/Elemen
 import { Chip } from "../controller/objectControllers.ts/Chip";
 import { EditorUI } from "../../ui/EditorUI";
 import { Sidebar } from "../../ui/sidebar/Sidebar";
-import { NetlistBehaviour } from "../model/chip/ChipBehaviour";
+import { NetlistBehaviour, TruthtableBehaviour } from "../model/chip/ChipBehaviour";
 
 export interface SuccessState {
   errorText?: string;
@@ -226,17 +226,9 @@ export class EditorApp {
 
     // if there is a matching primitive, just add it to the sidebar
     if (equivalent) {
-      ui.addChipPreview(equivalent);
       const def = this.chipLibrary.get(equivalent);
 
-      ui.addModal({
-        title: 'Chip Saved!',
-        body: {
-          type: 'saved-chip',
-          chipName: def.name,
-          img: def.icon
-        }
-      });
+      ui.saveChip(def);
     }
     // otherwise, save the netlist
     else {
@@ -253,6 +245,7 @@ export class EditorApp {
             name: string, icon: string,
             inputOrder: string[], outputOrder: string[]
           ) => {
+            // create maps between idx and ids
             const idxToInputId = new Map<number, string>(
               inputOrder.map((value, index) => [index, value])
             );
@@ -260,36 +253,86 @@ export class EditorApp {
               outputOrder.map((value, index) => [value, index])
             );
 
-            const id = crypto.randomUUID();
+            // create chip definition
+            const def = this.createNetlistDef(
+              name, icon, this.chip, idxToInputId, idToOutputIdx
+            );
 
-            const def: ChipDefinition = {
-              id, name, icon,
-              behaviourSpec: {
-                kind: 'netlist',
-                serialized: this.chip.getSerializedNetlist(),
-                idxToInputId,
-                idToOutputIdx
-              },
-              inputs: this.chip.inputNum(),
-              outputs: this.chip.outputNum()
-            }
-
+            // register chip
             this.chipLibrary.register(def);
 
-            ui.addChipPreview(id);
             ui.closeModal();
-
-            ui.addModal({
-              title: 'Chip Saved!',
-              body: {
-                type: 'saved-chip',
-                chipName: def.name,
-                img: def.icon
-              }
-            });
+            ui.saveChip(def);
           }
         }
       })
+    }
+  }
+
+  private createStaticDef(
+    name: string, icon: string,
+    chip: WorkingChip,
+    idxToInputId: Map<number, string>,
+    idToOutputIdx: Map<string, number>
+  ): ChipDefinition {
+    if (chip.inputNum() <= 20) {
+      return this.createTruthTableDef(
+        name, icon, chip, idxToInputId, idToOutputIdx
+      )
+    }
+
+    else {
+      return this.createNetlistDef(
+        name, icon, chip, idxToInputId, idToOutputIdx
+      )
+    }
+  }
+
+  private createNetlistDef (
+    name: string, icon: string,
+    chip: WorkingChip,
+    idxToInputId: Map<number, string>,
+    idToOutputIdx: Map<string, number>
+  ): ChipDefinition {
+    const id = crypto.randomUUID();
+
+    return {
+      id, name, icon,
+      inputs: chip.inputNum(),
+      outputs: chip.outputNum(),
+      behaviourSpec: {
+        kind: 'netlist',
+        serialized: chip.getSerializedNetlist(),
+        idxToInputId,
+        idToOutputIdx
+      }
+    }
+  }
+
+  private createTruthTableDef(
+    name: string, icon: string,
+    chip: WorkingChip,
+    idxToInputId: Map<number, string>,
+    idToOutputIdx: Map<string, number>
+  ): ChipDefinition {
+    console.log('creating truth table');
+
+    const id = crypto.randomUUID();
+
+    const truthTable = TruthtableBehaviour.buildTruthtable(
+      chip.getNetlist(), idxToInputId, idToOutputIdx
+    );
+
+    return {
+      id, name, icon,
+      inputs: chip.inputNum(),
+      outputs: chip.outputNum(),
+      behaviourSpec: {
+        kind: 'truthtable',
+        table: truthTable,
+        inputs: chip.inputNum(),
+        outputs: chip.outputNum()
+      }
     }
   }
 }
