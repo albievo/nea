@@ -166,8 +166,6 @@ export class EditorApp {
   }
 
   private addGhostElement(details: GenericChipDetails, mousePos: Vector2) {
-    console.log('adding ghost element');
-
     const def = getGenericChipDef(this.chipLibrary, details);
     
     let iconPath: string | undefined;
@@ -208,8 +206,6 @@ export class EditorApp {
         iconPath
       )
     }
-
-    console.log(this.interactionState.ghostElement);
   }
 
   private saveCurrentChip(ui: EditorUI) {

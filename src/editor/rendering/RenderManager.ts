@@ -52,7 +52,6 @@ export class RenderManager {
     }
     if (interactionState.ghostElement) {
       interactionState.ghostElement.renderable.render(renderer, this.camera);
-      console.log('rendering ghost element');
     }
 
     for (const renderable of this.renderablesById.values()) {

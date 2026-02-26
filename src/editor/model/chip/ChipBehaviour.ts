@@ -254,6 +254,8 @@ export function checkStaticBehavioursAreEquivalent(a: ChipBehaviour, b: ChipBeha
     // get input array
     const inputArr = makeInputs(inputDecimal, a.inputs);
 
+    console.log(inputArr);
+
     // check they have the same output
     if (!GeneralUtils.arraysAreEqual(
       a.evaluate(inputArr), b.evaluate(inputArr)
