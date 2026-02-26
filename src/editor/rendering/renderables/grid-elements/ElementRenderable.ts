@@ -169,8 +169,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       renderer.drawImage(this.icon, this.pos, this.dims);
     }
     else if (this.type === NodeType.CHIP) {
-      this.renderName(renderer, 'white');
       renderer.drawPolygon(cornerPositions, COLORS[color]);
+      this.renderName(renderer, 'white');
     }
     else {
       renderer.drawPolygon(cornerPositions, COLORS[color]);
