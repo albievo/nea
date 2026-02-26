@@ -250,11 +250,12 @@ export function checkStaticBehavioursAreEquivalent(a: ChipBehaviour, b: ChipBeha
     return false;
   }
 
-  for (let inputDecimal = 0; inputDecimal < a.inputs; inputDecimal++) {
+  for (let inputDecimal = 0; inputDecimal < 2**a.inputs; inputDecimal++) {
     // get input array
     const inputArr = makeInputs(inputDecimal, a.inputs);
 
-    console.log(inputArr);
+    console.log(`input decimal: ${inputDecimal}`);
+    console.log(`input array: ${inputArr}`);
 
     // check they have the same output
     if (!GeneralUtils.arraysAreEqual(
