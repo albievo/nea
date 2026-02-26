@@ -17,8 +17,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
   protected _dims: Vector2;
 
-  protected readonly INNER_PIN_RADIUS = 0.3;
-  public readonly OUTER_PIN_RADIUS = 0.375;
+  protected readonly INNER_PIN_RADIUS = 0.2;
+  public readonly OUTER_PIN_RADIUS = 0.25;
 
   protected readonly INNER_INDICATOR_RADIUS = 0.8;
   public readonly OUTER_INDICATOR_RADIUS = 0.875;
@@ -164,13 +164,16 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       this.pos.add(this.dims)
     ]
 
-    renderer.drawPolygon(cornerPositions, COLORS[color]);
 
     if (this.icon) {
       renderer.drawImage(this.icon, this.pos, this.dims);
     }
     else if (this.type === NodeType.CHIP) {
-      this.renderName(renderer, 'white')
+      this.renderName(renderer, 'white');
+      renderer.drawPolygon(cornerPositions, COLORS[color]);
+    }
+    else {
+      renderer.drawPolygon(cornerPositions, COLORS[color]);
     }
 
     // calculate screen radius of pins

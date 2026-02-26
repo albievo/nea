@@ -69,6 +69,25 @@ export const primitiveInformation = {
     inputs: 2,
     outputs: 1,
     static: true
+  },
+
+  'xor': {
+    evaluteFunction: (input: Value[]): Value[] => {
+      if (input.length !== 2) {
+        throw new Error("xor gate must have exactly 2 inputs");
+      };
+
+      const [a, b] = input;
+      
+      if (a === Value.ONE && b === Value.ZERO) return [Value.ONE];
+      if (a === Value.ZERO && b === Value.ONE) return [Value.ONE];
+      if (a !== Value.X && b !== Value.X) return [Value.ZERO];
+
+      return [Value.X];
+    },
+    inputs: 2,
+    outputs: 1,
+    static: true
   }
 } satisfies Record<string, {
   evaluteFunction: (input: Value[]) => Value[],

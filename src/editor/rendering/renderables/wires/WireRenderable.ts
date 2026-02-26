@@ -19,8 +19,8 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
     left: 0
   } 
 
-  protected readonly INNER_WIDTH = 0.3; // width in world units
-  protected readonly OUTER_WIDTH = 0.4;
+  protected readonly INNER_WIDTH = 0.4; // width in world units
+  protected readonly OUTER_WIDTH = 0.5;
 
   constructor(
     id: string,
