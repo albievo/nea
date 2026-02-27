@@ -284,20 +284,23 @@ export class Netlist {
       }
 
       // used to compare whether there has been a change
-      const oldOutputs = currentSignalToNode.getOutputs();
+      const oldOutputs = [...currentSignalToNode.getOutputs()];
 
       // this will update the outputs automatically
       currentSignalToNode.setInputVal(currentSignal.to.inputIdx, currentSignal.value);
-      
+
       const newOutputs = currentSignalToNode.getOutputs();
-      newOutputs.forEach((value, idx) => {
-        const signalsSentFromNode = outputsSent.get(currentSignal.to.nodeId);
+      for (let idx = 0; idx < newOutputs.length; idx++) {
+        const value = newOutputs[idx];
+
+        const signalsSentFromNode = outputsSent.get(currentSignal.from.nodeId);
         const signalSentFromPin = signalsSentFromNode?.has(idx) ?? false;
 
         // if the output is the same, and the pin has already sent one signal,
         // dont send another
         if (value === oldOutputs[idx] && signalSentFromPin) {
-          return;
+          console.log(`skipping signal: ${currentSignal}`)
+          continue;
         }
 
         this.enqueueSignalsFromPinWithValue(
@@ -312,9 +315,10 @@ export class Netlist {
           innerMap.set(idx, true);
           outputsSent.set(currentSignal.to.nodeId, innerMap);
         }
-      })
+      }
     }
 
+    console.warn('reached max iterations');
     return {
       outputValues: this.getOutputValues(),
       returnReason: 'max_iterations'
@@ -387,15 +391,28 @@ export class Netlist {
         nodeOutputs.set(outputIdx, node.getOutputVal(outputIdx));
       }
       state.outputPins.set(node.getId(), nodeOutputs);
+    }
 
-      // add connection values
-      for (const connection of this.connections) {
-        const connectionFrom = connection.getFrom();
-        const connectionFromNode = this.nodesById.get(connectionFrom.nodeId)
-        if (!connectionFromNode) continue;
+    // add connection values
+    for (const connection of this.connections) {
+      const connectionFrom = connection.getFrom();
+      const connectionFromNode = this.nodesById.get(connectionFrom.nodeId)
+      if (!connectionFromNode) continue;
 
-        const value = connectionFromNode.getOutputVal(connectionFrom.outputIdx);
-        state.wires.set(connection.getId(), value);
+      const value = connectionFromNode.getOutputVal(connectionFrom.outputIdx);
+      state.wires.set(connection.getId(), value);
+
+      const connectionTo = connection.getTo();
+      const connectionToNode = this.nodesById.get(connectionTo.nodeId)
+      if (!connectionToNode) {
+        console.error(`connection ${connection.getId()} is trying to go to node ${connectionTo.nodeId} but it doesn't exist?`);
+        continue;
+      }
+      const otherValue = connectionToNode.getInputVal(connectionTo.inputIdx);
+      if (value !== otherValue) {
+        console.error(`connection ${connection.getId()}'s input is not equal to its output`);
+        console.log(connectionFromNode);
+        console.log(connectionToNode);
       }
     }
 
