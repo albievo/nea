@@ -64,7 +64,18 @@ chipLibrary.register([
     icon: './assets/images/chips/transparent-xor-gate.png',
     inputs: 2,
     outputs: 1
-  }
+  },
+  {
+    id: 'nothing-primitive',
+    behaviourSpec: {
+      kind: 'primitive',
+      type: 'test-2x2-nothing-doer'
+    },
+    name: 'nothing-doer',
+    icon: '',
+    inputs: 2,
+    outputs: 2
+  },
 ]);
 
 const app = new EditorApp(worldSize, chipLibrary, $('#canvas'));
@@ -76,3 +87,4 @@ ui.addChipPreview('not-primitive');
 ui.addChipPreview('or-primitive');
 ui.addChipPreview('nand-primitive');
 ui.addChipPreview('xor-primitive');
+ui.addChipPreview('nothing-primitive');

@@ -87,6 +87,19 @@ export const primitiveInformation = {
     },
     inputs: 2,
     outputs: 1,
+    static: true,
+  },
+
+  'test-2x2-nothing-doer': {
+    evaluteFunction: (input: Value[]): Value[] => {
+      if (input.length !== 2) {
+        throw new Error("xor gate must have exactly 2 inputs");
+      };
+
+      return input;
+    },
+    inputs: 2,
+    outputs: 2,
     static: true
   }
 } satisfies Record<string, {

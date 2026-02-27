@@ -299,7 +299,9 @@ export class Netlist {
         // if the output is the same, and the pin has already sent one signal,
         // dont send another
         if (value === oldOutputs[idx] && signalSentFromPin) {
-          console.log(`skipping signal. from: ${currentSignal.from}, to: ${currentSignal.to}`)
+          console.log(`skipping signal.
+            from: ${currentSignal.from.nodeId}, ${currentSignal.from.outputIdx}.
+            to: ${currentSignal.to.nodeId}, ${currentSignal.to.inputIdx}`);
           continue;
         }
 
