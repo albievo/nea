@@ -1,6 +1,6 @@
 import { TempWireRenderable } from "../rendering/renderables/wires/TempWireRenderable";
 import { Vector2 } from "../../utils/Vector2";
-import { InputPin } from "../model/chip/Pins";
+import { InputPin, OutputPin } from "../model/chip/Pins";
 import { Value } from "../model/netlist/Value";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
 import { NodeType } from "../model/netlist/Netlist";
@@ -13,7 +13,7 @@ export interface InteractionState {
     fromIdx: number;
   }
   activeInputPin?: InputPin;
-  onOutputPin?: number;
+  onOutputPin?: OutputPin;
   onElement?: string;
   draggingElement?: {
     startingPos: Vector2,

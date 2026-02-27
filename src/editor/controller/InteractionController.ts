@@ -19,6 +19,7 @@ import { Value } from "../model/netlist/Value";
 import { InvertInputAction } from "../actions/action-types/InvertInputAction";
 import { CreateChipElementAction, generateCreateElementAction } from "../actions/action-types/CreateElementAction";
 import { ChipLibrary } from "../model/chip/ChipLibrary";
+import { OutputPin } from "../model/chip/Pins";
 
 export class InteractionController {
   private lastMouseCell: Vector2 = Vector2.zeroes;
@@ -62,23 +63,22 @@ export class InteractionController {
     }
     
     const onElement = this.interactionState.onElement;
-    if (!onElement) return; // the rest is only for if we're on an element: otherwise, skip
 
     const onOutputPin = this.interactionState.onOutputPin
-    if (
-      onOutputPin !== undefined
-    ) { // on a pin
+    if (onOutputPin !== undefined) { // on a pin
       this.createTempWire(
-        onElement,
-        onOutputPin,
-        cell.add(1, 0)
+        onOutputPin.nodeId,
+        onOutputPin.outputIdx
       ); // create a temporary wire
 
       this.updateTempWire(cell);
 
       this.cursorHandler.updateCursor();
     }
-    else if (this.interactionState.onInputBtn) {
+
+    if (!onElement || onOutputPin) return; // the rest is only for if we're on an element: otherwise, skip
+
+    if (this.interactionState.onInputBtn && !onOutputPin) {
       // invert the value of the state
       this.actions.do(new InvertInputAction(onElement));
     }
@@ -137,37 +137,27 @@ export class InteractionController {
     }
 
     // null if nothing there, the elements id if there is an element
-    const takenBy = this.chip.cellHasElement(cell);
-    let onElement = this.interactionState.onElement;
+    const onElement = this.chip.cellHasElement(cell) ?? undefined;
+    this.interactionState.onElement = onElement;
     let onRenderable = onElement
       ? this.renderManager.getGridElementWithId(onElement)
       : undefined;
-    // if we are on an element and we havent yet said that we are
-    if (!onElement && takenBy) {
-      this.interactionState.onElement = takenBy;
-      onElement = takenBy;
-      this.cursorHandler.updateCursor();
-    }
-    // if we arent on an element and havent yet said that we arent
-    else if (onElement && !takenBy) {
-      this.interactionState.onElement = undefined;
-      this.interactionState.onOutputPin = undefined;
-      this.cursorHandler.updateCursor();
+
+    // check if we are on a pin
+    const rightOfElement = this.chip.cellHasElement(cell.subtract(1, 0));
+    const elementToCheck = (rightOfElement ?? onElement);
+    if (elementToCheck) {
+    this.interactionState.onOutputPin = this.worldPosIsOnPin(event.worldPos, elementToCheck);
     }
 
-    // check if we are on an interactable part
+    // check if we are on another interactable part
     if (onElement) {
-      // check if we are on a pin
-      this.interactionState.onOutputPin = this.worldPosIsOnPin(event.worldPos);
-
       // check if we are on an input button
       if (onRenderable && onRenderable.getType() === NodeType.INPUT) {
         this.interactionState.onInputBtn = this.posIsOnInputBtn(
           onElement, event.worldPos
         );
       }
-
-      this.cursorHandler.updateCursor();
     }
 
     // if we should be updating a temp wire path
@@ -179,6 +169,8 @@ export class InteractionController {
     if (this.interactionState.tempWire && cellHasChanged) {
       this.updateTempWire(cell);
     }
+
+    this.cursorHandler.updateCursor();
   }
 
   private handleMouseUp(event: { worldPos: Vector2 }) {
@@ -253,32 +245,33 @@ export class InteractionController {
     this.renderManager.setElemLabel(e.labeledElem, labelText);
   }
 
-  private worldPosIsOnPin(worldPos: Vector2): number | undefined {
-    const onElement = this.interactionState.onElement
-
-    if (!onElement) return undefined;
+  private worldPosIsOnPin(worldPos: Vector2, element: string): OutputPin | undefined {
+    if (!element) return undefined;
 
     const outputPins = this.renderManager.getOutputIdxsOfElementWithId(
-      onElement
+      element
     );
 
     for (const pin of outputPins) {
       const onElementPos = this.renderManager.getPositionOfElement(
-        onElement
+        element
       );
       const pinRadius = this.renderManager.getPinRadiusOfElement(
-        onElement
+        element
       );
       const onElementDims = this.renderManager.getDimsOfElement(
-        onElement
+        element
       );
 
       const outputDistFromTop = pin.pos + 0.5;
       const outputPos = onElementPos.add(onElementDims.x, outputDistFromTop);
       const distToMouse = MathUtils.calcDistBetweenPoints(worldPos, outputPos);
 
-      if (distToMouse <= pinRadius && worldPos.x <= outputPos.x) {
-        return pin.idx;
+      if (distToMouse <= pinRadius) {
+        return {
+          nodeId: element,
+          outputIdx: pin.idx
+        }
       }
     }
     
@@ -307,8 +300,11 @@ export class InteractionController {
   }
 
   private createTempWire(
-    fromId: string, fromIdx: number, fromPos: Vector2
+    fromId: string, fromIdx: number
   ) {
+    const fromPos = this.renderManager.getPosOfOutputPin(fromId, fromIdx)
+      .add(1, 0);
+
     const id = crypto.randomUUID();
     const renderable = new TempWireRenderable(
       id, this.renderManager.renderState, fromPos

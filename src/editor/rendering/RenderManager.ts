@@ -181,6 +181,16 @@ export class RenderManager {
     return element.getInputPos(pinIdx);
   }
 
+  public getPosOfOutputPin(nodeId: string, pinIdx: number): Vector2 {
+    const element = this.getGridElementWithId(nodeId);
+    if (!element) {
+      return Vector2.zeroes;
+    }
+    
+    return element.getOutputPos(pinIdx);
+  }
+
+
   public getGridElementWithId(id: string): GridElementRenderable | null {
     const element = this.renderablesById.get(id);
 
