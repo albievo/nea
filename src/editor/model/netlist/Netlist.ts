@@ -102,17 +102,25 @@ export class Netlist {
   }
 
   private addConnectionToOutputIndex(connection: Connection): void {
-    const existing = this.outputIndex
+    const existingNodeMap = this.outputIndex
       .get(connection.getFrom().nodeId)
-      ?.get(connection.getFrom().outputIdx);
 
-    // if there is already a connection from an output, add it to the list of connections
-    if (existing) {
-      existing.push(connection);
+    // if there is already a connection from that node
+    if (existingNodeMap) {
+
+      // if there are already connections from the pin, just append to these
+      const existingConnectionsFromPin = existingNodeMap.get(connection.getFrom().outputIdx);
+      if (existingConnectionsFromPin) {
+        existingConnectionsFromPin.push(connection);
+        return;
+      }
+
+      // if there is a connection from the node but not the pin, add a new entry for the pin
+      existingNodeMap.set(connection.getFrom().outputIdx, [connection]);
       return;
     }
 
-    // otherwise, create a new entry for that output
+    // otherwise, create a new map for that node as a whole
     const nodeMap = new Map<number, Connection[]>()
     nodeMap.set(connection.getFrom().outputIdx, [connection])
 
@@ -225,16 +233,20 @@ export class Netlist {
   }
 
   private enqueueSignalsFromPinWithValue(queue: Queue<Signal>, pin: OutputPin, value: Value): void {
-      const connections = this.outputIndex.
-        get(pin.nodeId)
-        ?.get(pin.outputIdx);
+      console.log(`enqueuing signals from: ${pin.nodeId}, ${pin.outputIdx}`);
 
-      connections?.forEach(connection => {
+      const connections = this.outputIndex
+        .get(pin.nodeId)
+        ?.get(pin.outputIdx) ?? [];
+
+      connections.forEach(connection => {
+        console.log(`connection from ${connection.getFrom().nodeId}, ${connection.getFrom().outputIdx} being added`)
         queue.enqueue(connection.createSignal(value));
       });
   }
 
   public evaluate(input: Map<string, Value>, reset: boolean = false): NetlistOutput {
+    console.log('evaluating');
 
     const outputsSent = new Map<string, Map<number, boolean>>();
 
@@ -276,6 +288,8 @@ export class Netlist {
           returnReason: 'stable'
         }
       };
+
+      console.log(`executing signal from: ${currentSignal.from.nodeId}, ${currentSignal.from.outputIdx}`);
 
       // the node that the current signal is going to
       const currentSignalToNode = this.nodesById.get(currentSignal.to.nodeId);
