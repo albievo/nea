@@ -87,4 +87,3 @@ ui.addChipPreview('not-primitive');
 ui.addChipPreview('or-primitive');
 ui.addChipPreview('nand-primitive');
 ui.addChipPreview('xor-primitive');
-ui.addChipPreview('nothing-primitive');

@@ -233,21 +233,16 @@ export class Netlist {
   }
 
   private enqueueSignalsFromPinWithValue(queue: Queue<Signal>, pin: OutputPin, value: Value): void {
-      console.log(`enqueuing signals from: ${pin.nodeId}, ${pin.outputIdx}`);
-
       const connections = this.outputIndex
         .get(pin.nodeId)
         ?.get(pin.outputIdx) ?? [];
 
       connections.forEach(connection => {
-        console.log(`connection from ${connection.getFrom().nodeId}, ${connection.getFrom().outputIdx} being added`)
         queue.enqueue(connection.createSignal(value));
       });
   }
 
   public evaluate(input: Map<string, Value>, reset: boolean = false): NetlistOutput {
-    console.log('evaluating');
-
     const outputsSent = new Map<string, Map<number, boolean>>();
 
     if (reset) {
@@ -289,8 +284,6 @@ export class Netlist {
         }
       };
 
-      console.log(`executing signal from: ${currentSignal.from.nodeId}, ${currentSignal.from.outputIdx}`);
-
       // the node that the current signal is going to
       const currentSignalToNode = this.nodesById.get(currentSignal.to.nodeId);
       if (!currentSignalToNode) {
@@ -313,9 +306,6 @@ export class Netlist {
         // if the output is the same, and the pin has already sent one signal,
         // dont send another
         if (value === oldOutputs[idx] && signalSentFromPin) {
-          console.log(`skipping signal.
-            from: ${currentSignal.from.nodeId}, ${currentSignal.from.outputIdx}.
-            to: ${currentSignal.to.nodeId}, ${currentSignal.to.inputIdx}`);
           continue;
         }
 
