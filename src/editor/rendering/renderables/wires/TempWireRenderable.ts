@@ -23,7 +23,7 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   public renderFirstLayer(renderer: Renderer): void { }
 
   public renderSecondLayer(renderer: Renderer): void {
-    this.drawStartingSemiCircle(renderer, this.PIN_RADIUS, COLORS.outline);
+    this.drawStartingSemiCircle(renderer, this.OUTER_PIN_RADIUS, COLORS.outline);
     const lastPoints = this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
     if (this.isRenderEndConnector) {
       this.drawEndPointConnector(renderer, this.OUTER_WIDTH, COLORS.outline, lastPoints);
@@ -35,10 +35,11 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
     const color = valToColor(val);
 
     const lastPoints = this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS[color]);
-
     if (this.isRenderEndConnector) {
       this.drawEndPointConnector(renderer, this.INNER_WIDTH, COLORS[color], lastPoints);
     }
+
+    this.drawStartingCirlce(renderer, this.INNER_PIN_RADIUS, COLORS[color]);
   }
 
   public setRenderEndConnectorFlag(flag: boolean) {

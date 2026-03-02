@@ -24,7 +24,8 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
 
   protected readonly INNER_WIDTH = 0.1; // width in world units
   protected readonly OUTER_WIDTH = 0.2;
-  protected readonly PIN_RADIUS = 0.25;
+  protected readonly OUTER_PIN_RADIUS = 0.25;
+  protected readonly INNER_PIN_RADIUS = 0.2;
 
   constructor(
     id: string,
@@ -109,8 +110,16 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
     renderer.drawSemicircle(this._startingPos.add(0, 0.5), radius, 'right', color);
   }
 
+  protected drawStartingCirlce(renderer: Renderer, radius: number, color: Color) {
+    renderer.drawCircle(this._startingPos.add(0, 0.5), radius, color);
+  }
+
   protected drawEndingSemiCircle(renderer: Renderer, radius: number, color: Color) {
     renderer.drawSemicircle(this._endingPos.add(1, 0.5), radius, 'left', color);
+  }
+
+  protected drawEndingCircle(renderer: Renderer, radius: number, color: Color) {
+    renderer.drawCircle(this._endingPos.add(1, 0.5), radius, color);
   }
 
   protected calculateSegmentVertices(

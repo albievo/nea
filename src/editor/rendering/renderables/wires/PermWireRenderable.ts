@@ -20,9 +20,9 @@ export class PermWireRenderable extends WireRenderable<'perm-wire'> {
 
   public renderSecondLayer(renderer: Renderer): void {
     const lastSegmentEndOuter = this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
-    this.drawStartingSemiCircle(renderer, this.PIN_RADIUS, COLORS.outline);
+    this.drawStartingSemiCircle(renderer, this.OUTER_PIN_RADIUS, COLORS.outline);
     this.drawEndPointConnector(renderer, this.OUTER_WIDTH, COLORS.outline, lastSegmentEndOuter);
-    this.drawEndingSemiCircle(renderer, this.PIN_RADIUS, COLORS.outline);
+    this.drawEndingSemiCircle(renderer, this.OUTER_PIN_RADIUS, COLORS.outline);
   }
 
   public renderThirdLayer(renderer: Renderer): void {
@@ -31,5 +31,8 @@ export class PermWireRenderable extends WireRenderable<'perm-wire'> {
 
     const lastSegmentEndInner = this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS[color]);
     this.drawEndPointConnector(renderer, this.INNER_WIDTH, COLORS[color], lastSegmentEndInner);
+
+    this.drawStartingCirlce(renderer, this.INNER_PIN_RADIUS, COLORS[color]);
+    this.drawEndingCircle(renderer, this.INNER_PIN_RADIUS, COLORS[color]);
   }
 }

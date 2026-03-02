@@ -318,20 +318,6 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     )
   }
 
-  private renderOutputPin(renderer: Renderer, centre: Vector2, state: Value) {
-    const color = valToColor(state);
-    renderer.drawSemicircle(
-      centre, this.OUTER_PIN_RADIUS, 'left', COLORS['outline']
-    );
-    renderer.drawCircle(
-      centre, this.INNER_PIN_RADIUS, COLORS[color]
-    );
-
-    renderer.drawSemicircle(
-      centre, this.INNER_PIN_RADIUS, 'right', hexWithTransparency(this.filterColor, this.FILTER_OPACITY)
-    )
-  }
-
   /**
    * initial rendering of the label
    */

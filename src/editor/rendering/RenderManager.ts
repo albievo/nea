@@ -76,7 +76,6 @@ export class RenderManager {
     layer: 1 | 2 | 3
   ) {
     const temp = interactionState.tempWire?.renderable;
-    const ghost = interactionState.ghostElement?.renderable;
 
     if (temp) {
       if (layer === 1) temp.renderFirstLayer(renderer);
