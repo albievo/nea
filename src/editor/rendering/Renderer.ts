@@ -164,6 +164,7 @@ export class Renderer {
   }
 
   public drawRectFromBox(box: BoundingBox, color: string) {
+    console.log('drawing rect from box');
 
     const topLeft = this.camera.worldPosToScreen(new Vector2(box.left, box.top));
     const bottomRight = this.camera.worldPosToScreen(new Vector2(box.right, box.bottom));

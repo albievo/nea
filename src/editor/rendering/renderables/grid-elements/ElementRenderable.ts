@@ -155,6 +155,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   }
 
   public renderFirstLayer(renderer: Renderer): void {
+    console.log('rendering element renderable 1st layer')
+
     const color = this.color;
 
     const cornerPositions = this.cornerPositions();
@@ -185,6 +187,8 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
 
     // draw square for input
     if (this.type === NodeType.INPUT) {
+      console.log('drawing input btn')
+
       const val = this.getOutputNodeValue(0);
       const color = valToColor(val);
 
@@ -241,7 +245,7 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       const outputIdx = this.outputPositions[pinIdx]
       // draw trhe ouputs 
       if (outputIdx !== -1) { // if we should render a pin here
-        const val = this.getOutputNodeValue(inputIdx);
+        const val = this.getOutputNodeValue(outputIdx);
         this.renderOutputForeground(renderer, yPos, val);
       }
     }
