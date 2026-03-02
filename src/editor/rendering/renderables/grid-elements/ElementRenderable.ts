@@ -283,8 +283,6 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
   }
 
   private renderInputForeground(renderer: Renderer, state: Value, yPos: number) {
-    console.log('rendering input foreground');
-
     const centre = new Vector2(this.pos.x, yPos);
 
     const color = valToColor(state);

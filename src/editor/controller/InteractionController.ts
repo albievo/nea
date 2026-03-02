@@ -281,9 +281,7 @@ export class InteractionController {
   private updateTempWirePath(
     wire: TempWireRenderable,
     endCell: Vector2,
-    endConnector?: boolean
   ) {
-    endConnector = endConnector ?? false;
 
     const path = Wire.computePath(
       wire.startingPos,
@@ -291,10 +289,6 @@ export class InteractionController {
       this.chip.availabilityGrid,
       this.renderManager.previewAvailabilityOverlay
     );
-
-    if (endConnector) {
-      path.push(endCell.add(1, 0));
-    }
 
     wire.setPath(path);
   }
@@ -389,16 +383,17 @@ export class InteractionController {
         const newEndpoint = this.renderManager.getPosOfInputPin(onLeftOfElement, inputAtPosition)
           .subtract(1, 0);
 
+        this.interactionState.tempWire.renderable.setRenderEndConnectorFlag(true);
 
         this.updateTempWirePath(
           this.interactionState.tempWire.renderable,
-          newEndpoint,
-          true
+          newEndpoint
         );
       }
     }
     else { // if we arent next to or on an input pin
       this.interactionState.activeInputPin = undefined;
+      this.interactionState.tempWire.renderable.setRenderEndConnectorFlag(false);
     }
   }
 }

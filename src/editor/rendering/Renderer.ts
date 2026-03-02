@@ -138,9 +138,7 @@ export class Renderer {
     this.ctx.fill();
   }
 
-  public drawCircle(centre: Vector2, radius: number, color: Color) {
-    console.log(`drawing circle, centre: ${centre}, radius: ${radius}, color: ${color}`);
-    
+  public drawCircle(centre: Vector2, radius: number, color: Color) {    
     const centreScreen = this.camera.worldPosToScreen(centre);
     const radiusScreen = this.camera.worldUnitsToScreenPixels(radius);
 

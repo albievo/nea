@@ -11,6 +11,7 @@ import { PermWireRenderable } from "./renderables/wires/PermWireRenderable";
 import { Value } from "../model/netlist/Value";
 import { createEmptyRenderState } from "./RenderState";
 import { GridRenderable } from "./renderables/GridRenderable";
+import { TempWire } from "../controller/objectControllers.ts/TempWire";
 
 export class RenderManager {
   private renderablesById = new Map<string, Renderable<RenderableKind>>();
@@ -68,8 +69,10 @@ export class RenderManager {
   ) {
     const temp = interactionState.tempWire?.renderable;
     const ghost = interactionState.ghostElement?.renderable;
+    const activeInput = interactionState.activeInputPin
 
     if (temp) {
+      
       if (layer === 1) temp.renderFirstLayer(renderer);
       if (layer === 2) temp.renderSecondLayer(renderer);
       if (layer === 3) temp.renderThirdLayer(renderer);

@@ -7,6 +7,7 @@ import { Value } from "../../../model/netlist/Value";
 
 export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
+  protected isRenderEndConnector: boolean = false;
 
   constructor(
     id: string,
@@ -19,14 +20,26 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
 
   public renderFirstLayer(renderer: Renderer): void { }
 
-  public renderSecondLayer(renderer: Renderer): void { 
-    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
+  public renderSecondLayer(renderer: Renderer): void {
+    this.drawStartingSemiCircle(renderer, this.PIN_RADIUS, COLORS.outline);
+    const lastPoints = this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
+    if (this.isRenderEndConnector) {
+      this.drawEndPointConnector(renderer, this.OUTER_WIDTH, COLORS.outline, lastPoints);
+    }
   }
 
   public renderThirdLayer(renderer: Renderer): void {
     const val = this.renderState.wires.get(this.id) ?? Value.X;
     const color = valToColor(val);
 
-    this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS[color]);
+    const lastPoints = this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS[color]);
+
+    if (this.isRenderEndConnector) {
+      this.drawEndPointConnector(renderer, this.INNER_WIDTH, COLORS[color], lastPoints);
+    }
+  }
+
+  public setRenderEndConnectorFlag(flag: boolean) {
+    this.isRenderEndConnector = flag;
   }
 }
