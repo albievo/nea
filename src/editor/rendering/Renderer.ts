@@ -139,6 +139,8 @@ export class Renderer {
   }
 
   public drawCircle(centre: Vector2, radius: number, color: Color) {
+    console.log(`drawing circle, centre: ${centre}, radius: ${radius}, color: ${color}`);
+    
     const centreScreen = this.camera.worldPosToScreen(centre);
     const radiusScreen = this.camera.worldUnitsToScreenPixels(radius);
 
@@ -164,8 +166,6 @@ export class Renderer {
   }
 
   public drawRectFromBox(box: BoundingBox, color: string) {
-    console.log('drawing rect from box');
-
     const topLeft = this.camera.worldPosToScreen(new Vector2(box.left, box.top));
     const bottomRight = this.camera.worldPosToScreen(new Vector2(box.right, box.bottom));
 
