@@ -67,6 +67,38 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
     return recentEndSegmentPoints;
   }
 
+  protected drawEndPointConnector(
+    renderer: Renderer,
+    width: number, color: string,
+    lastSegmentEnd: [Vector2, Vector2]
+  ) {
+    const finalSegmentStartPoints = [
+      this._endingPos.add(0.5, 0.5 - width / 2),
+      this._endingPos.add(0.5, 0.5 + width / 2)
+    ];
+    
+    const finalSegmentEndPoints = [
+      finalSegmentStartPoints[0].add(0.5, 0),
+      finalSegmentStartPoints[1].add(0.5, 0)
+    ];
+
+    // draw segment
+    renderer.drawPolygon([
+      finalSegmentStartPoints[0],
+      finalSegmentStartPoints[1],
+      finalSegmentEndPoints[0],
+      finalSegmentEndPoints[1]
+    ], color);
+    
+    // draw connector
+    renderer.drawPolygon([
+      lastSegmentEnd[0],
+      lastSegmentEnd[1],
+      finalSegmentStartPoints[0],
+      finalSegmentStartPoints[1]
+    ], color);
+  }
+
   protected calculateSegmentVertices(
     startCell: Vector2, endCell: Vector2,
     width: number
@@ -89,7 +121,7 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
     ];
   }
    
-  protected getBoundingBox(): BoundingBox {
+  public getBoundingBox(): BoundingBox {
     return this.boundingBox;
   }
 

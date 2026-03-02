@@ -17,38 +17,16 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
     this._startingPos = fromPos;
   }
 
-  protected renderObject(renderer: Renderer): void {
+  public renderFirstLayer(renderer: Renderer): void { }
+
+  public renderSecondLayer(renderer: Renderer): void { 
+    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
+  }
+
+  public renderThirdLayer(renderer: Renderer): void {
     const val = this.renderState.wires.get(this.id) ?? Value.X;
     const color = valToColor(val);
 
-    this.drawPathToEndPoint(renderer, this.OUTER_WIDTH, COLORS.outline);
     this.drawPathToEndPoint(renderer, this.INNER_WIDTH, COLORS[color]);
   }
-
-  // private handleMouseChangedCell(movement: {from: Vector2, to: Vector2}) {
-  //   const takenBy = this.renderManager.availabilityGrid[movement.to.y][movement.to.x];
-
-  //   if (takenBy.type === 'element') {
-  //     return;
-  //   }
-
-  //   const newPath = this.pathfinder.pathfind(this.startingPos, movement.to);
-  //   if (!newPath) {
-  //     console.error(`couldn't pathfind from ${this.startingPos} to ${movement.to}`);
-  //     return;
-  //   }
-
-  //   this.setPath(newPath);
-
-  //   const endCell = newPath[newPath.length - 1]
-  //   events.emit('temp-wire-path-updated', { endCell });
-  // }
-
-  // private handleMouseUp() {
-  //   this.delete();
-  //   events.emit('temp-wire-released', {
-  //     fromElement: this.fromId,
-  //     fromOutput: this.fromIdx
-  //   });
-  // }
 }

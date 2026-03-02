@@ -14,7 +14,7 @@ export class GridRenderable extends Renderable<'grid'> {
     super(id);
   }
 
-  protected getBoundingBox(): BoundingBox {
+  public getBoundingBox(): BoundingBox {
     return {
       top: 0,
       left: 0,
@@ -23,7 +23,7 @@ export class GridRenderable extends Renderable<'grid'> {
     }
   }
 
-  protected renderObject(renderer: Renderer) {
+  public renderFirstLayer(renderer: Renderer): void {
     const cameraBoundingBox = renderer.getScreenBoundingBox();
 
     const startRow = Math.ceil(cameraBoundingBox.top);
@@ -45,4 +45,7 @@ export class GridRenderable extends Renderable<'grid'> {
       renderer.drawLine({ from, to }, COLORS.gridLine);
     }
   }
+
+  public renderSecondLayer(renderer: Renderer): void { }
+  public renderThirdLayer(renderer: Renderer): void { }
 }

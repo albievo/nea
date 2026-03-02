@@ -231,7 +231,7 @@ export class Modal {
     const camera = new Camera(canvas, canvasDimsCells, 1, 1);
     const renderer = new Renderer(camera, canvas);
     
-    gridElementRenderable.render(renderer, camera);
+    gridElementRenderable.fullRender(renderer);
 
     // --- build Select2 dropdowns (one per slot) ---
 
@@ -285,7 +285,7 @@ export class Modal {
     $chipNameInput.on('input', () => {
       const name = $chipNameInput.val() as string;
       gridElementRenderable.updateName(name);
-      gridElementRenderable.render(renderer, camera);
+      gridElementRenderable.fullRender(renderer);
       // update chip image
       chipImgPath = (canvas.get(0) as HTMLCanvasElement).toDataURL('image/png');
     })
@@ -303,7 +303,7 @@ export class Modal {
       const filePath = URL.createObjectURL(file);
 
       gridElementRenderable.updateIcon(filePath).then(() => {
-        gridElementRenderable.render(renderer, camera);
+        gridElementRenderable.fullRender(renderer);
         // update chip image
         chipImgPath = (canvas.get(0) as HTMLCanvasElement).toDataURL('image/png');
       });

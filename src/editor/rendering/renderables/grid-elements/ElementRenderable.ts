@@ -154,16 +154,10 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     }
   }
 
-  protected renderObject(renderer: Renderer) {
+  public renderFirstLayer(renderer: Renderer): void {
     const color = this.color;
 
-    const cornerPositions = [
-      this.pos,
-      this.pos.add(this.dims.x, 0),
-      this.pos.add(0, this.dims.y),
-      this.pos.add(this.dims)
-    ]
-
+    const cornerPositions = this.cornerPositions();
 
     if (this.icon) {
       renderer.drawImage(this.icon, this.pos, this.dims);
@@ -176,29 +170,6 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       renderer.drawPolygon(cornerPositions, COLORS[color]);
     }
 
-    // calculate screen radius of pins
-    for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
-      const yPos = this.pos.y + pinIdx + 0.5;
-
-      const inputIdx = this.inputPositions[pinIdx]
-      // draw the inputs
-      if (inputIdx !== -1) { // if we should render a pin here
-        const centre = new Vector2(this.pos.x, yPos);
-        const val = this.getInputNodeValue(inputIdx);
-
-        this.renderInputPin(renderer, centre, val);
-      }
-
-      const outputIdx = this.outputPositions[pinIdx]
-      // draw trhe ouputs 
-      if (outputIdx !== -1) { // if we should render a pin here
-        const xPos = this.pos.x + this.dims.x
-        const centre = new Vector2(xPos, yPos);
-        const val = this.getOutputNodeValue(outputIdx);
-
-        this.renderOutputPin(renderer, centre, val);
-      }
-    }
 
     // draw bits for input and output elements
     const centre = this.pos.add(1.5, 1.5);
@@ -232,12 +203,54 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
       renderer.drawRectFromBox(outerBox, COLORS.outline);
       renderer.drawRectFromBox(innerBox, COLORS[color]);
     }
+  }
 
-    // add filter color
+  public renderSecondLayer(renderer: Renderer): void {
+    // render background of stuff
+    // calculate screen radius of pins
+    for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
+      const yPos = this.pos.y + pinIdx + 0.5;
+
+      const inputIdx = this.inputPositions[pinIdx]
+      // draw the inputs
+      if (inputIdx !== -1) { // if we should render a pin here
+        this.renderInputBackground(renderer, yPos);
+      }
+
+      const outputIdx = this.outputPositions[pinIdx]
+      // draw trhe ouputs 
+      if (outputIdx !== -1) { // if we should render a pin here
+        this.renderOutputBackground(renderer, yPos);
+      }
+    }
+  }
+
+  public renderThirdLayer(renderer: Renderer): void {
+    // render top of stuff
+    // calculate screen radius of pins
+    for (let pinIdx = 0; pinIdx < this.dims.y; pinIdx++) {
+      const yPos = this.pos.y + pinIdx + 0.5;
+
+      const inputIdx = this.inputPositions[pinIdx]
+      // draw the inputs
+      if (inputIdx !== -1) { // if we should render a pin here
+        const val = this.getInputNodeValue(inputIdx);
+        this.renderInputForeground(renderer, yPos, val);
+      }
+
+      const outputIdx = this.outputPositions[pinIdx]
+      // draw trhe ouputs 
+      if (outputIdx !== -1) { // if we should render a pin here
+        const val = this.getOutputNodeValue(inputIdx);
+        this.renderOutputForeground(renderer, yPos, val);
+      }
+    }
+
+    // render overlay
     const filterHex = hexWithTransparency(this.filterColor, this.FILTER_OPACITY);
 
     renderer.drawPolygon(
-      cornerPositions, 
+      this.cornerPositions(), 
       filterHex
     );
 
@@ -247,22 +260,61 @@ export abstract class ElementRenderable<K extends ElementKind> extends Renderabl
     }
   }
 
-  protected setVisible(visible: boolean) {
+  private cornerPositions() {
+    return [
+      this.pos,
+      this.pos.add(this.dims.x, 0),
+      this.pos.add(0, this.dims.y),
+      this.pos.add(this.dims)
+    ]
+  }
+  
+  public setVisible(visible: boolean) {
     if (!this.$labelContainer) return;
     this.$labelContainer.toggle(visible);
   }
 
-  private renderInputPin(renderer: Renderer, centre: Vector2, state: Value) {
-    const color = valToColor(state);
+  private renderInputBackground(renderer: Renderer, yPos: number) {
+    const centre = new Vector2(this.pos.x, yPos);
+
     renderer.drawSemicircle(
       centre, this.OUTER_PIN_RADIUS, 'right', COLORS['outline']
     );
+  }
+
+  private renderInputForeground(renderer: Renderer, state: Value, yPos: number) {
+    const centre = new Vector2(this.pos.x, yPos);
+
+    const color = valToColor(state);
     renderer.drawCircle(
       centre, this.INNER_PIN_RADIUS, COLORS[color]
     );
 
     renderer.drawSemicircle(
       centre, this.INNER_PIN_RADIUS, 'left', hexWithTransparency(this.filterColor, this.FILTER_OPACITY)
+    )
+  }
+
+  private renderOutputBackground(renderer: Renderer, yPos: number) {
+    const xPos = this.pos.x + this.dims.x
+    const centre = new Vector2(xPos, yPos);
+
+    renderer.drawSemicircle(
+      centre, this.OUTER_PIN_RADIUS, 'left', COLORS['outline']
+    );
+  }
+
+  private renderOutputForeground(renderer: Renderer, state: Value, yPos: number) {
+    const xPos = this.pos.x + this.dims.x
+    const centre = new Vector2(xPos, yPos);
+
+    const color = valToColor(state);
+    renderer.drawCircle(
+      centre, this.INNER_PIN_RADIUS, COLORS[color]
+    );
+
+    renderer.drawSemicircle(
+      centre, this.INNER_PIN_RADIUS, 'right', hexWithTransparency(this.filterColor, this.FILTER_OPACITY)
     )
   }
 

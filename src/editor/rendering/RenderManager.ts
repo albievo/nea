@@ -43,27 +43,110 @@ export class RenderManager {
     model: WorkingChip,
     interactionState: InteractionState
   ) {
-    this.renderer.clearCanvas();
-
-    this.gridRenderable.render(renderer, this.camera);
-
-    if (interactionState.tempWire) {
-      interactionState.tempWire.renderable.render(renderer, this.camera);
-    }
-    if (interactionState.ghostElement) {
-      interactionState.ghostElement.renderable.render(renderer, this.camera);
-    }
-
-    for (const renderable of this.renderablesById.values()) {
-      if (renderable.kind === 'grid') continue;
-      renderable.render(renderer, this.camera);
-    }
+    const rendersRequired = this.renderFirstLayer(
+      renderer, 
+      this.camera,
+      interactionState
+    );
+    this.renderSecondLayer(
+      renderer, 
+      interactionState,
+      rendersRequired
+    )
+    this.renderThirdLayer(
+      renderer, 
+      interactionState,
+      rendersRequired
+    )
 
     requestAnimationFrame(() => this.frame(
       renderer,
       model,
       interactionState
     ));
+  }
+
+  /**
+   * returns a map of the normal renderables that need rendering
+   */
+  private renderFirstLayer(
+    renderer: Renderer,
+    camera: Camera,
+    interactionState: InteractionState
+  ): Map<string, boolean> {
+    this.renderer.clearCanvas();
+    this.gridRenderable.fullRender(renderer);
+
+    if (interactionState.tempWire) {
+      interactionState.tempWire.renderable.renderFirstLayer(renderer);
+    }
+    if (interactionState.ghostElement) {
+      interactionState.ghostElement.renderable.renderFirstLayer(renderer);
+    }
+
+    const rendersRequired = new Map<string, boolean>();
+    for (const renderable of this.renderablesById.values()) {
+      if (renderable.kind === 'grid') continue;
+
+      const renderRequired = camera.intersects(renderable.getBoundingBox());
+      rendersRequired.set(renderable.id, renderRequired);
+      if (!renderRequired) continue;
+
+      renderable.renderFirstLayer(renderer);
+    }
+
+    return rendersRequired;
+  }
+
+  private renderSecondLayer(
+      renderer: Renderer, 
+      interactionState: InteractionState,
+      rendersRequired: Map<string, boolean>
+  ) {
+    this.renderer.clearCanvas();
+    this.gridRenderable.fullRender(renderer);
+
+    if (interactionState.tempWire) {
+      interactionState.tempWire.renderable.renderSecondLayer(renderer);
+    }
+    if (interactionState.ghostElement) {
+      interactionState.ghostElement.renderable.renderSecondLayer(renderer);
+    }
+
+    for (const renderable of this.renderablesById.values()) {
+      if (renderable.kind === 'grid') continue;
+
+      const renderRequired = rendersRequired.get(renderable.id);
+      if (!renderRequired) continue;
+
+      renderable.renderSecondLayer(renderer);
+    }
+  }
+
+  private renderThirdLayer(
+      renderer: Renderer, 
+      interactionState: InteractionState,
+      rendersRequired: Map<string, boolean>
+  ) {
+    this.renderer.clearCanvas();
+    this.gridRenderable.fullRender(renderer);
+
+    if (interactionState.tempWire) {
+      interactionState.tempWire.renderable.renderThirdLayer(renderer);
+    }
+    if (interactionState.ghostElement) {
+      interactionState.ghostElement.renderable.renderThirdLayer(renderer);
+    }
+
+    for (const renderable of this.renderablesById.values()) {
+      if (renderable.kind === 'grid') continue;
+
+      const renderRequired = rendersRequired.get(renderable.id);
+      renderable.setVisible(renderRequired);
+      if (!renderRequired) continue;
+
+      renderable.renderThirdLayer(renderer);
+    }
   }
 
   public addRenderable(renderable: Renderable<RenderableKind>) {

@@ -1,12 +1,13 @@
-import { Camera } from "../Camera";
 import { Renderer } from "../Renderer";
-import $ from 'jquery';
 
 export abstract class Renderable<K extends RenderableKind> {
   protected abstract _kind: K;
 
-  protected abstract renderObject(renderer: Renderer): void;
-  protected abstract getBoundingBox(): BoundingBox;
+    public abstract renderFirstLayer(renderer: Renderer): void;
+    public abstract renderSecondLayer(renderer: Renderer): void;
+    public abstract renderThirdLayer(renderer: Renderer): void;
+
+    public abstract getBoundingBox(): BoundingBox;
 
   constructor(
     private _id: string,
@@ -16,23 +17,17 @@ export abstract class Renderable<K extends RenderableKind> {
     return this._id;
   }
 
-  public render(renderer: Renderer, camera: Camera) {
-    const visible = camera.intersects(this.getBoundingBox());
-
-    // always apply visibility for persistent elements
-    this.setVisible(visible);
-
-    // only do the expensive work when visible
-    if (!visible) return;
-
-    this.renderObject(renderer);
-  }
-
   /**
    * set the visibility of persistent elements like DOM objects
    */
-  protected setVisible(_visible: boolean): void {
+  public setVisible(_visible: boolean): void {
     // default: do nothing
+  }
+
+  public fullRender(renderer: Renderer) {
+    this.renderFirstLayer(renderer);
+    this.renderSecondLayer(renderer);
+    this.renderThirdLayer(renderer);
   }
 
   /**
