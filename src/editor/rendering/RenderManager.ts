@@ -1,4 +1,4 @@
-import { BoundingBox, Renderable, RenderableKind } from "./renderables/Renderable";
+import { BoundingBox, Renderable, RenderableKind, WireKind } from "./renderables/Renderable";
 import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
 import { isGridElementRenderable, isPermWireRenderable, isTempWireRenderable } from "./RenderableTypeGuards";
@@ -12,6 +12,8 @@ import { Value } from "../model/netlist/Value";
 import { createEmptyRenderState } from "./RenderState";
 import { GridRenderable } from "./renderables/GridRenderable";
 import { TempWire } from "../controller/objectControllers.ts/TempWire";
+import { TempWireRenderable } from "./renderables/wires/TempWireRenderable";
+import { WireRenderable } from "./renderables/wires/WireRenderable";
 
 export class RenderManager {
   private renderablesById = new Map<string, Renderable<RenderableKind>>();
@@ -20,7 +22,7 @@ export class RenderManager {
   public previewAvailabilityOverlay: AvailabilityOverlay = new Map<`(${number}, ${number})`, CellTakenBy>();
 
   public renderState: RenderState;
-  
+
   private gridRenderable?: GridRenderable;
 
   constructor(
@@ -45,9 +47,15 @@ export class RenderManager {
 
     const rendersRequired = this.computeRendersRequired(this.camera);
 
-    this.renderLayer(renderer, interactionState, rendersRequired, 1);
-    this.renderLayer(renderer, interactionState, rendersRequired, 2);
-    this.renderLayer(renderer, interactionState, rendersRequired, 3);
+    this.renderLayerWithoutWires(renderer, interactionState, rendersRequired, 1);
+    this.renderLayerWithoutWires(renderer, interactionState, rendersRequired, 2);
+    this.renderLayerWithoutWires(renderer, interactionState, rendersRequired, 3);
+
+    const wireGroups = this.groupWiresByOutput(rendersRequired);
+    this.renderWireGroups(renderer, wireGroups);
+
+    const ghost = interactionState.ghostElement?.renderable;
+    if (ghost) { ghost.fullRender(renderer); }
 
     requestAnimationFrame(() => this.frame(renderer, model, interactionState));
   }
@@ -61,7 +69,7 @@ export class RenderManager {
     return map;
   }
 
-  private renderLayer(
+  private renderLayerWithoutWires(
     renderer: Renderer,
     interactionState: InteractionState,
     rendersRequired: Map<string, boolean>,
@@ -69,23 +77,15 @@ export class RenderManager {
   ) {
     const temp = interactionState.tempWire?.renderable;
     const ghost = interactionState.ghostElement?.renderable;
-    const activeInput = interactionState.activeInputPin
 
     if (temp) {
-      
       if (layer === 1) temp.renderFirstLayer(renderer);
       if (layer === 2) temp.renderSecondLayer(renderer);
       if (layer === 3) temp.renderThirdLayer(renderer);
     }
 
-    if (ghost) {
-      if (layer === 1) ghost.renderFirstLayer(renderer);
-      if (layer === 2) ghost.renderSecondLayer(renderer);
-      if (layer === 3) ghost.renderThirdLayer(renderer);
-    }
-
     for (const r of this.renderablesById.values()) {
-      if (r.kind === 'grid') continue;
+      if (r.kind === 'grid' || r.kind === 'perm-wire' || r.kind === 'temp-wire') continue;
 
       const visible = rendersRequired.get(r.id) === true;
       r.setVisible(visible);
@@ -94,6 +94,47 @@ export class RenderManager {
       if (layer === 1) r.renderFirstLayer(renderer);
       if (layer === 2) r.renderSecondLayer(renderer);
       if (layer === 3) r.renderThirdLayer(renderer);
+    }
+  }
+
+  private groupWiresByOutput(
+    rendersRequired: Map<string, boolean>
+  ): Map<string, Map<number, WireRenderable<'perm-wire' | 'temp-wire'>[]>> {
+    const groups = new Map<string, Map<number, WireRenderable<'perm-wire' | 'temp-wire'>[]>>();
+
+    for (const r of this.renderablesById.values()) {
+      if (!(r instanceof TempWireRenderable || r instanceof PermWireRenderable)) continue;
+
+      const visible = rendersRequired.get(r.id) === true;
+      r.setVisible(visible);
+      if (!visible) continue;
+      
+      const from = r.getFrom();
+
+      let wiresFromNode = groups.get(from.nodeId);
+      if (!wiresFromNode) {
+        wiresFromNode = new Map<number, PermWireRenderable[]>();
+        groups.set(from.nodeId, wiresFromNode);
+      }
+
+      const wires = wiresFromNode.get(from.outputIdx);
+      if (wires) wires.push(r);
+      else wiresFromNode.set(from.outputIdx, [r]);
+    }
+
+    return groups;
+  }
+
+  private renderWireGroups(
+    renderer: Renderer,
+    groups: Map<string, Map<number, WireRenderable<'perm-wire' | 'temp-wire'>[]>>
+  ) {
+    for (const [node, pins] of groups) {
+      for (const [pin, wires] of pins) {
+        // Same-net merge: all outlines first, then all inners
+        for (const w of wires) w.renderSecondLayer(renderer);
+        for (const w of wires) w.renderThirdLayer(renderer);
+      }
     }
   }
 
@@ -220,7 +261,6 @@ export class RenderManager {
     
     return element.getOutputPos(pinIdx);
   }
-
 
   public getGridElementWithId(id: string): GridElementRenderable | null {
     const element = this.renderablesById.get(id);

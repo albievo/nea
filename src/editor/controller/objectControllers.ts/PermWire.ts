@@ -22,7 +22,7 @@ export class PermWire {
     );
     if (!fromElement || !toElement) return;
 
-    const renderable = new PermWireRenderable(id, renderManager.renderState)
+    const renderable = new PermWireRenderable(id, renderManager.renderState, from)
     renderManager.addRenderable(renderable);
 
     const startPos = fromElement.getOutputPos(from.outputIdx).add(1, 0);

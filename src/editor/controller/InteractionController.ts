@@ -301,7 +301,7 @@ export class InteractionController {
 
     const id = crypto.randomUUID();
     const renderable = new TempWireRenderable(
-      id, this.renderManager.renderState, fromPos
+      id, this.renderManager.renderState, fromPos, { nodeId: fromId, outputIdx: fromIdx}
     );
 
     this.interactionState.tempWire = {

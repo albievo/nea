@@ -4,11 +4,14 @@ import { MathUtils } from "../../../../utils/MathUtils";
 import { Renderer } from "../../Renderer";
 import { RenderState } from "../../RenderManager";
 import { Color, ColorKey } from "../../../../theme/colors";
+import { OutputPin } from "../../../model/chip/Pins";
 
 export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
   protected path: Vector2[] = [];
   protected _startingPos = Vector2.zeroes;
   protected _endingPos = Vector2.zeroes;
+
+  protected from: OutputPin;
 
   protected renderState: RenderState;
 
@@ -25,10 +28,12 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
 
   constructor(
     id: string,
-    renderState: RenderState
+    renderState: RenderState,
+    from: OutputPin
   ) {
     super(id)
     this.renderState = renderState;
+    this.from = from;
   }
   
   protected drawPathToEndPoint(renderer: Renderer, width: number, color: Color) {
@@ -174,5 +179,9 @@ export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{
 
   public get startingPos() {
     return this._startingPos.fixedCopy();
+  }
+
+  public getFrom() {
+    return this.from;
   }
 }

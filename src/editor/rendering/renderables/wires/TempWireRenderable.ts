@@ -4,6 +4,7 @@ import { Renderer } from "../../Renderer";
 import { COLORS, valToColor } from "../../../../theme/colors";
 import { RenderState } from "../../RenderManager";
 import { Value } from "../../../model/netlist/Value";
+import { OutputPin } from "../../../model/chip/Pins";
 
 export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   protected _kind = 'temp-wire' as const; // as const specify typing as 'temp-wire' rather than just a string
@@ -12,9 +13,10 @@ export class TempWireRenderable extends WireRenderable<'temp-wire'> {
   constructor(
     id: string,
     renderState: RenderState,
-    fromPos: Vector2
+    fromPos: Vector2,
+    from: OutputPin
   ) {
-    super(id, renderState);
+    super(id, renderState, from);
     this._startingPos = fromPos;
   }
 
