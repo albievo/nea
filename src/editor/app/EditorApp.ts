@@ -269,7 +269,7 @@ export class EditorApp {
     return {
       id, name, icon,
       inputs: netlist.getInputNum(),
-      outputs: netlist.getInputNum(),
+      outputs: netlist.getOutputNum(),
       behaviourSpec: {
         kind: 'netlist',
         serialized: netlist.serialize(),

@@ -31,6 +31,8 @@ export class Netlist {
   private nodesById = new Map<string, NetlistNode>();
   private connectionsById = new Map<string, Connection>();
 
+  private newConnections: string[] = [];
+
   constructor(nodes: NetlistNode[], connections: Connection[]) {
     this.nodes = nodes;
     this.connections = connections;
@@ -68,6 +70,7 @@ export class Netlist {
     this.connectionsById.set(connection.getId(), connection);
     this.addConnectionToOutputIndex(connection);
     this.addConnectionToInputIndex(connection);
+    this.newConnections.push(connection.getId());
   }
 
   /**
@@ -268,6 +271,24 @@ export class Netlist {
       );
     }
 
+    // add any new connection signals to the queue to ensure that signals are sent
+    for (const connectionId of this.newConnections) {
+      const connection = this.connectionsById.get(connectionId);
+      if (!connection) continue;
+
+      const fromPin = connection.getFrom();
+
+      const fromNode = this.nodesById.get(fromPin.nodeId);
+      if (!fromNode) continue;
+
+      this.enqueueSignalsFromPinWithValue(
+        signalQueue,
+        fromPin,
+        fromNode.getOutputVal(fromPin.outputIdx)
+      )
+    }
+    this.newConnections = [];
+
     let iterations = 0;
 
     // main loop
@@ -306,6 +327,8 @@ export class Netlist {
         // if the output is the same, and the pin has already sent one signal,
         // dont send another
         if (value === oldOutputs[idx] && signalSentFromPin) {
+          const from = this.nodesById.get(currentSignal.from.nodeId);
+          console.log(`skipping signal from ${from.getInputNum()}, ${from.getOutputNum()}`);
           continue;
         }
 
@@ -647,7 +670,6 @@ export class NetlistNode {
   private outputVals: Value[];
 
   private chipBehaviour?: ChipBehaviour;
-  private defId?: string;
   
   constructor(id: string, det: GenericChipDetails, chipLibrary: ChipLibrary) {
     this.id = id;
@@ -659,8 +681,6 @@ export class NetlistNode {
       this.chipBehaviour = createBehaviour(
         chipLibrary, chipLibrary.get(det.defId).behaviourSpec
       );
-
-      this.defId = det.defId
     }
 
     if (this.type === NodeType.INPUT) {

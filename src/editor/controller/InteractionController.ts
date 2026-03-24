@@ -157,6 +157,9 @@ export class InteractionController {
         );
       }
     }
+    else if (this.interactionState.onInputBtn) {
+      this.interactionState.onInputBtn = undefined;
+    }
 
     // if we should be updating a temp wire path
     if (this.interactionState.tempWire && !onElement && cellHasChanged) {
