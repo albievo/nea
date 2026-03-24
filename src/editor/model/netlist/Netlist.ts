@@ -287,6 +287,7 @@ export class Netlist {
         fromNode.getOutputVal(fromPin.outputIdx)
       )
     }
+    this.newConnections = [];
 
     let iterations = 0;
 
