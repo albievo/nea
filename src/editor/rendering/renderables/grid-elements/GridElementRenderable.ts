@@ -2,7 +2,7 @@ import { Vector2 } from "../../../../utils/Vector2";
 import { BoundingBox, Renderable } from ".././Renderable";
 import { Renderer } from "../../Renderer";
 import { NodeType } from "../../../model/netlist/Netlist";
-import { ColorKey, COLORS, valToColor } from "../../../../theme/colors";
+import { ColorKey } from "../../../../theme/colors";
 import { Value } from "../../../model/netlist/Value";
 import { RenderState } from "../../RenderManager";
 import { ElementRenderable } from "./ElementRenderable";

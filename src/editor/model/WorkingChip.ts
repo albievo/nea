@@ -1,8 +1,6 @@
 import { Vector2 } from "../../utils/Vector2";
-import events from "../event/events";
 import { GeneralUtils } from "../../utils/GeneralUtils";
 import { Netlist, NetlistNode, NodeType } from "./netlist/Netlist";
-import { ChipBehaviour, NetlistBehaviour } from "./chip/ChipBehaviour";
 import { BoundingBox } from "../rendering/renderables/Renderable";
 import { InputPin, OutputPin } from "./chip/Pins";
 import { Connection } from "./netlist/Connection";

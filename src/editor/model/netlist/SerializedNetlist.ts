@@ -1,4 +1,3 @@
-import { Vector2 } from "../../../utils/Vector2";
 import { GenericChipDetails } from "../chip/ChipLibrary";
 import { InputPin, OutputPin } from "../chip/Pins";
 

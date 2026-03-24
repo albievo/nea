@@ -1,4 +1,4 @@
-import { BoundingBox, Renderable, RenderableKind, WireKind } from "./renderables/Renderable";
+import { BoundingBox, Renderable, RenderableKind } from "./renderables/Renderable";
 import { Vector2 } from "../../utils/Vector2";
 import { Camera } from "./Camera";
 import { isGridElementRenderable, isPermWireRenderable, isTempWireRenderable } from "./RenderableTypeGuards";

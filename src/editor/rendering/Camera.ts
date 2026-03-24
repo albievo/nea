@@ -1,6 +1,5 @@
 import events from "../event/events";
 import { Vector2 } from "../../utils/Vector2";
-import $ from 'jquery';
 import { BoundingBox } from "./renderables/Renderable";
 
 export class Camera {

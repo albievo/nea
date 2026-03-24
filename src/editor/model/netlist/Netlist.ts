@@ -7,7 +7,7 @@ import { GeneralUtils } from "../../../utils/GeneralUtils";
 import { RenderState } from "../../rendering/RenderManager";
 import { createEmptyRenderState } from "../../rendering/RenderState";
 import { SerializedNetlist } from "./SerializedNetlist";
-import { ChipLibrary, GenericChipDetails, getGenericChipDef } from "../chip/ChipLibrary";
+import { ChipLibrary, GenericChipDetails } from "../chip/ChipLibrary";
 import { createBehaviour } from "../chip/BehaviourSpec";
 import { Stack } from "../../../utils/Stack";
 
