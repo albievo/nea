@@ -1,4 +1,4 @@
-import { EventTypes, EventPayloads, EventHandlerMap, Handler } from "./eventTypes";
+import { EventTypes, EventPayloads, Handler } from "./eventTypes";
 
 class Events {
   // maps event types to a list of functions to trigger when that event is emitted

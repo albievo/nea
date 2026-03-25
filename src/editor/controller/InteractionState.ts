@@ -3,7 +3,6 @@ import { Vector2 } from "../../utils/Vector2";
 import { InputPin, OutputPin } from "../model/chip/Pins";
 import { Value } from "../model/netlist/Value";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
-import { NodeType } from "../model/netlist/Netlist";
 import { GenericChipDetails } from "../model/chip/ChipLibrary";
 
 export interface InteractionState {

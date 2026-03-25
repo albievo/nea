@@ -1,4 +1,3 @@
-import { Renderable, RenderableKind } from './renderables/Renderable';
 import { GridElementRenderable } from './renderables/grid-elements/GridElementRenderable';
 import { TempWireRenderable } from './renderables/wires/TempWireRenderable';
 import { PermWireRenderable } from './renderables/wires/PermWireRenderable';

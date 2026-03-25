@@ -1,7 +1,6 @@
 import { Netlist, NodeType } from "../netlist/Netlist";
 import { BehaviourSpec, createBehaviour } from "./BehaviourSpec";
 import { checkStaticBehavioursAreEquivalent, NetlistBehaviour } from "./ChipBehaviour";
-import { PrimitiveType } from "./primitives";
 
 export type ChipDefinition = {
   id: string;

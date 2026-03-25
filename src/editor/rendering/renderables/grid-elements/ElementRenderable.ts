@@ -1,4 +1,4 @@
-import { Color, ColorKey, COLORS, hexWithTransparency, valToColor } from "../../../../theme/colors";
+import { ColorKey, COLORS, hexWithTransparency, valToColor } from "../../../../theme/colors";
 import { loadImage } from "../../../../utils/AssetUtils";
 import { Vector2 } from "../../../../utils/Vector2";
 import { NodeType } from "../../../model/netlist/Netlist";
@@ -7,7 +7,6 @@ import { Renderer } from "../../Renderer";
 import { BoundingBox, ElementKind, Renderable } from "../Renderable";
 import editIcon from '../../../../assets/icons/edit.svg';
 import $ from 'jquery'
-import { Camera } from "../../Camera";
 
 
 export abstract class ElementRenderable<K extends ElementKind> extends Renderable<K> {

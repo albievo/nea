@@ -3,7 +3,7 @@ import { Vector2 } from "../../../../utils/Vector2";
 import { MathUtils } from "../../../../utils/MathUtils";
 import { Renderer } from "../../Renderer";
 import { RenderState } from "../../RenderManager";
-import { Color, ColorKey } from "../../../../theme/colors";
+import { Color } from "../../../../theme/colors";
 import { OutputPin } from "../../../model/chip/Pins";
 
 export abstract class WireRenderable<K extends WireKind> extends Renderable<K>{

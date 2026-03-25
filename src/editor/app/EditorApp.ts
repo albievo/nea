@@ -12,7 +12,6 @@ import { GridRenderable } from "../rendering/renderables/GridRenderable";
 import { Command } from "./Command";
 import { CreateChipElementAction, CreateInputElementAction, CreateOutputElementAction } from "../actions/action-types/CreateElementAction";
 import { CursorHandler } from "../rendering/CursorHandler";
-import { Value } from "../model/netlist/Value";
 import { ChipDefinition, ChipLibrary, GenericChipDetails, getGenericChipDef } from "../model/chip/ChipLibrary";
 import { GhostElementRenderable } from "../rendering/renderables/grid-elements/GhostElementRenderable";
 import { Netlist, NodeType } from "../model/netlist/Netlist";
@@ -20,7 +19,7 @@ import { ElementRenderable } from "../rendering/renderables/grid-elements/Elemen
 import { Chip } from "../controller/objectControllers.ts/Chip";
 import { EditorUI } from "../../ui/EditorUI";
 import { Sidebar } from "../../ui/sidebar/Sidebar";
-import { NetlistBehaviour, TruthtableBehaviour } from "../model/chip/ChipBehaviour";
+import { TruthtableBehaviour } from "../model/chip/ChipBehaviour";
 
 export interface SuccessState {
   errorText?: string;

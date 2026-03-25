@@ -5,7 +5,6 @@ import { RenderManager } from "../rendering/RenderManager";
 import { WorkingChip } from "../model/WorkingChip";
 import { MathUtils } from "../../utils/MathUtils";
 import { TempWireRenderable } from "../rendering/renderables/wires/TempWireRenderable";
-import { TempWire } from "./objectControllers.ts/TempWire";
 import { Chip } from "./objectControllers.ts/Chip";
 import { MoveElementAction } from "../actions/action-types/MoveElementAction";
 import { Camera } from "../rendering/Camera";
@@ -15,9 +14,8 @@ import { CreateConnectionAction } from "../actions/action-types/CreateConnection
 import { Wire } from "./objectControllers.ts/Wire";
 import { NodeType } from "../model/netlist/Netlist";
 import { BoundingBox } from "../rendering/renderables/Renderable";
-import { Value } from "../model/netlist/Value";
 import { InvertInputAction } from "../actions/action-types/InvertInputAction";
-import { CreateChipElementAction, generateCreateElementAction } from "../actions/action-types/CreateElementAction";
+import { generateCreateElementAction } from "../actions/action-types/CreateElementAction";
 import { ChipLibrary } from "../model/chip/ChipLibrary";
 import { OutputPin } from "../model/chip/Pins";
 

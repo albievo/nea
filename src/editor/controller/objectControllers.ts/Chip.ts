@@ -7,7 +7,6 @@ import { GridElementRenderable } from "../../rendering/renderables/grid-elements
 import { PermWire } from "./PermWire";
 import { InteractionState } from "../InteractionState";
 import { Value } from "../../model/netlist/Value";
-import { ChipBehaviour } from "../../model/chip/ChipBehaviour";
 import { ChipLibrary } from "../../model/chip/ChipLibrary";
 
 export class Chip {
