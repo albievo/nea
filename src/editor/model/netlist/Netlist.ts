@@ -193,10 +193,10 @@ export class Netlist {
       this.outputNodeIds = GeneralUtils.removeValue(this.outputNodeIds, id);
     }
 
+    this.nodesById.delete(id); // add this before the filter
+
     // -- remove node from canonical table --
-    this.nodes = this.nodes.filter(
-      node => node.getId() !== id
-    );
+    this.nodes = this.nodes.filter(n => n.getId() !== id);
   }
 
   private validateNewNode(node: NetlistNode): string | null {

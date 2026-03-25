@@ -41,9 +41,8 @@ export class ActionDoer {
 
     if (action.undoable) {
       this.undoStack.push(action);
+      this.redoStack.clear();
     }
-
-    this.redoStack.clear();
 
     return true;
   }
